@@ -1,0 +1,24 @@
+#!/bin/bash -exu
+
+function main() {
+  local root_dir
+  root_dir="${1}"
+
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${root_dir}/infrastructure-ci"
+    pushd infrastructure-ci > /dev/null
+      export GO15VENDOREXPERIMENT=1
+      ginkgo \
+        -p \
+        -r \
+        -race \
+        -randomizeAllSpecs \
+        -randomizeSuites \
+        "$@" \
+        .
+    popd > /dev/null
+  popd > /dev/null
+}
+
+main "${PWD}"

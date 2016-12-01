@@ -4,6 +4,7 @@ groups:
   jobs:
   - check-git-submodules
   - test-confab
+  - consats-linux
 
 resources:
 - name: infrastructure-ci
@@ -17,6 +18,29 @@ resources:
     branch: develop
     ignore_paths: [.final_builds, releases]
     uri: https://github.com/cloudfoundry-incubator/consul-release.git
+
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+- name: windows-stemcell
+  type: s3
+  source:
+    bucket: bosh-windows-stemcells
+    regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-windows2012R2-go_agent.tgz
+
+- name: bosh-aws-cpi-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/bosh-aws-cpi-release
+- name: latest-consul-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/consul-release
+- name: turbulence-release
+  type: bosh-io-release
+  source:
+    repository: cppforlife/turbulence-release
 
 jobs:
 - name: check-git-submodules
@@ -45,3 +69,46 @@ jobs:
       trigger: true
   - task: test-confab
     file: ci/scripts/test-confab/task.yml
+
+- name: consats-linux
+  public: true
+  serial: true
+  serial_groups: [consats]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [test-confab]
+      trigger: true
+    - get: stemcell
+      resource: aws-stemcell
+    - get: windows-stemcell
+    - get: turbulence-release
+    - get: bosh-aws-cpi-release
+    - get: latest-consul-release
+  - task: consats-linux
+    file: ci/scripts/run-consats/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      AWS_REGION: {{infrastructure_account_aws_default_region}}
+      AWS_SECURITY_GROUP_NAME: {{infrastructure_account_aws_security_group_name}}
+      AWS_SUBNETS: {{infrastructure_account_aws_subnets}}
+      AWS_CLOUD_CONFIG_SUBNETS: {{infrastructure_account_aws_cloud_config_subnets}}
+      AWS_DEFAULT_KEY_NAME: {{infrastructure_account_aws_default_key_name}}
+      BOSH_DIRECTOR: {{bosh_director}}
+      BOSH_USER: {{bosh_username}}
+      BOSH_PASSWORD: {{bosh_password}}
+      BOSH_DIRECTOR_CA_CERT: {{bosh_director_ca_cert}}
+      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{bosh_errand_cloud_config_network_static_ip}}
+      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{bosh_errand_cloud_config_network_az}}
+      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{bosh_errand_cloud_config_network_name}}
+      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_PERSISTENT_DISK_TYPE: 1GB
+      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_VM_TYPE: m3.medium
+      REGISTRY_USERNAME: {{registry_username}}
+      REGISTRY_PASSWORD: {{registry_password}}
+      REGISTRY_HOST: 10.0.0.6
+      PARALLEL_NODES: 7
+      ENABLE_TURBULENCE_TESTS: false

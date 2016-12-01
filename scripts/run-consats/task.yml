@@ -1,0 +1,43 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: ci
+  - name: consul-release
+  - name: stemcell
+  - name: windows-stemcell
+  - name: turbulence-release
+  - name: bosh-aws-cpi-release
+  - name: latest-consul-release
+
+run:
+  path: ci/scripts/run-consats/task
+
+params:
+  AWS_ACCESS_KEY_ID:
+  AWS_REGION:
+  AWS_SECRET_ACCESS_KEY:
+  AWS_SECURITY_GROUP_NAME:
+  AWS_CLOUD_CONFIG_SUBNETS:
+  AWS_SUBNETS:
+  AWS_DEFAULT_KEYPAIR_NAME:
+  BOSH_DIRECTOR_CA_CERT:
+  BOSH_PASSWORD:
+  BOSH_DIRECTOR:
+  BOSH_USER:
+  BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_PERSISTENT_DISK_TYPE:
+  BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_VM_TYPE:
+  BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME:
+  BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP:
+  BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ:
+  REGISTRY_PASSWORD:
+  REGISTRY_USERNAME:
+  REGISTRY_HOST:
+  PARALLEL_NODES:
+  ENABLE_TURBULENCE_TESTS:
+  WINDOWS_CLIENTS:
