@@ -8,6 +8,7 @@ groups:
   - consats-linux-turbulence
   - consats-windows
   - consats-windows-turbulence
+  - deploy-with-cf
 
 resources:
 - name: infrastructure-ci
@@ -21,6 +22,12 @@ resources:
     branch: develop
     ignore_paths: [.final_builds, releases]
     uri: https://github.com/cloudfoundry-incubator/consul-release.git
+- name: consul-cf-env
+  type: git
+  source:
+    branch: master
+    private_key: {{consul-cf-env-private-key}}
+    uri: git@github.com:cloudfoundry/consul-cf-env.git
 
 - name: aws-stemcell
   type: bosh-io-stemcell
@@ -32,6 +39,11 @@ resources:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-windows2012R2-go_agent.tgz
 
+- name: cf-release
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/cloudfoundry/cf-release.git
 - name: bosh-aws-cpi-release
   type: bosh-io-release
   source:
@@ -246,3 +258,26 @@ jobs:
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
+
+- name: deploy-with-cf
+  public: true
+  serial_groups: [cf]
+  plan:
+  - aggregate:
+    - get: consul-cf-env
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [consats-linux-turbulence]
+      trigger: true
+    - get: cf-release
+    - get: stemcell
+      resource: aws-stemcell
+  - task: deploy-consul-cf
+    file: ci/scripts/deploy-consul-cf/task.yml
+    params:
+      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
+      BOSH_USER: {{consul_cf_bosh_user}}
+      BOSH_PASSWORD: {{consul_cf_bosh_password}}
+      CF_DEPLOYMENT_TRACE: true

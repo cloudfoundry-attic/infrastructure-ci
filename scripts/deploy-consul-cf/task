@@ -1,0 +1,101 @@
+#!/bin/bash -exu
+
+function preflight_check() {
+  set +x
+  test -n "${BOSH_DIRECTOR}"
+  test -n "${BOSH_USER}"
+  test -n "${BOSH_PASSWORD}"
+  set -x
+}
+
+function deploy() {
+  bosh \
+    -n \
+    -t "${1}" \
+    -d "${2}" \
+    deploy
+}
+
+function generate_releases_stub() {
+  local build_dir
+  build_dir="${1}"
+
+  cat <<EOF
+---
+releases:
+- name: cf
+  version: create
+  url: file://${build_dir}/cf-release
+- name: consul
+  version: create
+  url: file://${build_dir}/consul-release
+EOF
+}
+
+function generate_stemcell_stub() {
+  cat <<EOF
+---
+meta:
+  stemcell:
+  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+  version: latest
+EOF
+}
+
+function generate_job_templates_stub() {
+  cat <<EOF
+meta:
+  <<: (( merge ))
+  etcd_templates:
+  - name: etcd
+  release: cf
+  - name: etcd_metrics_server
+  release: cf
+  consul_templates:
+  - name: consul_agent
+  release: consul
+EOF
+}
+
+function upload_stemcell() {
+  local root_dir
+  root_dir="${1}"
+
+  pushd "${root_dir}/stemcell" > /dev/null
+    bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
+  popd > /dev/null
+}
+
+function main() {
+  local root_dir
+  root_dir="${PWD}"
+
+  preflight_check
+
+  mkdir -p stubs
+
+  upload_stemcell "${root_dir}"
+
+  pushd stubs > /dev/null
+    generate_releases_stub ${root_dir} > releases.yml
+    generate_stemcell_stub > stemcells.yml
+    generate_job_templates_stub > job_templates.yml
+  popd > /dev/null
+
+  "${root_dir}/cf-release/scripts/generate_deployment_manifest" \
+    "aws" \
+    "${root_dir}/stubs/releases.yml" \
+    "${root_dir}/stubs/stemcells.yml" \
+    "${root_dir}/stubs/job_templates.yml" \
+    "${root_dir}/consul-cf-env/stubs/director-uuid.yml" \
+    "${root_dir}/consul-cf-env/stubs/cf/diego.yml" \
+    "${root_dir}/consul-cf-env/stubs/cf/properties.yml" \
+    "${root_dir}/consul-cf-env/stubs/cf/stub.yml" \
+    > "${root_dir}/cf.yml"
+
+  deploy \
+    "${BOSH_DIRECTOR}" \
+    "${root_dir}/cf.yml"
+}
+
+main
