@@ -1,0 +1,32 @@
+---
+groups:
+- name: consul
+  jobs:
+  - check-git-submodules
+
+resources:
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+- name: consul-release-develop
+  type: git
+  source:
+    branch: develop
+    ignore_paths: [.final_builds, releases]
+    uri: https://github.com/cloudfoundry-incubator/consul-release.git
+
+jobs:
+- name: check-git-submodules
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: repo
+      resource: consul-release-develop
+      trigger: true
+  - task: check-git-submodules
+    file: ci/scripts/check-git-submodules/task.yml
