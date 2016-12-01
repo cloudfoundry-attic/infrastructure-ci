@@ -3,6 +3,7 @@ groups:
 - name: consul
   jobs:
   - check-git-submodules
+  - test-confab
 
 resources:
 - name: infrastructure-ci
@@ -30,3 +31,17 @@ jobs:
       trigger: true
   - task: check-git-submodules
     file: ci/scripts/check-git-submodules/task.yml
+
+- name: test-confab
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [check-git-submodules]
+      trigger: true
+  - task: test-confab
+    file: ci/scripts/test-confab/task.yml
