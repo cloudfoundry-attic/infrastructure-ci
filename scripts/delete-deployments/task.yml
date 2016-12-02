@@ -10,7 +10,7 @@ inputs:
   - name: ci
 
 run:
-  path: ci/scripts/delete-deployments/task.sh
+  path: ci/scripts/delete-deployments/task
 
 params:
   BOSH_DIRECTOR:
