@@ -11,4 +11,4 @@ inputs:
 - name: bosh-bootloader
 
 run:
-  path: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+  path: ci/scripts/bosh-bootloader/test-bosh-bootloader/task
