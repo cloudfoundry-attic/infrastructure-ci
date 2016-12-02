@@ -3,6 +3,7 @@ groups:
 - name: bosh-bootloader
   jobs:
   - test-bosh-bootloader
+  - aws-integration-tests
 
 resources:
 - name: infrastructure-ci
@@ -15,6 +16,13 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
+- name: bbl-integration-s3
+  type: s3
+  source:
+    bucket: bbl-integration-tests
+    regexp: (.*).tgz
+    access_key_id: {{bbl_integration_tests_s3_access_key_id}}
+    secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
 
 jobs:
 - name: test-bosh-bootloader
@@ -29,3 +37,23 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
+- name: aws-integration-tests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [test-bosh-bootloader]
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/aws-integration/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_REGION: {{aws_region}}
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
