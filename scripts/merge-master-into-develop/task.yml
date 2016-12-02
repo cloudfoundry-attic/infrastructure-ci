@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/minimal
+
+inputs:
+  - name: ci
+  - name: release-repo
+  - name: release-repo-master
+
+outputs:
+  - name: final-release-repo
+
+run:
+  path: ci/scripts/merge-master-into-develop/task
+
+params: {}

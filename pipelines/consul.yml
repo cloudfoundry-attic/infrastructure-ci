@@ -13,6 +13,7 @@ groups:
   - run-cats
   - delete-cf-deployments
   - create-final-release
+  - merge-master-into-develop
 
 resources:
 - name: infrastructure-ci
@@ -32,6 +33,13 @@ resources:
   type: git
   source:
     branch: master
+    private_key: {{consul-release-private-key}}
+    uri: git@github.com:cloudfoundry-incubator/consul-release.git
+
+- name: consul-release-merge-target
+  type: git
+  source:
+    branch: develop
     private_key: {{consul-release-private-key}}
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
@@ -399,3 +407,21 @@ jobs:
       repository: final-release-repo
       tag: final-release-repo/version_number
       tag_prefix: v
+
+- name: merge-master-into-develop
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: release-repo-master
+      resource: consul-release-master
+      trigger: true
+    - get: release-repo
+      resource: consul-release-merge-target
+  - task: merge-master-into-develop
+    file: ci/scripts/merge-master-into-develop/task.yml
+  - put: consul-release-merge-target
+    params:
+      repository: final-release-repo
