@@ -11,6 +11,7 @@ groups:
   - deploy-with-cf
   - deploy-with-diego
   - run-cats
+  - delete-cf-deployments
 
 resources:
 - name: infrastructure-ci
@@ -333,3 +334,22 @@ jobs:
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
       DEPLOYMENT_NAME: consul-cf-deployment
+
+- name: delete-cf-deployments
+  public: true
+  serial_groups: [cf]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [run-cats]
+      trigger: true
+  - task: delete-deployments
+    file: ci/scripts/delete-deployments/task.yml
+    params:
+      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
+      BOSH_USER: {{consul_cf_bosh_user}}
+      BOSH_PASSWORD: {{consul_cf_bosh_password}}
+      DEPLOYMENTS_WITH_WORD: consul-cf-deployment
