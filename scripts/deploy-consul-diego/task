@@ -50,7 +50,7 @@ function main() {
   upload_release "cloudfoundry/garden-runc-release"
   upload_release "cloudfoundry-incubator/etcd-release"
 
-  deploy_diego "${PWD}"
+  deploy_diego "${root_dir}"
 }
 
 main "${PWD}"
