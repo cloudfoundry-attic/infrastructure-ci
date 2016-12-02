@@ -9,6 +9,7 @@ groups:
   - consats-windows
   - consats-windows-turbulence
   - deploy-with-cf
+  - deploy-with-diego
 
 resources:
 - name: infrastructure-ci
@@ -44,6 +45,12 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/cf-release.git
+- name: diego-release-master
+  type: git
+  source:
+    branch: master
+    ignore_paths: [.final_builds, releases]
+    uri: https://github.com/cloudfoundry/diego-release.git
 - name: bosh-aws-cpi-release
   type: bosh-io-release
   source:
@@ -281,3 +288,26 @@ jobs:
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
       CF_DEPLOYMENT_TRACE: true
+
+- name: deploy-with-diego
+  public: true
+  serial_groups: [cf]
+  plan:
+  - aggregate:
+    - get: consul-cf-env
+    - get: ci
+      resource: infrastructure-ci
+    - get: diego-release
+      resource: diego-release-master
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [deploy-with-cf]
+      trigger: true
+    - get: stemcell
+      resource: aws-stemcell
+  - task: deploy-consul-diego
+    file: ci/scripts/deploy-consul-diego/task.yml
+    params:
+      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
+      BOSH_USER: {{consul_cf_bosh_user}}
+      BOSH_PASSWORD: {{consul_cf_bosh_password}}
