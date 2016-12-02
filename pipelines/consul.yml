@@ -287,7 +287,6 @@ jobs:
       BOSH_DIRECTOR: {{consul_cf_bosh_director}}
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
-      CF_DEPLOYMENT_TRACE: true
 
 - name: deploy-with-diego
   public: true

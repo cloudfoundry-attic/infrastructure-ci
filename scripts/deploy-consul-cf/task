@@ -83,7 +83,7 @@ function main() {
     generate_job_templates_stub > job_templates.yml
   popd > /dev/null
 
-  "${root_dir}/cf-release/scripts/generate_deployment_manifest" \
+  CF_DEPLOYMENT_TRACE=true "${root_dir}/cf-release/scripts/generate_deployment_manifest" \
     "aws" \
     "${root_dir}/stubs/releases.yml" \
     "${root_dir}/stubs/stemcells.yml" \
