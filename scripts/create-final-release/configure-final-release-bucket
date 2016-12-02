@@ -16,7 +16,7 @@ function main() {
   release_config_dir="${3}"
 
   check_dependencies
-  check_credentials "${credentials_dir}" "${AWS_DEFAULT_REGION}" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
+  check_credentials "${credentials_dir}"
   apply_cloudformation_template "${release_name}" "${script_dir}"
   write_private_yaml "${release_name}" "${credentials_dir}" "${release_config_dir}"
 }
@@ -38,28 +38,19 @@ function check_credentials() {
   local credentials_dir
   credentials_dir="${1}"
 
-  local region
-  region="${2}"
-
-  local access_key_id
-  access_key_id="${3}"
-
-  local secret_access_key
-  secret_access_key="${4}"
-
   source "${credentials_dir}/aws_environment"
 
-  if [[ -z "${region}" ]]; then
+  if [[ -z "${AWS_DEFAULT_REGION}" ]]; then
     echo "AWS_DEFAULT_REGION is not set"
     exit 1
   fi
 
-  if [[ -z "${access_key_id}" ]]; then
+  if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
     echo "AWS_ACCESS_KEY_ID is not set"
     exit 1
   fi
 
-  if [[ -z "${secret_access_key}" ]]; then
+  if [[ -z "${AWS_SECRET_ACCESS_KEY}" ]]; then
     echo "AWS_SECRET_ACCESS_KEY is not set"
     exit 1
   fi
