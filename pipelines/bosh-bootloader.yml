@@ -1,0 +1,31 @@
+---
+groups:
+- name: bosh-bootloader
+  jobs:
+  - test-bosh-bootloader
+
+resources:
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+- name: bosh-bootloader-develop
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/cloudfoundry/bosh-bootloader.git
+
+jobs:
+- name: test-bosh-bootloader
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+

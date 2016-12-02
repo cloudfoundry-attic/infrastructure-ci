@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/golang
+
+inputs:
+- name: ci
+- name: bosh-bootloader
+
+run:
+  path: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
