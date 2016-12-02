@@ -10,6 +10,7 @@ groups:
   - consats-windows-turbulence
   - deploy-with-cf
   - deploy-with-diego
+  - run-cats
 
 resources:
 - name: infrastructure-ci
@@ -310,3 +311,25 @@ jobs:
       BOSH_DIRECTOR: {{consul_cf_bosh_director}}
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
+
+- name: run-cats
+  public: true
+  serial_groups: [cf]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-develop
+      passed: [deploy-with-diego]
+      trigger: true
+  - task: run-cats
+    file: ci/scripts/run-cats/task.yml
+    params:
+      CF_DOMAIN: {{consul_cf_domain}}
+      CF_USER: {{consul_cf_user}}
+      CF_PASSWORD: {{consul_cf_password}}
+      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
+      BOSH_USER: {{consul_cf_bosh_user}}
+      BOSH_PASSWORD: {{consul_cf_bosh_password}}
+      DEPLOYMENT_NAME: consul-cf-deployment
