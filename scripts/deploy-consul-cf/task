@@ -37,8 +37,8 @@ function generate_stemcell_stub() {
 ---
 meta:
   stemcell:
-  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-  version: latest
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    version: latest
 EOF
 }
 
@@ -48,12 +48,13 @@ meta:
   <<: (( merge ))
   etcd_templates:
   - name: etcd
-  release: cf
+    release: cf
   - name: etcd_metrics_server
-  release: cf
+    release: cf
+
   consul_templates:
   - name: consul_agent
-  release: consul
+    release: consul
 EOF
 }
 
