@@ -8,12 +8,12 @@ image_resource:
 
 inputs:
   - name: bosh-bootloader
-  - name: mega-ci
+  - name: ci
 outputs:
   - name: bbl-integration-s3
 
 run:
-  path: mega-ci/scripts/ci/bosh-bootloader/aws_integration
+  path: ci/scripts/bosh-bootloader/aws-integration/task
 
 params:
   AWS_REGION:
