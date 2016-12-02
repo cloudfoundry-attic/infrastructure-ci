@@ -12,6 +12,7 @@ groups:
   - deploy-with-diego
   - run-cats
   - delete-cf-deployments
+  - create-final-release
 
 resources:
 - name: infrastructure-ci
@@ -19,12 +20,21 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
 - name: consul-release-develop
   type: git
   source:
     branch: develop
     ignore_paths: [.final_builds, releases]
     uri: https://github.com/cloudfoundry-incubator/consul-release.git
+
+- name: consul-release-master
+  type: git
+  source:
+    branch: master
+    private_key: {{consul-release-private-key}}
+    uri: git@github.com:cloudfoundry-incubator/consul-release.git
+
 - name: consul-cf-env
   type: git
   source:
@@ -47,24 +57,35 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/cf-release.git
+
 - name: diego-release-master
   type: git
   source:
     branch: master
     ignore_paths: [.final_builds, releases]
     uri: https://github.com/cloudfoundry/diego-release.git
+
 - name: bosh-aws-cpi-release
   type: bosh-io-release
   source:
     repository: cloudfoundry-incubator/bosh-aws-cpi-release
+
 - name: latest-consul-release
   type: bosh-io-release
   source:
     repository: cloudfoundry-incubator/consul-release
+
 - name: turbulence-release
   type: bosh-io-release
   source:
     repository: cppforlife/turbulence-release
+
+- name: oss-s3-buckets-stack
+  type: git
+  source:
+    branch: master
+    private_key: {{oss-s3-buckets-stack-private-key}}
+    uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
 
 jobs:
 - name: check-git-submodules
@@ -353,3 +374,28 @@ jobs:
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
       DEPLOYMENTS_WITH_WORD: consul-cf-deployment
+
+- name: create-final-release
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: oss-s3-buckets-stack
+      resource: oss-s3-buckets-stack
+    - get: release-repo
+      resource: consul-release-develop
+      passed: [delete-cf-deployments]
+      trigger: true
+    - get: release-repo-master
+      resource: consul-release-master
+  - task: create-final-release
+    file: ci/scripts/create-final-release/task.yml
+    params:
+      RELEASE_NAME: consul
+  - put: consul-release-master
+    params:
+      repository: final-release-repo
+      tag: final-release-repo/version_number
+      tag_prefix: v
