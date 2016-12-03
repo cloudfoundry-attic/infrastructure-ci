@@ -1,0 +1,27 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/vagrant
+
+inputs:
+  - name: ci
+  - name: bosh-lite
+  - name: release
+  - name: bosh-lite-stemcell
+
+params:
+  BOSH_AWS_ACCESS_KEY_ID:
+  BOSH_AWS_SECRET_ACCESS_KEY:
+  BOSH_LITE_SECURITY_GROUP:
+  BOSH_LITE_SUBNET_ID:
+  BOSH_LITE_NAME:
+  BOSH_LITE_KEYPAIR:
+  BOSH_LITE_PRIVATE_KEY_CONTENTS:
+  MANIFESTS:
+  DEPENDENCIES:
+
+run:
+  path: ci/scripts/deploy-bosh-lite-manifests/task

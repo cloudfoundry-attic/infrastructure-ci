@@ -1,0 +1,84 @@
+#!/bin/bash -exu
+
+function main() {
+  local root_dir
+  root_dir="${1}"
+
+  setup_env
+  deploy_boshlite
+  upload_stemcell
+  upload_dependencies
+  create_and_upload_release
+  deploy_manifests
+}
+
+function setup_env() {
+  set +x
+  export BOSH_USER="admin"
+  export BOSH_PASSWORD="admin"
+
+  export BOSH_LITE_PRIVATE_KEY="${root_dir}/bosh-lite.pem"
+  echo "${BOSH_LITE_PRIVATE_KEY_CONTENTS}" > "${BOSH_LITE_PRIVATE_KEY}"
+  set -x
+}
+
+function deploy_boshlite() {
+  pushd "${root_dir}/bosh-lite" > /dev/null
+    vagrant up --provider=aws
+    export BOSH_DIRECTOR="$(vagrant ssh-config 2>/dev/null | grep HostName | awk '{print $2}')"
+
+    target_director
+  popd > /dev/null
+}
+
+function target_director() {
+  set +e
+  local rc
+  rc=1
+
+  while [ "${rc}" -ne "0" ]; do
+    sleep 10
+    curl -k -s "https://${BOSH_DIRECTOR}:25555/info" > /dev/null
+    rc=$?
+  done
+  set -e
+
+  bosh target "${BOSH_DIRECTOR}"
+}
+
+function upload_stemcell() {
+  bosh upload stemcell "${root_dir}/bosh-lite-stemcell/stemcell.tgz"
+}
+
+function upload_dependencies() {
+  for dependency in "${DEPENDENCIES}"; do
+    bosh -n upload release "https://bosh.io/d/github.com/${dependency}"
+  done
+}
+
+function create_and_upload_release() {
+  pushd "${root_dir}/release" > /dev/null
+    bosh -n create release --force
+    bosh -n upload release
+  popd > /dev/null
+}
+
+function deploy_manifests() {
+  pushd "${root_dir}/release" > /dev/null
+    for manifest in "${MANIFESTS}"; do
+      sed -i -e "s/BOSH-DIRECTOR-UUID/$(bosh status --uuid)/g" "${manifest}"
+      bosh -d "${manifest}" -n deploy
+      bosh -n delete deployment "$(bosh deployments | grep bosh-warden-boshlite | awk '{print $2}')"
+    done
+  popd > /dev/null
+}
+
+function destroy_boshlite() {
+  pushd "${root_dir}/bosh-lite" > /dev/null
+    vagrant destroy -f
+  popd > /dev/null
+}
+
+trap destroy_boshlite EXIT
+
+main "${PWD}"

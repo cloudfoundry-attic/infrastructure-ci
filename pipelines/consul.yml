@@ -14,6 +14,7 @@ groups:
   - delete-cf-deployments
   - create-final-release
   - merge-master-into-develop
+  - deploy-bosh-lite-manifests
 
 resources:
 - name: infrastructure-ci
@@ -94,6 +95,17 @@ resources:
     branch: master
     private_key: {{oss-s3-buckets-stack-private-key}}
     uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
+
+- name: bosh-lite
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-lite.git
+
+- name: bosh-lite-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
 
 jobs:
 - name: check-git-submodules
@@ -425,3 +437,27 @@ jobs:
   - put: consul-release-merge-target
     params:
       repository: final-release-repo
+
+- name: deploy-bosh-lite-manifests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-lite
+    - get: bosh-lite-stemcell
+    - get: release
+      resource: consul-release-develop
+      passed: [consats-linux-turbulence]
+      trigger: true
+  - task: deploy-bosh-lite-manifests
+    file: ci/scripts/deploy-bosh-lite-manifests/task.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
+      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
+      BOSH_LITE_NAME: bosh-lite-consul
+      BOSH_LITE_KEYPAIR: bosh-lite
+      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh-lite-private-key}}
+      MANIFESTS: "manifests/bosh-lite/3-node-with-ssl.yml"
