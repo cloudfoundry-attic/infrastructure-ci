@@ -55,6 +55,7 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+
 - name: windows-stemcell
   type: s3
   source:
