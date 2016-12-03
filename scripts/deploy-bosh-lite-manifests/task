@@ -1,9 +1,6 @@
 #!/bin/bash -exu
 
 function main() {
-  local root_dir
-  root_dir="${1}"
-
   setup_env
   deploy_boshlite
   upload_stemcell
@@ -17,13 +14,13 @@ function setup_env() {
   export BOSH_USER="admin"
   export BOSH_PASSWORD="admin"
 
-  export BOSH_LITE_PRIVATE_KEY="${root_dir}/bosh-lite.pem"
+  export BOSH_LITE_PRIVATE_KEY="${PWD}/bosh-lite.pem"
   echo "${BOSH_LITE_PRIVATE_KEY_CONTENTS}" > "${BOSH_LITE_PRIVATE_KEY}"
   set -x
 }
 
 function deploy_boshlite() {
-  pushd "${root_dir}/bosh-lite" > /dev/null
+  pushd "${PWD}/bosh-lite" > /dev/null
     vagrant up --provider=aws
     export BOSH_DIRECTOR="$(vagrant ssh-config 2>/dev/null | grep HostName | awk '{print $2}')"
 
@@ -47,7 +44,7 @@ function target_director() {
 }
 
 function upload_stemcell() {
-  bosh upload stemcell "${root_dir}/bosh-lite-stemcell/stemcell.tgz"
+  bosh upload stemcell "${PWD}/bosh-lite-stemcell/stemcell.tgz"
 }
 
 function upload_dependencies() {
@@ -57,14 +54,14 @@ function upload_dependencies() {
 }
 
 function create_and_upload_release() {
-  pushd "${root_dir}/release" > /dev/null
+  pushd "${PWD}/release" > /dev/null
     bosh -n create release --force
     bosh -n upload release
   popd > /dev/null
 }
 
 function deploy_manifests() {
-  pushd "${root_dir}/release" > /dev/null
+  pushd "${PWD}/release" > /dev/null
     for manifest in ${MANIFESTS}; do
       sed -i -e "s/BOSH-DIRECTOR-UUID/$(bosh status --uuid)/g" "${manifest}"
       bosh -d "${manifest}" -n deploy
@@ -74,7 +71,7 @@ function deploy_manifests() {
 }
 
 function destroy_boshlite() {
-  pushd "${root_dir}/bosh-lite" > /dev/null
+  pushd "${PWD}/bosh-lite" > /dev/null
     vagrant destroy -f
   popd > /dev/null
 }
