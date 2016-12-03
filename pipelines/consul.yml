@@ -15,6 +15,10 @@ groups:
   - create-final-release
   - merge-master-into-develop
   - deploy-bosh-lite-manifests
+- name: cleanup
+  jobs:
+  - delete-consats-linux-deployments
+  - delete-consats-windows-deployments
 
 resources:
 - name: infrastructure-ci
@@ -164,10 +168,10 @@ jobs:
       AWS_SUBNETS: {{infrastructure_account_aws_subnets}}
       AWS_CLOUD_CONFIG_SUBNETS: {{infrastructure_account_aws_cloud_config_subnets}}
       AWS_DEFAULT_KEY_NAME: {{infrastructure_account_aws_default_key_name}}
-      BOSH_DIRECTOR: {{bosh_director}}
-      BOSH_USER: {{bosh_username}}
-      BOSH_PASSWORD: {{bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{bosh_director_ca_cert}}
+      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
+      BOSH_USER: {{consats_linux_bosh_username}}
+      BOSH_PASSWORD: {{consats_linux_bosh_password}}
+      BOSH_DIRECTOR_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{bosh_errand_cloud_config_network_static_ip}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{bosh_errand_cloud_config_network_az}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{bosh_errand_cloud_config_network_name}}
@@ -207,10 +211,10 @@ jobs:
       AWS_SUBNETS: {{infrastructure_account_aws_subnets}}
       AWS_CLOUD_CONFIG_SUBNETS: {{infrastructure_account_aws_cloud_config_subnets}}
       AWS_DEFAULT_KEY_NAME: {{infrastructure_account_aws_default_key_name}}
-      BOSH_DIRECTOR: {{bosh_director}}
-      BOSH_USER: {{bosh_username}}
-      BOSH_PASSWORD: {{bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{bosh_director_ca_cert}}
+      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
+      BOSH_USER: {{consats_linux_bosh_username}}
+      BOSH_PASSWORD: {{consats_linux_bosh_password}}
+      BOSH_DIRECTOR_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{bosh_errand_cloud_config_network_static_ip}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{bosh_errand_cloud_config_network_az}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{bosh_errand_cloud_config_network_name}}
@@ -250,10 +254,10 @@ jobs:
       AWS_SUBNETS: {{windows_aws_subnets}}
       AWS_CLOUD_CONFIG_SUBNETS: {{windows_aws_cloud_config_subnets}}
       AWS_DEFAULT_KEY_NAME: {{windows_aws_default_key_name}}
-      BOSH_DIRECTOR: {{windows_bosh_director}}
-      BOSH_USER: {{windows_bosh_username}}
-      BOSH_PASSWORD: {{windows_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{windows_bosh_director_ca_cert}}
+      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
+      BOSH_USER: {{consats_windows_bosh_username}}
+      BOSH_PASSWORD: {{consats_windows_bosh_password}}
+      BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{windows_bosh_errand_cloud_config_network_static_ip}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{windows_bosh_errand_cloud_config_network_az}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{windows_bosh_errand_cloud_config_network_name}}
@@ -294,10 +298,10 @@ jobs:
       AWS_SUBNETS: {{windows_aws_subnets}}
       AWS_CLOUD_CONFIG_SUBNETS: {{windows_aws_cloud_config_subnets}}
       AWS_DEFAULT_KEY_NAME: {{windows_aws_default_key_name}}
-      BOSH_DIRECTOR: {{windows_bosh_director}}
-      BOSH_USER: {{windows_bosh_username}}
-      BOSH_PASSWORD: {{windows_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{windows_bosh_director_ca_cert}}
+      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
+      BOSH_USER: {{consats_windows_bosh_username}}
+      BOSH_PASSWORD: {{consats_windows_bosh_password}}
+      BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{windows_bosh_errand_cloud_config_network_static_ip}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{windows_bosh_errand_cloud_config_network_az}}
       BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{windows_bosh_errand_cloud_config_network_name}}
@@ -462,3 +466,35 @@ jobs:
       BOSH_LITE_KEYPAIR: bosh-lite
       BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh-lite-private-key}}
       MANIFESTS: "manifests/bosh-lite/3-node-with-ssl.yml"
+
+- name: delete-consats-linux-deployments
+  public: false
+  serial: true
+  serial_groups: [consats-linux]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+  - task: delete-deployments
+    file: ci/scripts/delete-deployments/task.yml
+    params:
+      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
+      BOSH_USER: {{consats_linux_bosh_username}}
+      BOSH_PASSWORD: {{consats_linux_bosh_password}}
+      DEPLOYMENTS_WITH_WORD: consul
+
+- name: delete-consats-windows-deployments
+  public: false
+  serial: true
+  serial_groups: [consats-windows]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+  - task: delete-deployments
+    file: ci/scripts/delete-deployments/task.yml
+    params:
+      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
+      BOSH_USER: {{consats_windows_bosh_username}}
+      BOSH_PASSWORD: {{consats_windows_bosh_password}}
+      DEPLOYMENTS_WITH_WORD: consul
