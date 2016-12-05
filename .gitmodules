@@ -1,0 +1,15 @@
+[submodule "scripts/deploy-aws-manifests/vendor/github.com/aws/aws-sdk-go"]
+        path = scripts/deploy-aws-manifests/vendor/github.com/aws/aws-sdk-go
+        url = https://github.com/aws/aws-sdk-go.git
+[submodule "scripts/deploy-aws-manifests/vendor/github.com/pivotal-cf-experimental/bosh-test"]
+        path = scripts/deploy-aws-manifests/vendor/github.com/pivotal-cf-experimental/bosh-test
+        url = https://github.com/pivotal-cf-experimental/bosh-test.git
+[submodule "scripts/run-consats/vendor/github.com/pivotal-cf-experimental/gomegamatchers"]
+        path = scripts/run-consats/vendor/github.com/pivotal-cf-experimental/gomegamatchers
+        url = https://github.com/pivotal-cf-experimental/gomegamatchers.git
+[submodule "scripts/run-consats/vendor/gopkg.in/yaml.v2"]
+        path = scripts/run-consats/vendor/gopkg.in/yaml.v2
+        url = https://gopkg.in/yaml.v2
+[submodule "scripts/deploy-aws-manifests/vendor/gopkg.in/yaml.v2"]
+        path = scripts/deploy-aws-manifests/vendor/gopkg.in/yaml.v2
+        url = https://gopkg.in/yaml.v2
