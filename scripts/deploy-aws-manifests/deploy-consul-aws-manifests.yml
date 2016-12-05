@@ -1,0 +1,24 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: infrastructure-ci
+  - name: release
+
+params:
+  BOSH_DIRECTOR:
+  BOSH_USER:
+  BOSH_PASSWORD:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+  AWS_DEFAULT_REGION:
+  MANIFEST_PATH:
+
+run:
+  path: infrastructure-ci/scripts/deploy-aws-manifests/deploy-consul-aws-manifests
+

@@ -1,0 +1,49 @@
+#!/bin/bash -exu
+
+export GO15VENDOREXPERIMENT=1
+
+consul_release_version="99999+dev.$(date +%s)"
+
+function upload_consul_release() {
+  pushd "${root_dir}/release" > /dev/null
+    bosh -n create release --force --version ${consul_release_version}
+    bosh -n -t ${BOSH_DIRECTOR} upload release --rebase
+  popd > /dev/null
+}
+
+function deploy_consul() {
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${root_dir}/infrastructure-ci"
+    pushd ./infrastructure-ci/scripts/deploy-aws-manifests > /dev/null
+      set +x
+      go run main.go \
+        --manifest-path "${root_dir}/release/${MANIFEST_PATH}" \
+        --director "https://${BOSH_DIRECTOR}:25555" \
+        --user "${BOSH_USER}" \
+        --password "${BOSH_PASSWORD}" \
+        --aws-access-key-id "${AWS_ACCESS_KEY_ID}" \
+        --aws-secret-access-key "${AWS_SECRET_ACCESS_KEY}" \
+        --aws-region "${AWS_DEFAULT_REGION}"
+      set -x
+    popd > /dev/null
+  popd > /dev/null
+}
+
+function main() {
+  local root_dir
+  root_dir="${1}"
+
+  upload_consul_release
+  deploy_consul
+}
+
+function teardown() {
+  set +e
+  bosh -n -t ${BOSH_DIRECTOR} delete release consul ${consul_release_version}
+  set -e
+}
+
+trap teardown EXIT
+
+main "${PWD}"
