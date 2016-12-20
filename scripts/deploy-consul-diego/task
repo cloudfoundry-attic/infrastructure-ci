@@ -11,6 +11,7 @@ function deploy_diego() {
       -c "${root_dir}/cf.yml" \
       -i "${root_dir}/consul-cf-env/stubs/diego/iaas-settings.yml" \
       -p "${root_dir}/consul-cf-env/stubs/diego/property-overrides.yml" \
+      -s "${root_dir}/consul-cf-env/stubs/diego/diego-sql.yml" \
       -n "${root_dir}/consul-cf-env/stubs/diego/instance-count-overrides.yml" \
       -v "${root_dir}/consul-cf-env/stubs/diego/release-versions.yml" \
       -g \
