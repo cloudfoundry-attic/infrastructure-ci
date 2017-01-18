@@ -1,0 +1,168 @@
+---
+groups:
+- name: infrastructure-ci
+  jobs:
+  - minimal-docker-image
+  - golang-docker-image
+  - deployment-docker-image
+  - vagrant-docker-image
+  - infrastructure-ci-unit-tests
+
+resources:
+- name: infrastructure-ci-master
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+
+- name: deployment-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/deployment
+
+- name: golang-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/golang
+
+- name: vagrant-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/vagrant
+
+- name: minimal-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/minimal
+
+- name: ubuntu-docker-image
+  type: docker-image
+  source:
+    repository: ubuntu
+    tag: "14.04"
+
+- name: minimal-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/minimal
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: golang-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/golang
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: deployment-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: vagrant-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/vagrant
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+jobs:
+- name: minimal-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: ubuntu-docker-image
+        trigger: true
+        params:
+          skip_download: true
+      - get: infrastructure-ci
+        resource: minimal-dockerfile
+        trigger: true
+    - put: minimal-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/minimal
+        cache: false
+
+- name: golang-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: minimal-docker-image
+        passed: [minimal-docker-image]
+        trigger: true
+        params:
+          skip_download: true
+      - get: infrastructure-ci
+        resource: golang-dockerfile
+        trigger: true
+    - put: golang-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/golang
+        cache: false
+
+- name: deployment-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: golang-docker-image
+        passed: [golang-docker-image]
+        trigger: true
+        params:
+          skip_download: true
+      - get: infrastructure-ci
+        resource: deployment-dockerfile
+        trigger: true
+    - put: deployment-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/deployment
+        cache: false
+
+- name: vagrant-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: deployment-docker-image
+        passed: [deployment-docker-image]
+        trigger: true
+        params:
+          skip_download: true
+      - get: infrastructure-ci
+        resource: vagrant-dockerfile
+        trigger: true
+    - put: vagrant-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/vagrant
+        cache: false
+
+- name: infrastructure-ci-unit-tests
+  public: true
+  plan:
+  - do:
+    - get: infrastructure-ci
+      resource: infrastructure-ci-master
+      trigger: true
+    - task: infrastructure-ci-tests
+      file: infrastructure-ci/scripts/infrastructure-ci/task.yml
