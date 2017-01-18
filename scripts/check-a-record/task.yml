@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/golang
+
+inputs:
+- name: check-a-record
+- name: ci
+
+run:
+  path: ci/scripts/check-a-record/task

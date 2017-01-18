@@ -1,0 +1,29 @@
+groups:
+- name: check-a-record
+  jobs:
+  - test-check-a-record
+
+resources:
+- name: check-a-record
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry-incubator/check-a-record.git
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+jobs:
+- name: test-check-a-record
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: check-a-record
+      trigger: true
+  - task: test
+    file: ci/scripts/check-a-record/task.yml
+
