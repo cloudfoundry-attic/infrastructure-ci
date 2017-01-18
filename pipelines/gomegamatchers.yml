@@ -13,7 +13,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry/mega-ci.git
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
 jobs:
 - name: test-gomegamatchers
