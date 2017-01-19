@@ -1,21 +1,43 @@
----
 groups:
 - name: bosh-bootloader
   jobs:
   - test-bosh-bootloader
   - aws-integration-tests
+  - gcp-integration-tests
+  - concourse-integration-tests
+- name: final-release
+  jobs:
+  - major
+  - minor
+  - patch
+  - github-release
+- name: release-updates
+  jobs:
+  - build-compiled-bosh-release
+  - update-release-constants
 
 resources:
-- name: infrastructure-ci
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/infrastructure-ci.git
 - name: bosh-bootloader-develop
   type: git
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
+- name: bosh-bootloader-develop-write
+  type: git
+  source:
+    branch: develop
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+- name: bosh-bootloader-master
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-bootloader.git
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
 - name: bbl-integration-s3
   type: s3
   source:
@@ -23,6 +45,48 @@ resources:
     regexp: (.*).tgz
     access_key_id: {{bbl_integration_tests_s3_access_key_id}}
     secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+- name: version
+  type: semver
+  source:
+    initial_version: 0.0.1
+    driver: s3
+    bucket: bbl-version
+    key: bbl-version
+    access_key_id: {{bbl_version_s3_access_key_id}}
+    secret_access_key: {{bbl_version_s3_secret_access_key}}
+- name: bbl-release
+  type: github-release
+  source:
+    user: cloudfoundry
+    repository: bosh-bootloader
+    access_token: {{cf_infra_bot_user_github_access_token}}
+- name: bbl-compiled-bosh-release-s3
+  type: s3
+  source:
+    bucket: bbl-precompiled-bosh-releases
+    regexp: release-bosh-(.*)-on-ubuntu-trusty-stemcell-(.*).tgz
+    access_key_id: {{bbl_compiled_bosh_release_s3_access_key_id}}
+    secret_access_key: {{bbl_compiled_bosh_release_s3_secret_access_key}}
+- name: bosh-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry/bosh
+- name: bosh-aws-cpi-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/bosh-aws-cpi-release
+- name: bosh-google-cpi-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/bosh-google-cpi-release
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+- name: gcp-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
 
 jobs:
 - name: test-bosh-bootloader
@@ -41,12 +105,12 @@ jobs:
   public: true
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
       trigger: true
+    - get: ci
+      resource: infrastructure-ci
   - task: test
     file: ci/scripts/bosh-bootloader/aws-integration/task.yml
     params:
@@ -57,3 +121,142 @@ jobs:
       put: bbl-integration-s3
       params:
         file: bbl-integration-s3/*.tgz
+
+- name: gcp-integration-tests
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: test
+    file: ci/scripts/bosh-bootloader/gcp-integration/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
+
+- name: concourse-integration-tests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [aws-integration-tests, gcp-integration-tests]
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_REGION: {{aws_region}}
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
+
+- name: build-compiled-bosh-release
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-release
+      trigger: true
+    - get: stemcell
+      resource: aws-stemcell
+      trigger: true
+  - task: build-compiled-bosh-release
+    file: ci/scripts/compile-bosh-release/task.yml
+    params:
+      BOSH_DIRECTOR: {{mega_bosh_director}}
+      BOSH_USER: {{mega_bosh_user}}
+      BOSH_PASSWORD: {{mega_bosh_password}}
+      RELEASE_NAME: bosh
+  - put: bbl-compiled-bosh-release-s3
+    params:
+      file: compiled-bosh-release/*.tgz
+      acl: public-read
+
+- name: update-release-constants
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+    - get: aws-stemcell
+      passed: [build-compiled-bosh-release]
+    - get: gcp-stemcell
+      trigger: true
+    - get: bbl-compiled-bosh-release-s3
+      trigger: true
+      passed: [build-compiled-bosh-release]
+    - get: bosh-aws-cpi-release
+      trigger: true
+    - get: bosh-google-cpi-release
+      trigger: true
+    - get: bosh-release
+  - task: update-release-constants
+    file: ci/scripts/bosh-bootloader/update-release-constants/task.yml
+  - put: bosh-bootloader-develop-write
+    params:
+      repository: bosh-bootloader-develop-write
+      rebase: true
+
+- name: major
+  public: true
+  plan:
+  - get: version
+  - put: version
+    params: {bump: major}
+
+- name: minor
+  public: true
+  plan:
+  - get: version
+  - put: version
+    params: {bump: minor}
+
+- name: patch
+  public: true
+  plan:
+  - get: version
+  - put: version
+    params: {bump: patch}
+
+- name: github-release
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-version
+      trigger: true
+      resource: version
+    - get: bosh-bootloader
+      resource: bosh-bootloader-master
+  - task: build-binaries
+    file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+  - put: bbl-release
+    params:
+      name: builds/name
+      tag: builds/name
+      commitish: builds/commitish
+      globs:
+      - builds/bin/bbl-*
