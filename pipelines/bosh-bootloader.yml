@@ -102,6 +102,7 @@ jobs:
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
 - name: aws-integration-tests
+  serial: true
   public: true
   plan:
   - aggregate:
@@ -123,6 +124,7 @@ jobs:
         file: bbl-integration-s3/*.tgz
 
 - name: gcp-integration-tests
+  serial: true
   public: true
   plan:
   - aggregate:
@@ -145,6 +147,7 @@ jobs:
         file: bbl-integration-s3/*.tgz
 
 - name: concourse-integration-tests
+  serial: true
   public: true
   plan:
   - aggregate:
