@@ -9,7 +9,7 @@ function preflight_check() {
 }
 
 function deploy() {
-  bosh \
+  /opt/rubies/ruby-2.2.4/bin/bosh \
     -n \
     -t "${1}" \
     -d "${2}" \
@@ -63,7 +63,7 @@ function upload_stemcell() {
   root_dir="${1}"
 
   pushd "${root_dir}/stemcell" > /dev/null
-    bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
+    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
   popd > /dev/null
 }
 

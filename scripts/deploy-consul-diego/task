@@ -4,7 +4,7 @@ function deploy_diego() {
   local root_dir
   root_dir="${1}"
 
-  bosh -t "${BOSH_DIRECTOR}" download manifest consul-cf-deployment cf.yml
+  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" download manifest consul-cf-deployment cf.yml
 
   pushd diego-release > /dev/null
     ./scripts/generate-deployment-manifest \
@@ -18,7 +18,7 @@ function deploy_diego() {
       > "${root_dir}/diego.yml"
   popd > /dev/null
 
-  bosh -n \
+  /opt/rubies/ruby-2.2.4/bin/bosh -n \
     -d diego.yml \
     -t "${BOSH_DIRECTOR}" \
     deploy
@@ -28,7 +28,7 @@ function upload_release() {
   local release
   release="${1}"
 
-  bosh -t "${BOSH_DIRECTOR}" upload release "https://bosh.io/d/github.com/${release}"
+  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload release "https://bosh.io/d/github.com/${release}"
 }
 
 function upload_stemcell() {
@@ -36,7 +36,7 @@ function upload_stemcell() {
   root_dir="${1}"
 
   pushd "${root_dir}/stemcell" > /dev/null
-    bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
+    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
   popd > /dev/null
 }
 
