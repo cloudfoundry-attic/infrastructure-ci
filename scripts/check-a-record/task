@@ -4,6 +4,8 @@ ROOT="${PWD}"
 
 mkdir -p "${GOPATH}/src/github.com/pivotal-cf-experimental"
 
+sudo echo nameserver 127.0.0.1 > /etc/resolv.conf
+
 pushd "${GOPATH}/src/github.com/pivotal-cf-experimental" > /dev/null
   ln -s "${ROOT}/check-a-record"
   ./check-a-record/scripts/ci/test
