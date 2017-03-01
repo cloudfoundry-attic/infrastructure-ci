@@ -3,6 +3,7 @@
 export ROOT="${PWD}"
 export STEMCELL_VERSION=$(cat "${ROOT}"/stemcell/version)
 export RELEASE_VERSION=$(cat "${ROOT}"/bosh-release/version)
+export BOSH_DEPLOYMENT="compilation_${RELEASE_NAME}"
 
 function main() {
   upload_stemcell
@@ -14,18 +15,17 @@ function main() {
 function force_compilation() {
   pushd /tmp > /dev/null
     sed \
-      -e "s/REPLACE_ME_DIRECTOR_UUID/$(/opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" status --uuid)/g" \
       -e "s/REPLACE_ME_RELEASE_VERSION/${RELEASE_VERSION}/g" \
       -e "s/REPLACE_ME_RELEASE_NAME/${RELEASE_NAME}/g" \
       "${ROOT}/ci/scripts/compile-bosh-release/fixtures/compilation.yml" > "compilation.yml"
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "/tmp/compilation.yml" -n deploy
+    bosh -n deploy "/tmp/compilation.yml"
   popd > /dev/null
 
   pushd "${ROOT}/compiled-bosh-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "/tmp/compilation.yml" export release "${RELEASE_NAME}/${RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    bosh export-release "${RELEASE_NAME}/${RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
   popd > /dev/null
 
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -n delete deployment "compilation_${RELEASE_NAME}"
+  bosh -n delete-deployment
 }
 
 function check_existing_release_in_bucket() {
@@ -45,18 +45,18 @@ function check_existing_release_in_bucket() {
 
 function upload_stemcell() {
   pushd "${ROOT}/stemcell" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload stemcell stemcell.tgz --skip-if-exists
+    bosh upload-stemcell stemcell.tgz
   popd > /dev/null
 }
 
 function upload_release() {
   pushd "${ROOT}/bosh-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload release release.tgz --skip-if-exists
+    bosh upload-release release.tgz
   popd > /dev/null
 }
 
 function cleanup_releases() {
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -n cleanup
+  bosh -n clean-up
 }
 
 function rollup() {

@@ -186,9 +186,10 @@ jobs:
   - task: build-compiled-bosh-release
     file: ci/scripts/compile-bosh-release/task.yml
     params:
-      BOSH_DIRECTOR: {{mega_bosh_director}}
-      BOSH_USER: {{mega_bosh_user}}
-      BOSH_PASSWORD: {{mega_bosh_password}}
+      BOSH_ENVIRONMENT: {{mega_bosh_director}}
+      BOSH_CA_CERT: {{mega_bosh_ca_cert}}
+      BOSH_CLIENT: {{mega_bosh_user}}
+      BOSH_CLIENT_SECRET: {{mega_bosh_password}}
       RELEASE_NAME: bosh
   - put: bbl-compiled-bosh-release-s3
     params:

@@ -15,10 +15,10 @@ run:
   path: ci/scripts/compile-bosh-release/task.sh
 
 params:
-  BOSH_DIRECTOR:
-  BOSH_USER:
-  BOSH_PASSWORD:
-  BOSH_DIRECTOR_CA_CERT:
+  BOSH_ENVIRONMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_CA_CERT:
   RELEASE_NAME:
 
 outputs:
