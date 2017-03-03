@@ -396,9 +396,10 @@ jobs:
   - task: delete-deployments
     file: ci/scripts/delete-deployments/task.yml
     params:
-      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
-      BOSH_USER: {{consul_cf_bosh_user}}
-      BOSH_PASSWORD: {{consul_cf_bosh_password}}
+      BOSH_ENVIRONMENT: {{consul_cf_bosh_director}}
+      BOSH_CLIENT: {{consul_cf_bosh_user}}
+      BOSH_CLIENT_SECRET: {{consul_cf_bosh_password}}
+      BOSH_CA_CERT: {{consul_cf_bosh_ca_cert}}
       DEPLOYMENTS_WITH_WORD: consul-cf-deployment
 
 - name: create-final-release
