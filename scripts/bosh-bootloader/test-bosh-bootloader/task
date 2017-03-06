@@ -2,9 +2,28 @@
 
 ROOT="${PWD}"
 
-mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+# This should be removed once bbl works with bosh 2.0.x
+function install_bosh_cli() {
+  pushd "${ROOT}" > /dev/null
+    wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-0.0.147-linux-amd64
+    mv bosh-cli-0.0.147-linux-amd64 /usr/local/bin/bosh
+    chmod +x /usr/local/bin/bosh
+  popd > /dev/null
+}
 
-pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-  ln -s "${ROOT}/bosh-bootloader"
-  chpst -u testuser:testuser ./bosh-bootloader/scripts/test
-popd > /dev/null
+function main() {
+  # This should be removed once bbl works with bosh 2.0.x
+  install_bosh_cli
+
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${ROOT}/bosh-bootloader"
+    local username
+    username="testuser"
+    chown ${username}:${username} /home/${username}
+    chpst -u ${username}:${username} env HOME=/home/${username} ./bosh-bootloader/scripts/test
+  popd > /dev/null
+}
+
+main
