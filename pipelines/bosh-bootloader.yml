@@ -11,10 +11,6 @@ groups:
   - minor
   - patch
   - github-release
-- name: release-updates
-  jobs:
-  - build-compiled-bosh-release
-  - update-release-constants
 
 resources:
 - name: bosh-bootloader-develop
@@ -22,12 +18,6 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
-- name: bosh-bootloader-develop-write
-  type: git
-  source:
-    branch: develop
-    uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
 - name: bosh-bootloader-master
   type: git
   source:
@@ -60,33 +50,6 @@ resources:
     user: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
-- name: bbl-compiled-bosh-release-s3
-  type: s3
-  source:
-    bucket: bbl-precompiled-bosh-releases
-    regexp: release-bosh-(.*)-on-ubuntu-trusty-stemcell-(.*).tgz
-    access_key_id: {{bbl_compiled_bosh_release_s3_access_key_id}}
-    secret_access_key: {{bbl_compiled_bosh_release_s3_secret_access_key}}
-- name: bosh-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry/bosh
-- name: bosh-aws-cpi-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-incubator/bosh-aws-cpi-release
-- name: bosh-google-cpi-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-incubator/bosh-google-cpi-release
-- name: aws-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-- name: gcp-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-trusty-go_agent
 
 jobs:
 - name: test-bosh-bootloader
@@ -171,57 +134,6 @@ jobs:
       put: bbl-integration-s3
       params:
         file: bbl-integration-s3/*.tgz
-
-- name: build-compiled-bosh-release
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-release
-      trigger: true
-    - get: stemcell
-      resource: aws-stemcell
-      trigger: true
-  - task: build-compiled-bosh-release
-    file: ci/scripts/compile-bosh-release/task.yml
-    params:
-      BOSH_ENVIRONMENT: {{mega_bosh_director}}
-      BOSH_CA_CERT: {{mega_bosh_ca_cert}}
-      BOSH_CLIENT: {{mega_bosh_user}}
-      BOSH_CLIENT_SECRET: {{mega_bosh_password}}
-      RELEASE_NAME: bosh
-  - put: bbl-compiled-bosh-release-s3
-    params:
-      file: compiled-bosh-release/*.tgz
-      acl: public-read
-
-- name: update-release-constants
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-    - get: aws-stemcell
-      passed: [build-compiled-bosh-release]
-    - get: gcp-stemcell
-      trigger: true
-    - get: bbl-compiled-bosh-release-s3
-      trigger: true
-      passed: [build-compiled-bosh-release]
-    - get: bosh-aws-cpi-release
-      trigger: true
-    - get: bosh-google-cpi-release
-      trigger: true
-    - get: bosh-release
-  - task: update-release-constants
-    file: ci/scripts/bosh-bootloader/update-release-constants/task.yml
-  - put: bosh-bootloader-develop-write
-    params:
-      repository: bosh-bootloader-develop-write
-      rebase: true
 
 - name: major
   public: true
