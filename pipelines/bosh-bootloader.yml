@@ -5,17 +5,17 @@ groups:
   - aws-integration-tests
   - gcp-integration-tests
   - concourse-integration-tests
+- name: cf-deployment
+  jobs:
+  - bbl-downstream-docker-image
+  - bbl-downstream-setup-env
+  - bbl-downstream-destroy-env
 - name: final-release
   jobs:
   - major
   - minor
   - patch
   - github-release
-- name: cf-deployment
-  jobs:
-  - downstream-infrastructure-docker-image
-  - setup-infrastructure
-  - destroy-infrastructure
 - name: smoke-tests
   jobs:
   - test-with-latest-terraform
@@ -185,6 +185,87 @@ jobs:
       params:
         file: bbl-integration-s3/*.tgz
 
+# CF Deployment Pipeline
+- name: bbl-downstream-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: bosh-bootloader
+        resource: bosh-bootloader-develop
+        passed: [aws-integration-tests, gcp-integration-tests]
+        trigger: true
+      - get: cf-deployment-concourse-tasks-docker-image
+        trigger: true
+      - get: infrastructure-ci
+        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
+        trigger: true
+    - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
+        cache: false
+
+- name: bbl-downstream-setup-env
+  serial_groups: [downstream]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-env
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: us-east1
+      BBL_GCP_ZONE: us-east1-b
+      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
+      BBL_ENV_NAME: bbl-downstream
+      BBL_STATE_DIR: bbl-downstream-env
+    input_mapping:
+      bbl-state: infrastructure-ci-env
+    ensure:
+      put: infrastructure-ci-env
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: bbl-downstream-destroy-env
+  serial_groups: [downstream]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-setup-env]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-env
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  - task: destroy-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-downstream-env
+    input_mapping:
+      bbl-state: infrastructure-ci-env
+    ensure:
+      put: infrastructure-ci-env
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
 # Final Release Pipeline
 - name: major
   public: true
@@ -228,74 +309,7 @@ jobs:
       globs:
       - builds/bin/bbl-*
 
-# CF Deployment Pipeline
-- name: downstream-infrastructure-docker-image
-  public: true
-  plan:
-  - do:
-    - aggregate:
-      - get: cf-deployment-concourse-tasks-docker-image
-        trigger: true
-      - get: infrastructure-ci
-        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
-        trigger: true
-    - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      params:
-        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
-        cache: false
-
-- name: setup-infrastructure
-  serial_groups: [downstream]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: infrastructure-ci-env
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [downstream-infrastructure-docker-image]
-  - task: setup-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: us-east1
-      BBL_GCP_ZONE: us-east1-b
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
-      BBL_ENV_NAME: bbl-downstream
-      BBL_STATE_DIR: bbl-downstream-env
-    input_mapping:
-      bbl-state: infrastructure-ci-env
-    ensure:
-      put: infrastructure-ci-env
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: destroy-infrastructure
-  serial_groups: [downstream]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: infrastructure-ci-env
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [setup-infrastructure]
-  - task: destroy-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      bbl-state: infrastructure-ci-env
-    ensure:
-      put: infrastructure-ci-env
-      params:
-        repository: updated-bbl-state
-        rebase: true
+# Smoke-tests
 
 - name: test-with-latest-terraform
   serial: true
