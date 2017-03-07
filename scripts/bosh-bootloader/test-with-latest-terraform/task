@@ -20,9 +20,9 @@ function install_terraform() {
   terraform_url="https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_darwin_amd64.zip"
 
   wget "${terraform_url}"
-  unzip "$(basename ${terraform_url})"
-  chmod +x terraform
-  mv terraform /usr/local/bin/terraform
+  unzip "$(basename ${terraform_url})" -d /tmp
+  chmod +x /tmp/terraform
+  mv /tmp/terraform /usr/local/bin/terraform
 
   terraform version
 }
