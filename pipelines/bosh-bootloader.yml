@@ -16,6 +16,9 @@ groups:
   - downstream-infrastructure-docker-image
   - setup-infrastructure
   - destroy-infrastructure
+- name: smoke-tests
+  jobs:
+  - test-with-latest-terraform
 
 resources:
 - name: bosh-bootloader-develop
@@ -61,6 +64,11 @@ resources:
     user: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
+- name: terraform
+  type: github-release
+  source:
+    user: hashicorp
+    repository: terraform
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
@@ -288,3 +296,27 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+
+- name: test-with-latest-terraform
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [test-bosh-bootloader]
+    - get: ci
+      resource: infrastructure-ci
+    - get: terraform
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/test-with-latest-terraform/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
