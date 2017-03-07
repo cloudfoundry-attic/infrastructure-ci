@@ -2,19 +2,7 @@
 
 ROOT="${PWD}"
 
-# This should be removed once bbl works with bosh 2.0.x
-function install_bosh_cli() {
-  pushd "${ROOT}" > /dev/null
-    wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-0.0.147-linux-amd64
-    mv bosh-cli-0.0.147-linux-amd64 /usr/local/bin/bosh
-    chmod +x /usr/local/bin/bosh
-  popd > /dev/null
-}
-
 function main() {
-  # This should be removed once bbl works with bosh 2.0.x
-  install_bosh_cli
-
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
