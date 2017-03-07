@@ -22,7 +22,9 @@ function main() {
     local username
     username="testuser"
     chown ${username}:${username} /home/${username}
-    chpst -u ${username}:${username} env HOME=/home/${username} ./bosh-bootloader/scripts/test
+    local user_home
+    user_home=$(eval echo "~${username}")
+    chpst -u ${username}:${username} env HOME=${user_home} ./bosh-bootloader/scripts/test
   popd > /dev/null
 }
 

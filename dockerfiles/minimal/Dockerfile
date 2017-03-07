@@ -16,6 +16,5 @@ RUN \
       apt-get clean
 
 # Create testuser
-RUN mkdir -p /home/testuser && \
-	groupadd -r testuser -g 433 && \
-	useradd -u 431 -r -g testuser -d /home/testuser -s /usr/sbin/nologin -c "Docker image test user" testuser
+RUN groupadd -r testuser -g 433 && \
+	useradd -u 431 -r -g testuser -s /usr/sbin/nologin -c "Docker image test user" testuser
