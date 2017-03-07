@@ -21,8 +21,6 @@ function main() {
     ln -s "${ROOT}/bosh-bootloader"
     local username
     username="testuser"
-    chown ${username}:${username} /home/${username}
-    local user_home
     chpst -u ${username}:${username} env HOME=/home/${username} ./bosh-bootloader/scripts/test
   popd > /dev/null
 }
