@@ -19,6 +19,7 @@ groups:
 - name: smoke-tests
   jobs:
   - test-with-latest-terraform
+  - test-with-latest-bosh-cli
 
 resources:
 - name: bosh-bootloader-develop
@@ -69,6 +70,11 @@ resources:
   source:
     user: hashicorp
     repository: terraform
+- name: bosh-cli
+  type: s3
+  source:
+    bucket: bosh-cli-artifacts
+    regexp: bosh-cli-(.*)-linux-amd64
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
@@ -311,7 +317,6 @@ jobs:
       - builds/bin/bbl-*
 
 # Smoke-tests
-
 - name: test-with-latest-terraform
   serial: true
   public: true
@@ -332,6 +337,31 @@ jobs:
       GCP_REGION: {{gcp_region}}
       GCP_ZONE: {{gcp_zone}}
       GCP_ENV_PREFIX: latest-terraform-
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
+
+- name: test-with-latest-bosh-cli
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [test-bosh-bootloader]
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-cli
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+      GCP_ENV_PREFIX: latest-bosh-cli-
     on_failure:
       put: bbl-integration-s3
       params:
