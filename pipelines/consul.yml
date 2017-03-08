@@ -500,9 +500,10 @@ jobs:
   - task: delete-deployments
     file: ci/scripts/delete-deployments/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
-      BOSH_USER: {{consats_linux_bosh_username}}
-      BOSH_PASSWORD: {{consats_linux_bosh_password}}
+      BOSH_ENVIRONMENT: {{consats_linux_bosh_director}}
+      BOSH_CLIENT: {{consats_linux_bosh_username}}
+      BOSH_CLIENT_SECRET: {{consats_linux_bosh_password}}
+      BOSH_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
       DEPLOYMENTS_WITH_WORD: consul
 
 - name: delete-consats-windows-deployments
@@ -516,7 +517,8 @@ jobs:
   - task: delete-deployments
     file: ci/scripts/delete-deployments/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
-      BOSH_USER: {{consats_windows_bosh_username}}
-      BOSH_PASSWORD: {{consats_windows_bosh_password}}
+      BOSH_ENVIRONMENT: {{consats_windows_bosh_director}}
+      BOSH_CLIENT: {{consats_windows_bosh_username}}
+      BOSH_CLIENT_SECRET: {{consats_windows_bosh_password}}
+      BOSH_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
       DEPLOYMENTS_WITH_WORD: consul
