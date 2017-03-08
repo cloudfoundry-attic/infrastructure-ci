@@ -1,0 +1,26 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+
+function main() {
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+  pushd "${ROOT}/bosh-bootloader" > /dev/null
+    git submodule update --remote --checkout -- vendor/github.com/cloudfoundry/bosh-deployment
+
+    go get -u github.com/jteeuwen/go-bindata/...
+    go-bindata -o bosh/bosh_deployment_files.go vendor/github.com/cloudfoundry/bosh-deployment/...
+
+    sed -i -- 's/^package main$/package bosh/g' bosh/bosh_deployment_files.go
+
+    git config user.email "cf-infrastructure@pivotal.io"
+    git config user.name "cf-infra-bot"
+
+    git checkout -b "bump-bosh-deployment-ci"
+    git commit -am 'Update bosh-deployment submodule'
+
+    cp -r . ${ROOT}/bump-bosh-deployment-ci
+  popd > /dev/null
+}
+
+main
