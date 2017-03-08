@@ -154,6 +154,7 @@ jobs:
       GCP_PROJECT_ID: {{gcp_project_id}}
       GCP_REGION: {{gcp_region}}
       GCP_ZONE: {{gcp_zone}}
+      GCP_ENV_PREFIX: gcp-integration-
     on_failure:
       put: bbl-integration-s3
       params:
@@ -330,6 +331,7 @@ jobs:
       GCP_PROJECT_ID: {{gcp_project_id}}
       GCP_REGION: {{gcp_region}}
       GCP_ZONE: {{gcp_zone}}
+      GCP_ENV_PREFIX: latest-terraform-
     on_failure:
       put: bbl-integration-s3
       params:

@@ -20,3 +20,4 @@ params:
   GCP_PROJECT_ID:
   GCP_REGION:
   GCP_ZONE:
+  GCP_ENV_PREFIX:
