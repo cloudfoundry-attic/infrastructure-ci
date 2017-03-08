@@ -1,0 +1,136 @@
+groups:
+- name: bosh-deployment
+  jobs:
+  - update-bosh-deployment-submodule
+  - test-bosh-bootloader
+  - aws-integration-tests
+  - gcp-integration-tests
+  - commit-bosh-deployment-change
+
+resources:
+- name: bosh-deployment-master
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+- name: bosh-bootloader-develop
+  type: git
+  source:
+    branch: develop
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+- name: bosh-bootloader-bump-bosh-deployment-ci
+  type: git
+  source:
+    branch: bump-bosh-deployment-ci
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+- name: bbl-integration-s3
+  type: s3
+  source:
+    bucket: bbl-integration-tests
+    regexp: (.*).tgz
+    access_key_id: {{bbl_integration_tests_s3_access_key_id}}
+    secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+
+jobs:
+- name: commit-bosh-deployment-change
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader-bumped
+      resource: bosh-bootloader-bump-bosh-deployment-ci
+      passed: [aws-integration-tests, gcp-integration-tests]
+      trigger: true
+  - task: commit-bosh-deployment-change
+    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
+  - put: bosh-bootloader-develop
+    resource: bosh-bootloader-develop
+    params:
+      repository: bosh-bootloader-develop
+
+- name: update-bosh-deployment-submodule
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+    - get: bosh-deployment
+      resource: bosh-deployment-master
+      trigger: true
+  - task: update-bosh-deployment-submodule
+    file: ci/scripts/bosh-deployment/update-bosh-deployment-submodule/task.yml
+  - put: bump-bosh-deployment-ci
+    resource: bosh-bootloader-bump-bosh-deployment-ci
+    params:
+      repository: bump-bosh-deployment-ci
+      force: true
+
+- name: test-bosh-bootloader
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-bosh-deployment-ci
+      passed: [update-bosh-deployment-submodule]
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+
+- name: aws-integration-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-bosh-deployment-ci
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: test
+    file: ci/scripts/bosh-bootloader/aws-integration/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_REGION: {{aws_region}}
+      BBL_TEST_ENV_ID_PREFIX: bosh-deployment
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
+
+- name: gcp-integration-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-bosh-deployment-ci
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: test
+    file: ci/scripts/bosh-bootloader/gcp-integration/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+      BBL_TEST_ENV_ID_PREFIX: bosh-deployment
+    on_failure:
+      put: bbl-integration-s3
+      params:
+        file: bbl-integration-s3/*.tgz
