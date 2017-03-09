@@ -1,0 +1,25 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: ci
+  - name: bbl-states-repo
+
+outputs:
+  - name: bbl-states-repo-out
+
+run:
+  path: ci/scripts/infrastructure/bbl-up/task
+
+params:
+  BBL_GCP_SERVICE_ACCOUNT_KEY:
+  BBL_GCP_PROJECT_ID:
+  BBL_GCP_REGION:
+  BBL_GCP_ZONE:
+  BBL_STATE_DIR:
+  BBL_NAME:

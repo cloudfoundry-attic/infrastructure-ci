@@ -1,0 +1,89 @@
+#!/bin/bash -exu
+
+export BBL_IAAS="gcp"
+
+function check_fast_fails() {
+  set +x
+  if [ -z "${BBL_GCP_SERVICE_ACCOUNT_KEY}" ]; then
+    echo "\$BBL_GCP_SERVICE_ACCOUNT_KEY is a required parameter for gcp.  Please set the BBL_GCP_SERVICE_ACCOUNT_KEY."
+    exit 1
+  fi
+
+  if [ -z "${BBL_GCP_PROJECT_ID}" ]; then
+    echo "\$BBL_GCP_PROJECT_ID is a required parameter for gcp.  Please set the BBL_GCP_PROJECT_ID."
+    exit 1
+  fi
+
+  if [ -z "${BBL_GCP_REGION}" ]; then
+    echo "\$BBL_GCP_REGION is a required parameter for gcp.  Please set the BBL_GCP_REGION."
+    exit 1
+  fi
+
+  if [ -z "${BBL_GCP_ZONE}" ]; then
+    echo "\$BBL_GCP_ZONE is a required parameter for gcp.  Please set the BBL_GCP_ZONE."
+    exit 1
+  fi
+
+  if [ -z "${BBL_STATE_DIR}" ]; then
+    echo "\$BBL_STATE_DIR is a required parameter for gcp.  Please set the BBL_STATE_DIR."
+    exit 1
+  fi
+
+  if [ -z "${BBL_NAME}" ]; then
+    echo "\$BBL_NAME is a required parameter for gcp.  Please set the BBL_NAME."
+    exit 1
+  fi
+  set -x
+}
+
+function install_bbl() {
+  local bbl_path
+  bbl_path=${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader
+  git clone --branch develop https://github.com/cloudfoundry/bosh-bootloader ${bbl_path}
+  pushd ${bbl_path}
+    git submodule update --init --recursive
+  popd
+  go install github.com/cloudfoundry/bosh-bootloader/bbl
+}
+
+function pathify_service_account_key() {
+  local service_account_key_path
+  service_account_key_path=/tmp/bbl_gcp_service_account_key
+  echo ${BBL_GCP_SERVICE_ACCOUNT_KEY} > ${service_account_key_path}
+  export BBL_GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
+}
+
+function main() {
+  local root_dir
+  root_dir="${1}"
+
+  check_fast_fails
+  install_bbl
+  pathify_service_account_key
+
+  mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
+  bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" up --name ${BBL_NAME} > bbl_up.log
+}
+
+function commit_bbl_state_file() {
+  local root_dir
+  root_dir="${1}"
+
+  pushd "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
+    if [[ -n $(git status --porcelain) ]]; then
+      git config user.name "CI Infra Bot"
+      git config user.email "cf-infrastructure@pivotal.io"
+      git add bbl-state.json
+      git commit -m "Update ${BBL_NAME} bbl-state.json"
+    fi
+  popd
+
+  pushd "${root_dir}"
+    shopt -s dotglob
+    cp -R bbl-states-repo/* bbl-states-repo-out/
+  popd
+}
+
+trap "commit_bbl_state_file ${PWD}" EXIT
+
+main ${PWD}
