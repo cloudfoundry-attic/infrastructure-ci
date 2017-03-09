@@ -133,7 +133,10 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: "['bosh-bootloader/test-bosh-bootloader'] failed"
+        text: |
+          ['bosh-bootloader/test-bosh-bootloader'] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: aws-integration-tests
   serial: true
@@ -160,7 +163,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-bootloader/aws-integration-tests'] failed"
+          text: |
+            ['bosh-bootloader/aws-integration-tests'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: gcp-integration-tests
   serial: true
@@ -188,7 +194,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-bootloader/gcp-integration-tests'] failed"
+          text: |
+            ['bosh-bootloader/gcp-integration-tests'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: concourse-integration-tests
   serial: true
@@ -219,7 +228,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-bootloader/concourse-integration-tests'] failed"
+          text: |
+            ['bosh-bootloader/concourse-integration-tests'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # Smoke-tests
 - name: test-with-latest-terraform
@@ -249,7 +261,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-bootloader/test-with-latest-terraform'] failed"
+          text: |
+            ['bosh-bootloader/test-with-latest-terraform'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: test-with-latest-bosh-cli
   serial: true
@@ -278,7 +293,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-bootloader/test-with-latest-bosh-cli'] failed"
+          text: |
+            ['bosh-bootloader/test-with-latest-bosh-cli'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # CF Deployment Pipeline
 - name: bbl-downstream-docker-image

@@ -101,7 +101,10 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: "['bosh-deployment/test-bosh-bootloader'] failed"
+        text: |
+            ['bosh-deployment/test-bosh-bootloader'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: aws-integration-tests
   serial: true
@@ -128,7 +131,10 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-deployment/aws-integration-tests'] failed"
+          text: |
+            ['bosh-deployment/aws-integration-tests'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: gcp-integration-tests
   serial: true
@@ -156,4 +162,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: "['bosh-deployment/gcp-integration-tests'] failed"
+          text: |
+            ['bosh-deployment/gcp-integration-tests'] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
