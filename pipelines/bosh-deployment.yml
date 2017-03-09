@@ -7,6 +7,13 @@ groups:
   - gcp-integration-tests
   - commit-bosh-deployment-change
 
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
 - name: bosh-deployment-master
   type: git
@@ -37,6 +44,10 @@ resources:
     regexp: (.*).tgz
     access_key_id: {{bbl_integration_tests_s3_access_key_id}}
     secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
 
 jobs:
 - name: commit-bosh-deployment-change
@@ -87,6 +98,10 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: "['bosh-deployment/test-bosh-bootloader'] failed"
 
 - name: aws-integration-tests
   serial: true
@@ -107,9 +122,13 @@ jobs:
       AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bosh-deployment
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-deployment/aws-integration-tests'] failed"
 
 - name: gcp-integration-tests
   serial: true
@@ -131,6 +150,10 @@ jobs:
       GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bosh-deployment
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-deployment/gcp-integration-tests'] failed"
