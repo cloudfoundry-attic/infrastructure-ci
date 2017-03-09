@@ -21,6 +21,13 @@ groups:
   - patch
   - github-release
 
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
 - name: bosh-bootloader-develop
   type: git
@@ -75,6 +82,10 @@ resources:
   source:
     bucket: bosh-cli-artifacts
     regexp: bosh-cli-(.*)-linux-amd64
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
@@ -119,6 +130,10 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: "['bosh-bootloader/test-bosh-bootloader'] failed"
 
 - name: aws-integration-tests
   serial: true
@@ -139,9 +154,13 @@ jobs:
       AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-bootloader/aws-integration-tests'] failed"
 
 - name: gcp-integration-tests
   serial: true
@@ -163,9 +182,13 @@ jobs:
       GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-bootloader/gcp-integration-tests'] failed"
 
 - name: concourse-integration-tests
   serial: true
@@ -190,9 +213,13 @@ jobs:
       GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-bootloader/concourse-integration-tests'] failed"
 
 # Smoke-tests
 - name: test-with-latest-terraform
@@ -216,9 +243,13 @@ jobs:
       GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-bootloader/test-with-latest-terraform'] failed"
 
 - name: test-with-latest-bosh-cli
   serial: true
@@ -241,9 +272,13 @@ jobs:
       GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
     on_failure:
-      put: bbl-integration-s3
-      params:
-        file: bbl-integration-s3/*.tgz
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: "['bosh-bootloader/test-with-latest-bosh-cli'] failed"
 
 # CF Deployment Pipeline
 - name: bbl-downstream-docker-image
