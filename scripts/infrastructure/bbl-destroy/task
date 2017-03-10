@@ -45,6 +45,7 @@ function main() {
   check_fast_fails
   install_bbl
 
+  mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
   bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" destroy --no-confirm > bbl_destroy.log
 }
 
