@@ -1,5 +1,7 @@
 #!/bin/bash -exu
 
+export BBL_NAME=""
+
 function check_fast_fails() {
   set +x
   if [ -z "${BBL_STATE_DIR}" ]; then
@@ -44,6 +46,8 @@ function main() {
 
   check_fast_fails
   install_bbl
+
+  BBL_NAME="$(bbl --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" env-id)"
 
   mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
   bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" destroy --no-confirm --skip-if-missing > bbl_destroy.log
