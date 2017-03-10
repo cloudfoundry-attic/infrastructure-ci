@@ -44,12 +44,12 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-- name: infrastructure-ci-env
+- name: infrastructure-ci-bbl-states
   type: git
   source:
     branch: master
-    uri: git@github.com:cloudfoundry/infrastructure-ci-env.git
-    private_key: {{infrastructure_ci_env_private_key}}
+    uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
 - name: bbl-integration-s3
   type: s3
   source:
@@ -329,7 +329,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-    - get: infrastructure-ci-env
+    - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
@@ -346,9 +346,9 @@ jobs:
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-downstream-env
     input_mapping:
-      bbl-state: infrastructure-ci-env
+      bbl-state: infrastructure-ci-bbl-states
     ensure:
-      put: infrastructure-ci-env
+      put: infrastructure-ci-bbl-states
       params:
         repository: updated-bbl-state
         rebase: true
@@ -364,7 +364,7 @@ jobs:
       passed: [bbl-downstream-setup-env]
       trigger: true
     - get: cf-deployment-concourse-tasks
-    - get: infrastructure-ci-env
+    - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: destroy-infrastructure
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -372,9 +372,9 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-downstream-env
     input_mapping:
-      bbl-state: infrastructure-ci-env
+      bbl-state: infrastructure-ci-bbl-states
     ensure:
-      put: infrastructure-ci-env
+      put: infrastructure-ci-bbl-states
       params:
         repository: updated-bbl-state
         rebase: true
