@@ -53,6 +53,25 @@ function pathify_service_account_key() {
   export BBL_GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
 }
 
+function commit_bbl_state_file() {
+  local root_dir
+  root_dir="${1}"
+
+  pushd "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    if [[ -n $(git status --porcelain) ]]; then
+      git config user.name "CI Infra Bot"
+      git config user.email "cf-infrastructure@pivotal.io"
+      git add bbl-state.json
+      git commit -m "Update ${BBL_NAME} bbl-state.json"
+    fi
+  popd > /dev/null
+
+  pushd "${root_dir}"
+    shopt -s dotglob
+    cp -R bbl-states-repo/* bbl-states-repo-out/
+  popd
+}
+
 function main() {
   local root_dir
   root_dir="${1}"
@@ -63,25 +82,6 @@ function main() {
 
   mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
   bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" up --name ${BBL_NAME} > bbl_up.log
-}
-
-function commit_bbl_state_file() {
-  local root_dir
-  root_dir="${1}"
-
-  pushd "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
-    if [[ -n $(git status --porcelain) ]]; then
-      git config user.name "CI Infra Bot"
-      git config user.email "cf-infrastructure@pivotal.io"
-      git add bbl-state.json
-      git commit -m "Update ${BBL_NAME} bbl-state.json"
-    fi
-  popd
-
-  pushd "${root_dir}"
-    shopt -s dotglob
-    cp -R bbl-states-repo/* bbl-states-repo-out/
-  popd
 }
 
 trap "commit_bbl_state_file ${PWD}" EXIT

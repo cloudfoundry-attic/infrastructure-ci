@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: ci
+  - name: bbl-states-repo
+
+outputs:
+  - name: bbl-states-repo-out
+
+run:
+  path: ci/scripts/infrastructure/bbl-destroy/task
+
+params:
+  BBL_STATE_DIR:
