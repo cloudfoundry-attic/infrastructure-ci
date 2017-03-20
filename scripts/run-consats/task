@@ -18,7 +18,7 @@ function main() {
   generate_manifest
   force_compilation
 
-  /usr/local/bin/bosh -n deploy "${ROOT}/consats.yml"
+  /usr/local/bin/bosh -d consats -n deploy "${ROOT}/consats.yml"
   /usr/local/bin/bosh -d consats run-errand acceptance-tests
 
   cleanup_deployment "consul"
