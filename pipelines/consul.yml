@@ -24,6 +24,8 @@ groups:
   jobs:
   - setup-consats-linux-infrastructure
   - teardown-consats-linux-infrastructure
+  - setup-consats-windows-infrastructure
+  - teardown-consats-windows-infrastructure
 
 resources:
 - name: infrastructure-ci
