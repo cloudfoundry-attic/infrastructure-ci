@@ -36,8 +36,8 @@ function setup_bosh_env_vars() {
   pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
     export BOSH_DIRECTOR=$(bbl director-address)
     export BOSH_CA_CERT="$(bbl director-ca-cert)"
-    export BOSH_CLIENT=$(bbl director-username)
-    export BOSH_CLIENT_SECRET=$(bbl director-password)
+    export BOSH_USERNAME=$(bbl director-username)
+    export BOSH_PASSWORD=$(bbl director-password)
   popd > /dev/null
   set -x
 }
