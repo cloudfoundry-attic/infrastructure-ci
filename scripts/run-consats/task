@@ -9,8 +9,8 @@ export LATEST_CONSUL_RELEASE_VERSION="$(cat ${ROOT}/latest-consul-release/versio
 function main() {
   setup_bosh_env_vars
 
-  /opt/rubies/ruby-2.2.4/bin/bosh target "${BOSH_ENVIRONMENT}"
-  export BOSH_DIRECTOR_UUID="$(/opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" status --uuid)"
+  /usr/local/bin/bosh target "${BOSH_ENVIRONMENT}"
+  export BOSH_DIRECTOR_UUID="$(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" status --uuid)"
 
   upload_stemcell
   if $WINDOWS_CLIENTS; then
@@ -21,14 +21,14 @@ function main() {
   generate_manifest
   force_compilation
 
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" deployment "${ROOT}/consats.yml"
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n deploy
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" run errand acceptance-tests
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployment "${ROOT}/consats.yml"
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n deploy
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" run errand acceptance-tests
 
   cleanup_deployment "consul"
   cleanup_deployment "turbulence-consul"
 
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n cleanup
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n cleanup
 }
 
 function setup_bosh_env_vars() {
@@ -44,28 +44,28 @@ function setup_bosh_env_vars() {
 
 function upload_stemcell() {
   pushd "${ROOT}/stemcell" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell stemcell.tgz --skip-if-exists
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell stemcell.tgz --skip-if-exists
   popd > /dev/null
 }
 
 function upload_windows_stemcell() {
   pushd "${ROOT}/windows-stemcell" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell light-bosh-stemcell-*-google-kvm-windows2012R2-go_agent.tgz --skip-if-exists
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell light-bosh-stemcell-*-google-kvm-windows2012R2-go_agent.tgz --skip-if-exists
   popd > /dev/null
 }
 
 function upload_releases() {
   pushd "${ROOT}/turbulence-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
   popd > /dev/null
 
   pushd "${ROOT}/consul-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n create release --force --version "${CONSUL_RELEASE_VERSION}"
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n create release --force --version "${CONSUL_RELEASE_VERSION}"
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release
   popd > /dev/null
 
   pushd "${ROOT}/latest-consul-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
   popd > /dev/null
 }
 
@@ -77,10 +77,10 @@ function force_compilation() {
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
       "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
 
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n deploy
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n delete deployment compilation
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n deploy
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n delete deployment compilation
   popd > /dev/null
 }
 
@@ -104,17 +104,17 @@ function cleanup_deployment() {
   local deployment
   deployment="${1}-[A-Za-z0-9]\{8\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{12\}"
 
-  for i in $(/opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep -o "${deployment}" | uniq); do
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment $i
+  for i in $(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep -o "${deployment}" | uniq); do
+    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment $i
   done
 
-  test -z "$(/opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep "${deployment}")"
+  test -z "$(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep "${deployment}")"
 }
 
 function teardown() {
   set +e
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment consats
-  /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete release consul
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment consats
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete release consul
   set -e
 }
 
