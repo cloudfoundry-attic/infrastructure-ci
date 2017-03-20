@@ -254,30 +254,14 @@ jobs:
       resource: aws-stemcell
     - get: windows-stemcell
     - get: turbulence-release
-    - get: bosh-aws-cpi-release
     - get: latest-consul-release
   - task: consats-windows
     file: ci/scripts/run-consats/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      AWS_REGION: {{windows_aws_default_region}}
-      AWS_SECURITY_GROUP_NAME: {{windows_aws_security_group_name}}
-      AWS_SUBNETS: {{windows_aws_subnets}}
-      AWS_CLOUD_CONFIG_SUBNETS: {{windows_aws_cloud_config_subnets}}
-      AWS_DEFAULT_KEY_NAME: {{windows_aws_default_key_name}}
       BOSH_DIRECTOR: {{consats_windows_bosh_director}}
       BOSH_USER: {{consats_windows_bosh_username}}
       BOSH_PASSWORD: {{consats_windows_bosh_password}}
       BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{windows_bosh_errand_cloud_config_network_static_ip}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{windows_bosh_errand_cloud_config_network_az}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{windows_bosh_errand_cloud_config_network_name}}
-      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_PERSISTENT_DISK_TYPE: 1GB
-      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_VM_TYPE: m3.medium
-      REGISTRY_USERNAME: {{windows_registry_username}}
-      REGISTRY_PASSWORD: {{windows_registry_password}}
-      REGISTRY_HOST: 10.0.0.6
       PARALLEL_NODES: 5
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
@@ -298,30 +282,14 @@ jobs:
       resource: aws-stemcell
     - get: windows-stemcell
     - get: turbulence-release
-    - get: bosh-aws-cpi-release
     - get: latest-consul-release
   - task: consats-windows-turbulence
     file: ci/scripts/run-consats/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      AWS_REGION: {{windows_aws_default_region}}
-      AWS_SECURITY_GROUP_NAME: {{windows_aws_security_group_name}}
-      AWS_SUBNETS: {{windows_aws_subnets}}
-      AWS_CLOUD_CONFIG_SUBNETS: {{windows_aws_cloud_config_subnets}}
-      AWS_DEFAULT_KEY_NAME: {{windows_aws_default_key_name}}
       BOSH_DIRECTOR: {{consats_windows_bosh_director}}
       BOSH_USER: {{consats_windows_bosh_username}}
       BOSH_PASSWORD: {{consats_windows_bosh_password}}
       BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP: {{windows_bosh_errand_cloud_config_network_static_ip}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ: {{windows_bosh_errand_cloud_config_network_az}}
-      BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME: {{windows_bosh_errand_cloud_config_network_name}}
-      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_PERSISTENT_DISK_TYPE: 1GB
-      BOSH_ERRAND_CLOUD_CONFIG_DEFAULT_VM_TYPE: m3.medium
-      REGISTRY_USERNAME: {{windows_registry_username}}
-      REGISTRY_PASSWORD: {{windows_registry_password}}
-      REGISTRY_HOST: 10.0.0.6
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
