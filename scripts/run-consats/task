@@ -9,9 +9,6 @@ export LATEST_CONSUL_RELEASE_VERSION="$(cat ${ROOT}/latest-consul-release/versio
 function main() {
   setup_bosh_env_vars
 
-  /usr/local/bin/bosh target "${BOSH_ENVIRONMENT}"
-  export BOSH_DIRECTOR_UUID="$(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" status --uuid)"
-
   upload_stemcell
   if $WINDOWS_CLIENTS; then
     upload_windows_stemcell
@@ -21,14 +18,14 @@ function main() {
   generate_manifest
   force_compilation
 
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployment "${ROOT}/consats.yml"
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n deploy
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" run-errand acceptance-tests
+  /usr/local/bin/bosh deployment "${ROOT}/consats.yml"
+  /usr/local/bin/bosh -n deploy
+  /usr/local/bin/bosh run-errand acceptance-tests
 
   cleanup_deployment "consul"
   cleanup_deployment "turbulence-consul"
 
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n cleanup
+  /usr/local/bin/bosh -n clean-up
 }
 
 function setup_bosh_env_vars() {
