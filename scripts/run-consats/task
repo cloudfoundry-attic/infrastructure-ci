@@ -18,9 +18,9 @@ function main() {
   generate_manifest
   force_compilation
 
-  /usr/local/bin/bosh deployment "${ROOT}/consats.yml"
-  /usr/local/bin/bosh -n deploy
-  /usr/local/bin/bosh run-errand acceptance-tests
+  /usr/local/bin/bosh -d consats deployment
+  /usr/local/bin/bosh -d consats -n deploy "${ROOT}/consats.yml"
+  /usr/local/bin/bosh -d consats run-errand acceptance-tests
 
   cleanup_deployment "consul"
   cleanup_deployment "turbulence-consul"
