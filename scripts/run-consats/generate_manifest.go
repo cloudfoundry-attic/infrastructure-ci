@@ -15,9 +15,8 @@ type Network struct {
 }
 
 type Manifest struct {
-	Name         interface{} `yaml:"name"`
-	DirectorUUID string      `yaml:"director_uuid"`
-	Releases     []struct {
+	Name     interface{} `yaml:"name"`
+	Releases []struct {
 		Name    string `yaml:"name"`
 		Version string `yaml:"version"`
 	} `yaml:"releases"`
@@ -80,7 +79,6 @@ func Generate(exampleManifestFilePath string) ([]byte, error) {
 		return nil, err
 	}
 
-	manifest.DirectorUUID = os.Getenv("BOSH_DIRECTOR_UUID")
 	manifest.Releases[0].Version = os.Getenv("CONSUL_RELEASE_VERSION")
 	manifest.Stemcells[0].Version = os.Getenv("STEMCELL_VERSION")
 

@@ -1,8 +1,6 @@
 ---
 name: consats
 
-director_uuid: some-bosh-director-uuid
-
 releases:
 - name: consul
   version: some-consul-release-version

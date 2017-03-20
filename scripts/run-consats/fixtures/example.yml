@@ -1,8 +1,6 @@
 ---
 name: consats
 
-director_uuid: BOSH_DIRECTOR_UUID
-
 releases:
 - name: consul
   version: CONSUL_RELEASE_VERSION
@@ -16,13 +14,9 @@ instance_groups:
 - name: acceptance-tests
   instances: 1
   lifecycle: errand
-  azs: [BOSH_ERRAND_CLOUD_CONFIG_NETWORK_AZ]
   vm_type: m3.medium
   vm_extensions: [10GB_ephemeral_disk]
   stemcell: default
-  networks:
-  - name: BOSH_ERRAND_CLOUD_CONFIG_NETWORK_NAME
-    static_ips: [BOSH_ERRAND_CLOUD_CONFIG_NETWORK_STATIC_IP]
   jobs:
   - name: acceptance-tests
     release: consul

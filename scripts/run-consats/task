@@ -68,8 +68,7 @@ function upload_releases() {
 
 function force_compilation() {
   pushd /tmp > /dev/null
-    sed -e "s/REPLACE_ME_DIRECTOR_UUID/${BOSH_ENVIRONMENT_UUID}/g" \
-      -e "s/CONSUL_RELEASE_VERSION/${CONSUL_RELEASE_VERSION}/g" \
+    sed  -e "s/CONSUL_RELEASE_VERSION/${CONSUL_RELEASE_VERSION}/g" \
       -e "s/TURBULENCE_RELEASE_VERSION/${TURBULENCE_RELEASE_VERSION}/g" \
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
       "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
