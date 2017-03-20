@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e -u
+
+fly -t wings \
+  set-pipeline -p consul \
+  -c $HOME/go/src/github.com/cloudfoundry/infrastructure-ci/pipelines/consul.yml \
+  -l $HOME/go/src/github.com/cloudfoundry/infrastructure-ci-env/pipeline-vars/consul.yml
