@@ -512,3 +512,48 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+
+- name: setup-consats-windows-infrastructure
+  public: true
+  serial: true
+  serial_groups: [consats-windows]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/infrastructure/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: consats-windows
+      BBL_NAME: consats-windows
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: teardown-consats-windows-infrastructure
+  public: true
+  serial: true
+  serial_groups: [consats-windows]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-destroy
+    file: ci/scripts/infrastructure/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consats-windows
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
