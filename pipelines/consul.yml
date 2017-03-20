@@ -91,11 +91,6 @@ resources:
     ignore_paths: [.final_builds, releases]
     uri: https://github.com/cloudfoundry/diego-release.git
 
-- name: bosh-aws-cpi-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-incubator/bosh-aws-cpi-release
-
 - name: latest-consul-release
   type: bosh-io-release
   source:
@@ -168,7 +163,6 @@ jobs:
       resource: aws-stemcell
     - get: windows-stemcell
     - get: turbulence-release
-    - get: bosh-aws-cpi-release
     - get: latest-consul-release
   - task: consats-linux
     file: ci/scripts/run-consats/task.yml
@@ -196,7 +190,6 @@ jobs:
       resource: aws-stemcell
     - get: windows-stemcell
     - get: turbulence-release
-    - get: bosh-aws-cpi-release
     - get: latest-consul-release
   - task: consats-linux-turbulence
     file: ci/scripts/run-consats/task.yml
