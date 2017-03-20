@@ -46,10 +46,6 @@ function upload_releases() {
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload release release.tgz --skip-if-exists
   popd > /dev/null
 
-  pushd "${ROOT}/bosh-aws-cpi-release" > /dev/null
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload release release.tgz --skip-if-exists
-  popd > /dev/null
-
   pushd "${ROOT}/consul-release" > /dev/null
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -n create release --force --version "${CONSUL_RELEASE_VERSION}"
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" upload release
