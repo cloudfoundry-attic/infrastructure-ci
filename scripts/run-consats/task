@@ -44,28 +44,28 @@ function setup_bosh_env_vars() {
 
 function upload_stemcell() {
   pushd "${ROOT}/stemcell" > /dev/null
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell stemcell.tgz --skip-if-exists
+    /usr/local/bin/bosh upload-stemcell stemcell.tgz
   popd > /dev/null
 }
 
 function upload_windows_stemcell() {
   pushd "${ROOT}/windows-stemcell" > /dev/null
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload stemcell light-bosh-stemcell-*-google-kvm-windows2012R2-go_agent.tgz --skip-if-exists
+    /usr/local/bin/bosh upload-stemcell light-bosh-stemcell-*-google-kvm-windows2012R2-go_agent.tgz
   popd > /dev/null
 }
 
 function upload_releases() {
   pushd "${ROOT}/turbulence-release" > /dev/null
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
+    /usr/local/bin/bosh upload-release release.tgz
   popd > /dev/null
 
   pushd "${ROOT}/consul-release" > /dev/null
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n create release --force --version "${CONSUL_RELEASE_VERSION}"
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release
+    /usr/local/bin/bosh -n create-release --force --version "${CONSUL_RELEASE_VERSION}"
+    /usr/local/bin/bosh upload-release
   popd > /dev/null
 
   pushd "${ROOT}/latest-consul-release" > /dev/null
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" upload release release.tgz --skip-if-exists
+    /usr/local/bin/bosh upload-release release.tgz
   popd > /dev/null
 }
 
@@ -77,10 +77,10 @@ function force_compilation() {
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
       "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
 
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n deploy
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" export release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -d "consul_compilation.yml" -n delete deployment compilation
+    /usr/local/bin/bosh -d "consul_compilation.yml" -n deploy
+    /usr/local/bin/bosh -d "consul_compilation.yml" export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -d "consul_compilation.yml" export-release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -d "consul_compilation.yml" -n delete-deployment compilation
   popd > /dev/null
 }
 
@@ -104,17 +104,17 @@ function cleanup_deployment() {
   local deployment
   deployment="${1}-[A-Za-z0-9]\{8\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{12\}"
 
-  for i in $(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep -o "${deployment}" | uniq); do
-    /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment $i
+  for i in $(/usr/local/bin/bosh deployments | grep -o "${deployment}" | uniq); do
+    /usr/local/bin/bosh -n delete-deployment $i
   done
 
-  test -z "$(/usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployments | grep "${deployment}")"
+  test -z "$(/usr/local/bin/bosh deployments | grep "${deployment}")"
 }
 
 function teardown() {
   set +e
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete deployment consats
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n delete release consul
+  /usr/local/bin/bosh -n delete-deployment consats
+  /usr/local/bin/bosh -n delete-release consul
   set -e
 }
 
