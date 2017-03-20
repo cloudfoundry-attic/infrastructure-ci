@@ -4,7 +4,6 @@ export ROOT="${PWD}"
 export CONSUL_RELEASE_VERSION="99999+dev.$(date +%s)"
 export STEMCELL_VERSION="$(cat ${ROOT}/stemcell/version)"
 export TURBULENCE_RELEASE_VERSION="$(cat ${ROOT}/turbulence-release/version)"
-export BOSH_AWS_CPI_RELEASE_VERSION="$(cat ${ROOT}/bosh-aws-cpi-release/version)"
 export LATEST_CONSUL_RELEASE_VERSION="$(cat ${ROOT}/latest-consul-release/version)"
 
 function main() {
@@ -66,14 +65,12 @@ function force_compilation() {
     sed -e "s/REPLACE_ME_DIRECTOR_UUID/${BOSH_DIRECTOR_UUID}/g" \
       -e "s/CONSUL_RELEASE_VERSION/${CONSUL_RELEASE_VERSION}/g" \
       -e "s/TURBULENCE_RELEASE_VERSION/${TURBULENCE_RELEASE_VERSION}/g" \
-      -e "s/CPI_RELEASE_VERSION/${BOSH_AWS_CPI_RELEASE_VERSION}/g" \
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
       "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
 
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "consul_compilation.yml" -n deploy
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "consul_compilation.yml" export release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "consul_compilation.yml" export release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "consul_compilation.yml" export release "bosh-aws-cpi/${BOSH_AWS_CPI_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -d "consul_compilation.yml" -n delete deployment compilation
   popd > /dev/null
 }
