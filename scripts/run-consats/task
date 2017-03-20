@@ -23,7 +23,7 @@ function main() {
 
   /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" deployment "${ROOT}/consats.yml"
   /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" -n deploy
-  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" run errand acceptance-tests
+  /usr/local/bin/bosh -t "${BOSH_ENVIRONMENT}" run-errand acceptance-tests
 
   cleanup_deployment "consul"
   cleanup_deployment "turbulence-consul"
@@ -80,7 +80,7 @@ function force_compilation() {
     /usr/local/bin/bosh -d "consul_compilation.yml" -n deploy
     /usr/local/bin/bosh -d "consul_compilation.yml" export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     /usr/local/bin/bosh -d "consul_compilation.yml" export-release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /usr/local/bin/bosh -d "consul_compilation.yml" -n delete-deployment compilation
+    /usr/local/bin/bosh -d "consul_compilation.yml" -n delete-deployment
   popd > /dev/null
 }
 
@@ -105,7 +105,7 @@ function cleanup_deployment() {
   deployment="${1}-[A-Za-z0-9]\{8\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{12\}"
 
   for i in $(/usr/local/bin/bosh deployments | grep -o "${deployment}" | uniq); do
-    /usr/local/bin/bosh -n delete-deployment $i
+    /usr/local/bin/bosh -d $i -n delete-deployment
   done
 
   test -z "$(/usr/local/bin/bosh deployments | grep "${deployment}")"
@@ -113,7 +113,7 @@ function cleanup_deployment() {
 
 function teardown() {
   set +e
-  /usr/local/bin/bosh -n delete-deployment consats
+  /usr/local/bin/bosh -d consats -n delete-deployment
   /usr/local/bin/bosh -n delete-release consul
   set -e
 }
