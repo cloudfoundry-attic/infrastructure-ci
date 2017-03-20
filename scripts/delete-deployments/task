@@ -1,6 +1,8 @@
 #!/bin/bash -exu
 
 function main() {
+  setup_bosh_env_vars
+
   local raw_deployments
   set +x
   raw_deployments=$(curl -sk https://${BOSH_CLIENT}:${BOSH_CLIENT_SECRET}@${BOSH_ENVIRONMENT}:25555/deployments)
@@ -17,5 +19,17 @@ function main() {
   echo "cleaning up orphaned disks and releases"
   bosh -n clean-up
 }
+
+function setup_bosh_env_vars() {
+  set +x
+  pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    export BOSH_ENVIRONMENT=$(bbl director-address)
+    export BOSH_CA_CERT="$(bbl director-ca-cert)"
+    export BOSH_CLIENT=$(bbl director-username)
+    export BOSH_CLIENT_SECRET=$(bbl director-password)
+  popd > /dev/null
+  set -x
+}
+
 
 main

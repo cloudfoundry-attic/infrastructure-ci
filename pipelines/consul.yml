@@ -440,13 +440,12 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
   - task: delete-deployments
     file: ci/scripts/delete-deployments/task.yml
     params:
-      BOSH_ENVIRONMENT: {{consats_linux_bosh_director}}
-      BOSH_CLIENT: {{consats_linux_bosh_username}}
-      BOSH_CLIENT_SECRET: {{consats_linux_bosh_password}}
-      BOSH_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
+      BBL_STATE_DIR: consats-linux
       DEPLOYMENTS_WITH_WORD: consul
 
 - name: delete-consats-windows-deployments
@@ -457,13 +456,12 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
   - task: delete-deployments
     file: ci/scripts/delete-deployments/task.yml
     params:
-      BOSH_ENVIRONMENT: {{consats_windows_bosh_director}}
-      BOSH_CLIENT: {{consats_windows_bosh_username}}
-      BOSH_CLIENT_SECRET: {{consats_windows_bosh_password}}
-      BOSH_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
+      BBL_STATE_DIR: consats-windows
       DEPLOYMENTS_WITH_WORD: consul
 
 # Infrastructure
