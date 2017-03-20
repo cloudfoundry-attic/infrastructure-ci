@@ -11,16 +11,6 @@ function check_fast_fails() {
   set -x
 }
 
-function install_bbl() {
-  local bbl_path
-  bbl_path=${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader
-  git clone --branch develop https://github.com/cloudfoundry/bosh-bootloader ${bbl_path}
-  pushd ${bbl_path}
-    git submodule update --init --recursive
-  popd
-  go install github.com/cloudfoundry/bosh-bootloader/bbl
-}
-
 function commit_bbl_state_file() {
   local root_dir
   root_dir="${1}"
@@ -45,7 +35,6 @@ function main() {
   root_dir="${1}"
 
   check_fast_fails
-  install_bbl
 
   BBL_NAME="$(bbl --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" env-id)"
 
