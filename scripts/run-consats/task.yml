@@ -13,7 +13,7 @@ inputs:
   - name: windows-stemcell
   - name: turbulence-release
   - name: latest-consul-release
-  - name: infrastructure-ci-bbl-states
+  - name: bbl-states-repo
 
 run:
   path: ci/scripts/run-consats/task
