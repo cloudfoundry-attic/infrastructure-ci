@@ -73,10 +73,10 @@ function force_compilation() {
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
       "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
 
-    /usr/local/bin/bosh -d "consul_compilation.yml" -n deploy
-    /usr/local/bin/bosh -d "consul_compilation.yml" export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /usr/local/bin/bosh -d "consul_compilation.yml" export-release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    /usr/local/bin/bosh -d "consul_compilation.yml" -n delete-deployment
+    /usr/local/bin/bosh -n deploy consul_compilation.yml
+    /usr/local/bin/bosh -d compilation export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -d compilation export-release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+    /usr/local/bin/bosh -d compilation -n delete-deployment
   popd > /dev/null
 }
 
