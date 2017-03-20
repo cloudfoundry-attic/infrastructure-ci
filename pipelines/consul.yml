@@ -72,6 +72,11 @@ resources:
   source:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
+- name: gcp-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+
 - name: windows-stemcell
   type: s3
   source:
@@ -160,7 +165,7 @@ jobs:
       passed: [test-confab]
       trigger: true
     - get: stemcell
-      resource: aws-stemcell
+      resource: gcp-stemcell
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
@@ -186,7 +191,7 @@ jobs:
       passed: [consats-linux]
       trigger: true
     - get: stemcell
-      resource: aws-stemcell
+      resource: gcp-stemcell
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
@@ -212,7 +217,7 @@ jobs:
       passed: [test-confab]
       trigger: true
     - get: stemcell
-      resource: aws-stemcell
+      resource: gcp-stemcell
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
@@ -239,7 +244,7 @@ jobs:
       passed: [consats-windows]
       trigger: true
     - get: stemcell
-      resource: aws-stemcell
+      resource: gcp-stemcell
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
