@@ -41,6 +41,11 @@ RUN wget https://releases.hashicorp.com/terraform/0.8.8/terraform_0.8.8_linux_am
   rm terraform_0.8.8_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
 
+# Install bbl
+RUN wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/v3.0.0/bbl-v3.0.0_linux_x86-64 && \
+  mv bbl-* /usr/local/bin/bbl && \
+  chmod +x /usr/local/bin/bbl
+
 # Install jq
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   mv jq-linux64 /usr/local/bin/jq && \
