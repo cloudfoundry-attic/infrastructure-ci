@@ -13,15 +13,13 @@ inputs:
   - name: windows-stemcell
   - name: turbulence-release
   - name: latest-consul-release
+  - name: infrastructure-ci-bbl-states
 
 run:
   path: ci/scripts/run-consats/task
 
 params:
-  BOSH_DIRECTOR_CA_CERT:
-  BOSH_PASSWORD:
-  BOSH_DIRECTOR:
-  BOSH_USER:
+  BBL_STATE_DIR:
   PARALLEL_NODES:
   ENABLE_TURBULENCE_TESTS:
   WINDOWS_CLIENTS:

@@ -164,13 +164,11 @@ jobs:
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
+    - get: infrastructure-ci-bbl-states
   - task: consats-linux
     file: ci/scripts/run-consats/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
-      BOSH_USER: {{consats_linux_bosh_username}}
-      BOSH_PASSWORD: {{consats_linux_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
+      BBL_STATE_DIR: infrastructure-ci-bbl-states/consats-linux
       PARALLEL_NODES: 7
       ENABLE_TURBULENCE_TESTS: false
 
@@ -191,13 +189,11 @@ jobs:
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
-  - task: consats-linux-turbulence
+    - get: infrastructure-ci-bbl-states
+  - task: consats-linux
     file: ci/scripts/run-consats/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
-      BOSH_USER: {{consats_linux_bosh_username}}
-      BOSH_PASSWORD: {{consats_linux_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{consats_linux_bosh_director_ca_cert}}
+      BBL_STATE_DIR: infrastructure-ci-bbl-states/consats-linux
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
 
@@ -218,13 +214,11 @@ jobs:
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
+    - get: infrastructure-ci-bbl-states
   - task: consats-windows
     file: ci/scripts/run-consats/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
-      BOSH_USER: {{consats_windows_bosh_username}}
-      BOSH_PASSWORD: {{consats_windows_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
+      BBL_STATE_DIR: infrastructure-ci-bbl-states/consats-windows
       PARALLEL_NODES: 5
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
@@ -246,13 +240,11 @@ jobs:
     - get: windows-stemcell
     - get: turbulence-release
     - get: latest-consul-release
-  - task: consats-windows-turbulence
+    - get: infrastructure-ci-bbl-states
+  - task: consats-windows
     file: ci/scripts/run-consats/task.yml
     params:
-      BOSH_DIRECTOR: {{consats_windows_bosh_director}}
-      BOSH_USER: {{consats_windows_bosh_username}}
-      BOSH_PASSWORD: {{consats_windows_bosh_password}}
-      BOSH_DIRECTOR_CA_CERT: {{consats_windows_bosh_director_ca_cert}}
+      BBL_STATE_DIR: infrastructure-ci-bbl-states/consats-windows
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true

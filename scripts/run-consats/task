@@ -7,6 +7,8 @@ export TURBULENCE_RELEASE_VERSION="$(cat ${ROOT}/turbulence-release/version)"
 export LATEST_CONSUL_RELEASE_VERSION="$(cat ${ROOT}/latest-consul-release/version)"
 
 function main() {
+  setup_bosh_env_vars
+
   /opt/rubies/ruby-2.2.4/bin/bosh target "${BOSH_DIRECTOR}"
   export BOSH_DIRECTOR_UUID="$(/opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" status --uuid)"
 
@@ -27,6 +29,17 @@ function main() {
   cleanup_deployment "turbulence-consul"
 
   /opt/rubies/ruby-2.2.4/bin/bosh -t "${BOSH_DIRECTOR}" -n cleanup
+}
+
+function setup_bosh_env_vars() {
+  set +x
+  pushd "bbl-state/${BBL_STATE_DIR}"
+    export BOSH_DIRECTOR=$(bbl director-address)
+    export BOSH_CA_CERT="$(bbl director-ca-cert)"
+    export BOSH_CLIENT=$(bbl director-username)
+    export BOSH_CLIENT_SECRET=$(bbl director-password)
+  popd
+  set -x
 }
 
 function upload_stemcell() {
