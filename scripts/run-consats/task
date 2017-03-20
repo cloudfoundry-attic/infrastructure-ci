@@ -33,7 +33,7 @@ function main() {
 
 function setup_bosh_env_vars() {
   set +x
-  pushd "bbl-state/${BBL_STATE_DIR}"
+  pushd "${BBL_STATE_DIR}"
     export BOSH_DIRECTOR=$(bbl director-address)
     export BOSH_CA_CERT="$(bbl director-ca-cert)"
     export BOSH_CLIENT=$(bbl director-username)
