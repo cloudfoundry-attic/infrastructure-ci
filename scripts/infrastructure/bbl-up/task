@@ -69,7 +69,7 @@ function write_ops_file_to_bump_compilation_workers() {
   local ops_file_path
   ops_file_path="${root_dir}/director_ops"
 
-  cat > "${director_ops}" <<EOT
+  cat > "${ops_file_path}" <<EOT
 ---
 type: replace
 path: /instance_groups/name=bosh/properties/director/workers
