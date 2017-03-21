@@ -22,7 +22,7 @@ function main() {
   /usr/local/bin/bosh -d consats run-errand acceptance-tests
 
   cleanup_deployment "consul"
-  cleanup_deployment "turbulence-consul"
+  cleanup_deployment "turbulence"
 
   /usr/local/bin/bosh -n clean-up
 }
@@ -96,14 +96,14 @@ function generate_manifest() {
 }
 
 function cleanup_deployment() {
-  local deployment
-  deployment="${1}-[A-Za-z0-9]\{8\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{4\}-[A-Za-z0-9]\{12\}"
+  local deployment_prefix
+  deployment_prefix="${1}"
 
-  for i in $(/usr/local/bin/bosh deployments | grep -o "${deployment}" | uniq); do
+  for i in $(/usr/local/bin/bosh deployments | grep "${deployment_prefix}" | awk '{ print $1 }' | uniq); do
     /usr/local/bin/bosh -d $i -n delete-deployment
   done
 
-  test -z "$(/usr/local/bin/bosh deployments | grep "${deployment}")"
+  test -z "$(/usr/local/bin/bosh deployments | grep "${deployment_prefix}")"
 }
 
 function teardown() {
