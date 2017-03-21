@@ -71,9 +71,9 @@ function write_ops_file_to_bump_compilation_workers() {
 
   cat > "${ops_file_path}" <<EOT
 ---
-type: replace
-path: /instance_groups/name=bosh/properties/director/workers
-value: 7
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/workers
+  value: 7
 EOT
 
   echo "${ops_file_path}"
