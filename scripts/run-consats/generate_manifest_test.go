@@ -15,11 +15,10 @@ var _ = Describe("Generate", func() {
 
 	BeforeEach(func() {
 		variables = map[string]string{
-			"BOSH_DIRECTOR_UUID":            "some-bosh-director-uuid",
-			"BOSH_DIRECTOR":                 "some-bosh-target",
-			"BOSH_USER":                     "some-bosh-username",
-			"BOSH_PASSWORD":                 "some-bosh-password",
-			"BOSH_DIRECTOR_CA_CERT":         "some-bosh-director-ca-cert",
+			"BOSH_ENVIRONMENT":              "some-bosh-target",
+			"BOSH_CLIENT":                   "some-bosh-username",
+			"BOSH_CLIENT_SECRET":            "some-bosh-password",
+			"BOSH_CA_CERT":                  "some-bosh-director-ca-cert",
 			"PARALLEL_NODES":                "10",
 			"CONSUL_RELEASE_VERSION":        "some-consul-release-version",
 			"STEMCELL_VERSION":              "some-stemcell-version",
