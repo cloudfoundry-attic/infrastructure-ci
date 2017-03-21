@@ -236,7 +236,7 @@ jobs:
     file: ci/scripts/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-linux
-      PARALLEL_NODES: 1
+      PARALLEL_NODES: 3
       ENABLE_TURBULENCE_TESTS: true
     on_failure:
       put: slack-alert
@@ -303,7 +303,7 @@ jobs:
     file: ci/scripts/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-      PARALLEL_NODES: 1
+      PARALLEL_NODES: 3
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
     on_failure:
