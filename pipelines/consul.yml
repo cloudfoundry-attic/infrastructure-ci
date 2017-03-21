@@ -634,6 +634,8 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-linux-infrastructure
   - task: bbl-destroy
     file: ci/scripts/infrastructure/bbl-destroy/task.yml
     params:
@@ -693,6 +695,8 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-windows-infrastructure
   - task: bbl-destroy
     file: ci/scripts/infrastructure/bbl-destroy/task.yml
     params:
