@@ -62,6 +62,23 @@ function commit_bbl_state_file() {
   popd
 }
 
+function write_ops_file_to_bump_compilation_workers() {
+  local root_dir
+  root_dir="${1}"
+
+  local ops_file_path
+  ops_file_path="${root_dir}/director_ops"
+
+  cat > "${director_ops}" <<EOT
+---
+type: replace
+path: /instance_groups/name=bosh/properties/director/workers
+value: 7
+EOT
+
+  echo "${ops_file_path}"
+}
+
 function main() {
   local root_dir
   root_dir="${1}"
@@ -69,8 +86,11 @@ function main() {
   check_fast_fails
   pathify_service_account_key
 
+  local ops_file_path
+  ops_file_path=$(write_ops_file_to_bump_compilation_workers "${root_dir}")
+
   mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
-  bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" up --name ${BBL_NAME} > bbl_up.log
+  bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" up --name ${BBL_NAME} --ops-file "${ops_file_path}"  > bbl_up.log
 }
 
 trap "commit_bbl_state_file ${PWD}" EXIT
