@@ -17,6 +17,8 @@ instance_groups:
   vm_type: m3.medium
   vm_extensions: [10GB_ephemeral_disk]
   stemcell: default
+  networks:
+  - name: private
   jobs:
   - name: acceptance-tests
     release: consul

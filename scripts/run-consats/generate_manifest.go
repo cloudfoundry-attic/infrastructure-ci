@@ -32,9 +32,12 @@ type Manifest struct {
 		VMExtensions []string `yaml:"vm_extensions"`
 		VMType       string   `yaml:"vm_type"`
 		Stemcell     string   `yaml:"stemcell"`
-		Jobs         []struct {
-			Name    string `yaml:"name'`
-			Release string `yaml:"release'`
+		Networks     []struct {
+			Name string `yaml:"name"`
+		} `yaml:"networks"`
+		Jobs []struct {
+			Name    string `yaml:"name"`
+			Release string `yaml:"release"`
 		} `yaml:"jobs"`
 	} `yaml:"instance_groups"`
 	Properties struct {
