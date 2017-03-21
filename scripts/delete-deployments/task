@@ -5,18 +5,9 @@ export ROOT="${PWD}"
 function main() {
   setup_bosh_env_vars
 
-  local raw_deployments
-  set +x
-  raw_deployments=$(curl -sk https://${BOSH_CLIENT}:${BOSH_CLIENT_SECRET}@${BOSH_ENVIRONMENT}:25555/deployments)
-  set -x
-
-  local deployments
-  deployments=$(echo "${raw_deployments}" | jq 'map(select(.name | contains('\"${DEPLOYMENTS_WITH_WORD}\"')))' | jq .[].name)
-
-  if [ -n "${deployments}" ]
-  then
-    echo "${deployments}" | xargs -n 1 -P 5 -I{} bosh -n -d {} delete-deployment --force
-  fi
+  for i in $(bosh deployments | grep "${DEPLOYMENTS_WITH_WORD}" | awk '{ print $1 }' | uniq); do
+    bosh -d $i -n delete-deployment
+  done
 
   echo "cleaning up orphaned disks and releases"
   bosh -n clean-up
