@@ -27,6 +27,13 @@ groups:
   - setup-consats-windows-infrastructure
   - teardown-consats-windows-infrastructure
 
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
 - name: infrastructure-ci
   type: git
@@ -126,6 +133,11 @@ resources:
   source:
     name: bosh-warden-boshlite-ubuntu-trusty-go_agent
 
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+
 jobs:
 - name: check-git-submodules
   public: true
@@ -139,6 +151,13 @@ jobs:
       trigger: true
   - task: check-git-submodules
     file: ci/scripts/check-git-submodules/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: test-confab
   public: true
@@ -153,6 +172,13 @@ jobs:
       trigger: true
   - task: test-confab
     file: ci/scripts/test-confab/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-linux
   public: true
@@ -179,6 +205,13 @@ jobs:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 7
       ENABLE_TURBULENCE_TESTS: false
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-linux-turbulence
   public: true
@@ -205,6 +238,13 @@ jobs:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-windows
   public: true
@@ -232,6 +272,13 @@ jobs:
       PARALLEL_NODES: 5
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-windows-turbulence
   public: true
@@ -259,6 +306,13 @@ jobs:
       PARALLEL_NODES: 1
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: deploy-with-cf
   public: true
@@ -281,6 +335,13 @@ jobs:
       BOSH_DIRECTOR: {{consul_cf_bosh_director}}
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: deploy-with-diego
   public: true
@@ -304,6 +365,13 @@ jobs:
       BOSH_DIRECTOR: {{consul_cf_bosh_director}}
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: run-cats
   public: true
@@ -326,6 +394,13 @@ jobs:
       BOSH_USER: {{consul_cf_bosh_user}}
       BOSH_PASSWORD: {{consul_cf_bosh_password}}
       DEPLOYMENT_NAME: consul-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: delete-cf-deployments
   public: true
@@ -346,6 +421,13 @@ jobs:
       BOSH_CLIENT_SECRET: {{consul_cf_bosh_password}}
       BOSH_CA_CERT: {{consul_cf_bosh_ca_cert}}
       DEPLOYMENTS_WITH_WORD: consul-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: create-final-release
   public: true
@@ -366,6 +448,13 @@ jobs:
     file: ci/scripts/create-final-release/task.yml
     params:
       RELEASE_NAME: consul
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: consul-release-master
     params:
       repository: final-release-repo
@@ -386,6 +475,13 @@ jobs:
       resource: consul-release-merge-target
   - task: merge-master-into-develop
     file: ci/scripts/merge-master-into-develop/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: consul-release-merge-target
     params:
       repository: final-release-repo
@@ -413,6 +509,13 @@ jobs:
       BOSH_LITE_KEYPAIR: bosh-lite
       BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh-lite-private-key}}
       MANIFESTS: "manifests/bosh-lite/3-node-with-ssl.yml"
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: deploy-aws-manifests
   public: true
@@ -433,6 +536,13 @@ jobs:
       AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
       AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
       MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: delete-consats-linux-deployments
   public: false
@@ -449,6 +559,13 @@ jobs:
     params:
       BBL_STATE_DIR: consats-linux
       DEPLOYMENTS_WITH_WORD: consul
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: delete-consats-windows-deployments
   public: false
@@ -465,6 +582,13 @@ jobs:
     params:
       BBL_STATE_DIR: consats-windows
       DEPLOYMENTS_WITH_WORD: consul
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # Infrastructure
 
@@ -492,6 +616,13 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-consats-linux-infrastructure
   public: true
@@ -512,6 +643,13 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: setup-consats-windows-infrastructure
   public: true
@@ -537,6 +675,13 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-consats-windows-infrastructure
   public: true
@@ -557,3 +702,10 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME

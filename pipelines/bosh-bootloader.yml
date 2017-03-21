@@ -134,7 +134,7 @@ jobs:
       put: slack-alert
       params:
         text: |
-          ['bosh-bootloader/test-bosh-bootloader'] failed:
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -164,7 +164,7 @@ jobs:
       - put: slack-alert
         params:
           text: |
-            ['bosh-bootloader/aws-integration-tests'] failed:
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -195,7 +195,7 @@ jobs:
       - put: slack-alert
         params:
           text: |
-            ['bosh-bootloader/gcp-integration-tests'] failed:
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -229,7 +229,7 @@ jobs:
       - put: slack-alert
         params:
           text: |
-            ['bosh-bootloader/concourse-integration-tests'] failed:
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -262,7 +262,7 @@ jobs:
       - put: slack-alert
         params:
           text: |
-            ['bosh-bootloader/test-with-latest-terraform'] failed:
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -294,7 +294,7 @@ jobs:
       - put: slack-alert
         params:
           text: |
-            ['bosh-bootloader/test-with-latest-bosh-cli'] failed:
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
@@ -317,6 +317,13 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: bbl-downstream-setup-env
   serial_groups: [downstream]
@@ -352,6 +359,13 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: bbl-downstream-destroy-env
   serial_groups: [downstream]
@@ -378,6 +392,13 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # Final Release Pipeline
 - name: major

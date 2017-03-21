@@ -8,6 +8,13 @@ groups:
   - setup-worker-infrastructure
   - teardown-worker-infrastructure
 
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
 - name: infrastructure-ci
   type: git
@@ -20,6 +27,10 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: {{cf_infra_bot_user_github_private_key}}
     branch: master
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
 
 jobs:
 - name: infrastructure-ci-unit-tests
@@ -30,6 +41,13 @@ jobs:
       trigger: true
     - task: infrastructure-ci-tests
       file: infrastructure-ci/scripts/infrastructure-ci/task.yml
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # Infrastructure
 
@@ -57,6 +75,13 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-worker-infrastructure
   public: true
@@ -77,3 +102,10 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME

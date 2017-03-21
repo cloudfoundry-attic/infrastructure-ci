@@ -7,6 +7,13 @@ groups:
   - deployment-docker-image
   - vagrant-docker-image
 
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
 - name: deployment-dockerfile
   type: git
@@ -78,6 +85,11 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+
 jobs:
 - name: minimal-docker-image
   public: true
@@ -95,6 +107,13 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/minimal
         cache: false
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: golang-docker-image
   public: true
@@ -113,6 +132,13 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/golang
         cache: false
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: deployment-docker-image
   public: true
@@ -131,6 +157,13 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/deployment
         cache: false
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: vagrant-docker-image
   public: true
@@ -149,3 +182,10 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/vagrant
         cache: false
+      on_failure:
+        put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
