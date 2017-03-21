@@ -14,7 +14,8 @@ instance_groups:
 - name: acceptance-tests
   instances: 1
   lifecycle: errand
-  vm_type: m3.medium
+  azs: [z1]
+  vm_type: medium
   vm_extensions: [10GB_ephemeral_disk]
   stemcell: default
   networks:
