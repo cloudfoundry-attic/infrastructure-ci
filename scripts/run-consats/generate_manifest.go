@@ -81,10 +81,10 @@ func Generate(exampleManifestFilePath string) ([]byte, error) {
 	manifest.Releases[0].Version = os.Getenv("CONSUL_RELEASE_VERSION")
 	manifest.Stemcells[0].Version = os.Getenv("STEMCELL_VERSION")
 
-	manifest.Properties.Consul.AcceptanceTests.BOSH.Target = os.Getenv("BOSH_DIRECTOR")
-	manifest.Properties.Consul.AcceptanceTests.BOSH.Username = os.Getenv("BOSH_USER")
-	manifest.Properties.Consul.AcceptanceTests.BOSH.Password = os.Getenv("BOSH_PASSWORD")
-	manifest.Properties.Consul.AcceptanceTests.BOSH.DirectorCACert = os.Getenv("BOSH_DIRECTOR_CA_CERT")
+	manifest.Properties.Consul.AcceptanceTests.BOSH.Target = os.Getenv("BOSH_ENVIRONMENT")
+	manifest.Properties.Consul.AcceptanceTests.BOSH.Username = os.Getenv("BOSH_CLIENT")
+	manifest.Properties.Consul.AcceptanceTests.BOSH.Password = os.Getenv("BOSH_CLIENT_SECRET")
+	manifest.Properties.Consul.AcceptanceTests.BOSH.DirectorCACert = os.Getenv("BOSH_CA_CERT")
 
 	manifest.Properties.Consul.AcceptanceTests.ConsulReleaseVersion = os.Getenv("CONSUL_RELEASE_VERSION")
 	manifest.Properties.Consul.AcceptanceTests.LatestConsulReleaseVersion = os.Getenv("LATEST_CONSUL_RELEASE_VERSION")
