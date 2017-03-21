@@ -9,11 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Network struct {
-	Name      string   `yaml:"name"`
-	StaticIPs []string `yaml:"static_ips"`
-}
-
 type Manifest struct {
 	Name     interface{} `yaml:"name"`
 	Releases []struct {
@@ -29,6 +24,7 @@ type Manifest struct {
 		Instances    int      `yaml:"instances"`
 		Name         string   `yaml:"name"`
 		Lifecycle    string   `yaml:"lifecycle"`
+		AZs          []string `yaml:"azs"`
 		VMExtensions []string `yaml:"vm_extensions"`
 		VMType       string   `yaml:"vm_type"`
 		Stemcell     string   `yaml:"stemcell"`
