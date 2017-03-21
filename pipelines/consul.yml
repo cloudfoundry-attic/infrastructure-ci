@@ -558,7 +558,6 @@ jobs:
     file: ci/scripts/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-linux
-      DEPLOYMENTS_WITH_WORD: consul
     on_failure:
       put: slack-alert
       params:
@@ -581,7 +580,6 @@ jobs:
     file: ci/scripts/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-      DEPLOYMENTS_WITH_WORD: consul
     on_failure:
       put: slack-alert
       params:
