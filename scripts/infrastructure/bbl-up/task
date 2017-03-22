@@ -39,7 +39,11 @@ function check_fast_fails() {
 function pathify_service_account_key() {
   local service_account_key_path
   service_account_key_path=/tmp/bbl_gcp_service_account_key
+
+  set +x
   echo ${BBL_GCP_SERVICE_ACCOUNT_KEY} > ${service_account_key_path}
+  set -x
+
   export BBL_GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
 }
 
