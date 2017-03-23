@@ -126,9 +126,10 @@ resources:
     repository: cloudfoundry-incubator/consul-release
 
 - name: turbulence-release
-  type: bosh-io-release
+  type: github-release
   source:
-    repository: cppforlife/turbulence-release
+    user: christianang
+    repository: turbulence-release
 
 - name: oss-s3-buckets-stack
   type: git
