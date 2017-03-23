@@ -39,7 +39,12 @@ function main() {
   BBL_NAME="$(bbl --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" env-id)"
 
   mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
-  bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" destroy --no-confirm --skip-if-missing > bbl_destroy.log
+  bbl \
+    --debug \
+    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    destroy \
+      --no-confirm \
+      --skip-if-missing > bbl_destroy.log
 }
 
 trap "commit_bbl_state_file ${PWD}" EXIT

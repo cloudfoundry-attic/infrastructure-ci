@@ -791,7 +791,9 @@ jobs:
       BBL_GCP_ZONE: {{gcp_zone}}
       BBL_STATE_DIR: consul-cf-deployment
       BBL_NAME: consul-cf-deployment
-      LB_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
+      BBL_LB_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
+      BBL_LB_CERT: {{consul_cf_deployment_lb_cert}}
+      BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:

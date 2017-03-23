@@ -5,46 +5,89 @@ export BBL_IAAS="gcp"
 function check_fast_fails() {
   set +x
   if [ -z "${BBL_GCP_SERVICE_ACCOUNT_KEY}" ]; then
-    echo "\$BBL_GCP_SERVICE_ACCOUNT_KEY is a required parameter for gcp.  Please set the BBL_GCP_SERVICE_ACCOUNT_KEY."
+    echo "\$BBL_GCP_SERVICE_ACCOUNT_KEY is a required parameter for GCP."
     exit 1
   fi
 
   if [ -z "${BBL_GCP_PROJECT_ID}" ]; then
-    echo "\$BBL_GCP_PROJECT_ID is a required parameter for gcp.  Please set the BBL_GCP_PROJECT_ID."
+    echo "\$BBL_GCP_PROJECT_ID is a required parameter for GCP."
     exit 1
   fi
 
   if [ -z "${BBL_GCP_REGION}" ]; then
-    echo "\$BBL_GCP_REGION is a required parameter for gcp.  Please set the BBL_GCP_REGION."
+    echo "\$BBL_GCP_REGION is a required parameter for GCP."
     exit 1
   fi
 
   if [ -z "${BBL_GCP_ZONE}" ]; then
-    echo "\$BBL_GCP_ZONE is a required parameter for gcp.  Please set the BBL_GCP_ZONE."
+    echo "\$BBL_GCP_ZONE is a required parameter for GCP."
     exit 1
   fi
 
   if [ -z "${BBL_STATE_DIR}" ]; then
-    echo "\$BBL_STATE_DIR is a required parameter for gcp.  Please set the BBL_STATE_DIR."
+    echo "\$BBL_STATE_DIR is a required parameter for GCP."
     exit 1
   fi
 
   if [ -z "${BBL_NAME}" ]; then
-    echo "\$BBL_NAME is a required parameter for gcp.  Please set the BBL_NAME."
+    echo "\$BBL_NAME is a required parameter for GCP."
     exit 1
+  fi
+
+  if [ -n "${BBL_LB_DOMAIN}" ]; then
+    if [ -z "${BBL_LB_CERT}" ]; then
+      echo "\$BBL_LB_CERT is a required parameter for GCP when creating LBs."
+      exit 1
+    fi
+
+    if [ -z "${BBL_LB_KEY}" ]; then
+      echo "\$BBL_LB_KEY is a required parameter for GCP when creating LBs."
+      exit 1
+    fi
   fi
   set -x
 }
 
 function pathify_service_account_key() {
   local service_account_key_path
-  service_account_key_path=/tmp/bbl_gcp_service_account_key
+  service_account_key_path="/tmp/bbl_gcp_service_account_key"
 
   set +x
-  echo ${BBL_GCP_SERVICE_ACCOUNT_KEY} > ${service_account_key_path}
+  echo ${BBL_GCP_SERVICE_ACCOUNT_KEY} > "${service_account_key_path}"
   set -x
 
   export BBL_GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
+}
+
+function create_or_update_lbs() {
+  local bbl_lb_key_path
+  bbl_lb_key_path="/tmp/bbl_lb_key"
+
+  local bbl_lb_cert_path
+  bbl_lb_cert_path="/tmp/bbl_lb_cert"
+
+  set +x
+  echo "${BBL_LB_CERT}" > "${bbl_lb_cert_path}"
+  echo "${BBL_LB_KEY}" > "${bbl_lb_key_path}"
+  set -x
+
+  bbl \
+    --debug \
+    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    create-lbs \
+      --type cf \
+      --cert "${bbl_lb_cert_path}" \
+      --key "${bbl_lb_key_path}" \
+      --skip-if-exists \
+      --domain "${BBL_LB_DOMAIN}" > bbl_create_lbs.log
+
+  bbl \
+    --debug \
+    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    update-lbs \
+      --cert "${bbl_lb_cert_path}" \
+      --key "${bbl_lb_key_path}" \
+      --domain "${BBL_LB_DOMAIN}" > bbl_update_lbs.log
 }
 
 function commit_bbl_state_file() {
@@ -94,7 +137,16 @@ function main() {
   ops_file_path=$(write_ops_file_to_bump_compilation_workers "${root_dir}")
 
   mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
-  bbl --debug --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" up --name ${BBL_NAME} --ops-file "${ops_file_path}"  > bbl_up.log
+  bbl \
+    --debug \
+    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    up \
+      --name ${BBL_NAME} \
+      --ops-file "${ops_file_path}"  > bbl_up.log
+
+  if [ -n "${BBL_LB_DOMAIN}" ]; then
+    create_or_update_lbs
+  fi
 }
 
 trap "commit_bbl_state_file ${PWD}" EXIT
