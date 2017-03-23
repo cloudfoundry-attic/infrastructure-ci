@@ -456,5 +456,5 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-  - task: test
+  - task: cleanup
     file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml

@@ -8,7 +8,7 @@ function install_bbl_develop() {
 
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/bosh-bootloader"
-    go install github.com/src/github.com/cloudfoundry/bosh-bootloader/bbl
+    go install github.com/cloudfoundry/bosh-bootloader/bbl
   popd > /dev/null
 }
 
