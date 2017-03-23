@@ -1,0 +1,71 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+BBL_STATES_DIR="${ROOT}/failed-bbl-states"
+
+function install_bbl_develop() {
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${ROOT}/bosh-bootloader"
+    go install github.com/src/github.com/cloudfoundry/bosh-bootloader/bbl
+  popd > /dev/null
+}
+
+function download_failed_bbl_states() {
+  mkdir -p "${BBL_STATES_DIR}"
+  aws s3 cp --recursive s3://bbl-integration-tests/ ${BBL_STATES_DIR}
+}
+
+function delete_failed_bbl_states() {
+  pushd "${BBL_STATES_DIR}" > /dev/null
+    for bbl_state_tar in $(ls);
+    do
+      delete_bbl_env ${bbl_state_tar}
+    done
+  popd > /dev/null
+}
+
+function delete_bbl_env() {
+  local bbl_state_tar
+  bbl_state_tar="${1}"
+
+  tar -xvf "${1}"
+
+  pushd $(basename ${1} .tgz) > /dev/null
+    if [ -f "bbl-state.json" ]; then
+      set +x
+      eval "$(bbl print-env)"
+      set -x
+
+      set +e
+      curl --max-time 5 ${BOSH_ENVIRONMENT}/info
+      if [ $? -eq 0 ]; then
+        deployments=$(bosh deployments --json | jq -r '.Tables[0].Rows[][0]')
+
+        if [ $? -eq 0 ]; then
+          for deployment in ${deployments};
+          do
+            bosh -d ${deployment} delete-deployment -n
+          done
+        fi
+
+        bbl destroy -n
+      fi
+      set -e
+    fi
+
+  popd > /dev/null
+
+  rm -rf $(basename ${1} .tgz)
+  rm -rf ${1}
+  aws s3 rm s3://bbl-integration-tests/${1}
+}
+
+function main() {
+  install_bbl_develop
+  download_failed_bbl_states
+  delete_failed_bbl_states
+}
+
+main

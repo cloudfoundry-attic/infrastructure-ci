@@ -20,6 +20,9 @@ groups:
   - minor
   - patch
   - github-release
+- name: cleanup
+  jobs:
+  - cleanup-bbl-environments
 
 resource_types:
 - name: slack-notification
@@ -442,3 +445,16 @@ jobs:
       commitish: builds/commitish
       globs:
       - builds/bin/bbl-*
+
+# Cleanup
+- name: cleanup-bbl-environments
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+  - task: test
+    file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml
