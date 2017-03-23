@@ -12,3 +12,8 @@ inputs:
 
 run:
   path: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task
+
+params:
+  AWS_DEFAULT_REGION:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
