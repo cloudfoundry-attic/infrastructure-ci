@@ -39,27 +39,31 @@ function delete_bbl_env() {
       set -x
 
       set +e
-      curl --max-time 5 ${BOSH_ENVIRONMENT}/info
-      if [ $? -eq 0 ]; then
-        deployments=$(bosh deployments --json | jq -r '.Tables[0].Rows[][0]')
-
+      if [ -n "${BOSH_ENVIRONMENT}" ]; then
+        curl -k --max-time 5 "${BOSH_ENVIRONMENT}/info"
         if [ $? -eq 0 ]; then
-          for deployment in ${deployments};
-          do
-            bosh -d ${deployment} delete-deployment -n
-          done
+          delete_bbl_deployments
+          bbl destroy -n
         fi
-
-        bbl destroy -n
+      else
+        echo "No director address found."
       fi
       set -e
     fi
-
   popd > /dev/null
 
-  rm -rf $(basename ${1} .tgz)
-  rm -rf ${1}
   aws s3 rm s3://bbl-integration-tests/${1}
+}
+
+function delete_bbl_deployments() {
+  local deployments
+  deployments=$(bosh deployments --json | jq -r '.Tables[0].Rows[][0]')
+
+  if [ $? -eq 0 ]; then
+    for deployment in ${deployments}; do
+      bosh -d ${deployment} delete-deployment -n
+    done
+  fi
 }
 
 function main() {
