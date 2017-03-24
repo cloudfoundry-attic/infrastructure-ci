@@ -8,8 +8,10 @@ groups:
   - consats-linux-turbulence
   - consats-windows
   - consats-windows-turbulence
-  - deploy-with-cf
   - deploy-with-cf-deployment
+  - run-cats-cf-deployment
+  - delete-cf-deployment
+  - deploy-with-cf
   - deploy-with-diego
   - run-cats
   - delete-cf-deployments
@@ -157,6 +159,18 @@ resources:
 - name: empty-ops-files
   type: time
   source: {interval: 5m}
+
+- name: cats-concourse-task
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cats-concourse-task.git
+
+- name: cf-acceptance-tests
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
 
 jobs:
 - name: check-git-submodules
@@ -362,11 +376,65 @@ jobs:
       SYSTEM_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
       VARS_STORE_FILE: consul-cf-deployment/deployment-vars.yml
     ensure:
-      do:
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-deployment
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: run-cats-cf-deployment
+  public: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: integration-configs
+      resource: infrastructure-ci
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+    - get: cats-concourse-task
+    - get: cf-acceptance-tests
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [deploy-with-cf-deployment]
+      trigger: true
+    - get: release
+      resource: consul-release-develop
+      passed: [deploy-with-cf-deployment]
+  - task: update-integration-config
+    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    params:
+      CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
+      SYSTEM_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
+  - task: run-cats
+    file: cats-concourse-task/task.yml
+    input_mapping: {integration-config: updated-integration-configs }
+    params:
+      CONFIG_FILE_PATH: artifacts/cats_config.json
+
+- name: delete-cf-deployment
+  public: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [run-cats-cf-deployment]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: release
+      resource: consul-release-develop
+      passed: [run-cats-cf-deployment]
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-deployment
     on_failure:
       put: slack-alert
       params:

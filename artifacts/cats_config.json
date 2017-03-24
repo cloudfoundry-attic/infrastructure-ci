@@ -1,0 +1,12 @@
+{
+  "api": "REPLACE_ME",
+  "apps_domain": "REPLACE_ME",
+  "admin_user": "admin",
+  "admin_password": "REPLACE_ME",
+  "skip_ssl_validation": true,
+  "nodes": 4,
+  "verbose": false,
+  "include_security_groups": true,
+  "include_internet_dependent": true,
+  "backend": "diego"
+}
