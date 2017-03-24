@@ -75,6 +75,7 @@ resources:
     user: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
+    drafts: true
 - name: terraform
   type: github-release
   source:
