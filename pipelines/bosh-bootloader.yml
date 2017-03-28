@@ -444,6 +444,7 @@ jobs:
       name: builds/name
       tag: builds/name
       commitish: builds/commitish
+      body: builds/body
       globs:
       - builds/bin/bbl-*
 

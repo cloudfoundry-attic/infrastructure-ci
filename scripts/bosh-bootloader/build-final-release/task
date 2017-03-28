@@ -4,11 +4,13 @@ ROOT="${PWD}"
 BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
 
 function main() {
-  local commit_sha
+  local bosh_bootloader_commit_sha
+  local bosh_deployment_commit_sha
 
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry/"
   ln -s "${ROOT}/bosh-bootloader" "${GOPATH}/src/github.com/cloudfoundry/"
-  commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
+  bosh_bootloader_commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
+  bosh_deployment_commit_sha=$(git -C "${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry/bosh-deployment" rev-parse HEAD)
 
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/bbl" > /dev/null
     build_bbl
@@ -16,7 +18,8 @@ function main() {
 
   pushd "${ROOT}/builds" > /dev/null
     echo -n "v${BBL_VERSION}" > name
-    echo -n "${commit_sha}" > commitish
+    echo -n "${bosh_bootloader_commit_sha}" > commitish
+    echo -n "- *Current bosh-deployment: cloudfoundry/bosh-deployment@${bosh_deployment_commit_sha}*" > body
   popd > /dev/null
 }
 
