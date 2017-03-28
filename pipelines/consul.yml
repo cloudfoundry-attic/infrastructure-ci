@@ -556,7 +556,7 @@ jobs:
       passed: [run-cats]
       trigger: true
   - task: delete-deployments
-    file: ci/scripts/delete-deployments/task.yml
+    file: ci/scripts/delete-deployments/task-no-bbl.yml
     params:
       BOSH_ENVIRONMENT: {{consul_cf_bosh_director}}
       BOSH_CLIENT: {{consul_cf_bosh_user}}
