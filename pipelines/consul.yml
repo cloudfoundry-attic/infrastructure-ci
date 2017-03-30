@@ -11,10 +11,6 @@ groups:
   - deploy-with-cf-deployment
   - run-cats-cf-deployment
   - delete-cf-deployment
-  - deploy-with-cf
-  - deploy-with-diego
-  - run-cats
-  - delete-cf-deployments
   - create-final-release
   - merge-master-into-develop
   - deploy-bosh-lite-manifests
@@ -79,24 +75,12 @@ resources:
     private_key: {{consul-release-private-key}}
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
-- name: consul-cf-env
-  type: git
-  source:
-    branch: master
-    private_key: {{consul-cf-env-private-key}}
-    uri: git@github.com:cloudfoundry/consul-cf-env.git
-
 - name: infrastructure-ci-bbl-states
   type: git
   source:
     branch: master
     private_key: {{cf_infra_bot_user_github_private_key}}
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
-
-- name: aws-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
 - name: gcp-stemcell
   type: bosh-io-stemcell
@@ -108,19 +92,6 @@ resources:
   source:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
-
-- name: cf-release
-  type: git
-  source:
-    branch: develop
-    uri: https://github.com/cloudfoundry/cf-release.git
-
-- name: diego-release-master
-  type: git
-  source:
-    branch: master
-    ignore_paths: [.final_builds, releases]
-    uri: https://github.com/cloudfoundry/diego-release.git
 
 - name: latest-consul-release
   type: bosh-io-release
@@ -456,121 +427,6 @@ jobs:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
-- name: deploy-with-cf
-  public: true
-  serial_groups: [cf]
-  plan:
-  - aggregate:
-    - get: consul-cf-env
-    - get: ci
-      resource: infrastructure-ci
-    - get: consul-release
-      resource: consul-release-develop
-      passed: [consats-linux-turbulence, consats-windows-turbulence]
-      trigger: true
-    - get: cf-release
-    - get: stemcell
-      resource: aws-stemcell
-  - task: deploy-consul-cf
-    file: ci/scripts/deploy-consul-cf/task.yml
-    params:
-      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
-      BOSH_USER: {{consul_cf_bosh_user}}
-      BOSH_PASSWORD: {{consul_cf_bosh_password}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: deploy-with-diego
-  public: true
-  serial_groups: [cf]
-  plan:
-  - aggregate:
-    - get: consul-cf-env
-    - get: ci
-      resource: infrastructure-ci
-    - get: diego-release
-      resource: diego-release-master
-    - get: consul-release
-      resource: consul-release-develop
-      passed: [deploy-with-cf]
-      trigger: true
-    - get: stemcell
-      resource: aws-stemcell
-  - task: deploy-consul-diego
-    file: ci/scripts/deploy-consul-diego/task.yml
-    params:
-      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
-      BOSH_USER: {{consul_cf_bosh_user}}
-      BOSH_PASSWORD: {{consul_cf_bosh_password}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: run-cats
-  public: true
-  serial_groups: [cf]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: consul-release
-      resource: consul-release-develop
-      passed: [deploy-with-diego]
-      trigger: true
-  - task: run-cats
-    file: ci/scripts/run-cats/task.yml
-    params:
-      CF_DOMAIN: {{consul_cf_domain}}
-      CF_USER: {{consul_cf_user}}
-      CF_PASSWORD: {{consul_cf_password}}
-      BOSH_DIRECTOR: {{consul_cf_bosh_director}}
-      BOSH_USER: {{consul_cf_bosh_user}}
-      BOSH_PASSWORD: {{consul_cf_bosh_password}}
-      DEPLOYMENT_NAME: consul-cf-deployment
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: delete-cf-deployments
-  public: true
-  serial_groups: [cf]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: consul-release
-      resource: consul-release-develop
-      passed: [run-cats]
-      trigger: true
-  - task: delete-deployments
-    file: ci/scripts/delete-deployments/task-no-bbl.yml
-    params:
-      BOSH_ENVIRONMENT: {{consul_cf_bosh_director}}
-      BOSH_CLIENT: {{consul_cf_bosh_user}}
-      BOSH_CLIENT_SECRET: {{consul_cf_bosh_password}}
-      BOSH_CA_CERT: {{consul_cf_bosh_ca_cert}}
-      DEPLOYMENTS_WITH_WORD: consul-cf-deployment
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
 - name: create-final-release
   public: true
   serial: true
@@ -582,7 +438,7 @@ jobs:
       resource: oss-s3-buckets-stack
     - get: release-repo
       resource: consul-release-develop
-      passed: [delete-cf-deployments]
+      passed: [delete-cf-deployment]
       trigger: true
     - get: release-repo-master
       resource: consul-release-master
