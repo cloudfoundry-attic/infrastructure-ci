@@ -56,7 +56,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/davewalter/cf-deployment-concourse-tasks.git
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
 - name: consul-release-develop
   type: git
