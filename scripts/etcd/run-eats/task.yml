@@ -11,7 +11,7 @@ inputs:
   - name: etcd-release
   - name: stemcell
   - name: turbulence-release
-  - name: latest-consul-release
+  - name: latest-etcd-release
   - name: bbl-states-repo
 
 run:
