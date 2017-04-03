@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/etcd/test-etcd-proxy/task
+  path: ci/scripts/etcd/test-etcd-metrics-server/task
