@@ -15,8 +15,8 @@ function main() {
   generate_vars_file
   force_compilation
 
-  bosh -d consats -n deploy "${ROOT}/etcd-release/manifests/eats.yml" --vars-file "${ROOT}/vars.yml"
-  bosh -d consats run-errand acceptance-tests
+  bosh -d eats -n deploy "${ROOT}/etcd-release/manifests/eats.yml" --vars-file "${ROOT}/vars.yml"
+  bosh -d eats run-errand acceptance-tests
 
   bosh -n clean-up
 }
