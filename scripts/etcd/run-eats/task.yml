@@ -9,6 +9,7 @@ image_resource:
 inputs:
   - name: ci
   - name: etcd-release
+  - name: consul-release
   - name: stemcell
   - name: turbulence-release
   - name: latest-etcd-release
