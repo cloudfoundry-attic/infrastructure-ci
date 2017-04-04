@@ -65,6 +65,7 @@ bosh_username: ${BOSH_CLIENT}
 bosh_password: ${BOSH_CLIENT_SECRET}
 bosh_director_ca_cert: '${BOSH_CA_CERT}'
 enable_turbulence_tests: false
+parallel_nodes: ${PARALLEL_NODES}
 EOF
   set -x
 }
