@@ -94,9 +94,9 @@ function force_compilation() {
 function teardown() {
   set +e
   bosh -d eats -n delete-deployment
-  bosh -d eats -n delete-release etcd
-  bosh -d eats -n delete-release consul
-  bosh -d eats -n delete-release turbulence
+  bosh -n delete-release etcd
+  bosh -n delete-release consul
+  bosh -n delete-release turbulence
   set -e
 }
 
