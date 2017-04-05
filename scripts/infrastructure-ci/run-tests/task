@@ -2,7 +2,7 @@
 
 set -eux
 
-root_dir=$(cd "$(dirname $0)/../../.." && pwd)
+root_dir=$(cd "$(dirname $0)/../../../.." && pwd)
 
 scripts_dir="${root_dir}/ci/scripts"
 

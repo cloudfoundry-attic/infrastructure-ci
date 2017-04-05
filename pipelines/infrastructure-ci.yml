@@ -41,7 +41,7 @@ jobs:
       resource: infrastructure-ci
       trigger: true
     - task: infrastructure-ci-tests
-      file: infrastructure-ci/scripts/infrastructure-ci/run-tests/task.yml
+      file: ci/scripts/infrastructure-ci/run-tests/task.yml
       on_failure:
         put: slack-alert
         params:
