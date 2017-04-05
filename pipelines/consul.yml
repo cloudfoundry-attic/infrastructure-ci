@@ -8,13 +8,13 @@ groups:
   - consats-linux-turbulence
   - consats-windows
   - consats-windows-turbulence
+  - deploy-bosh-lite-manifests
+  - deploy-aws-manifests
   - deploy-with-cf-deployment
   - run-cats-cf-deployment
   - delete-cf-deployment
   - create-final-release
   - merge-master-into-develop
-  - deploy-bosh-lite-manifests
-  - deploy-aws-manifests
 - name: cleanup
   jobs:
   - delete-consats-linux-deployments
@@ -505,7 +505,7 @@ jobs:
       BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
       BOSH_LITE_NAME: bosh-lite-consul
       BOSH_LITE_KEYPAIR: bosh-lite
-      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh-lite-private-key}}
+      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
       MANIFESTS: "manifests/bosh-lite/3-node-with-ssl.yml"
     on_failure:
       put: slack-alert
@@ -517,9 +517,11 @@ jobs:
 
 - name: deploy-aws-manifests
   public: true
+  serial: true
   plan:
   - aggregate:
-    - get: infrastructure-ci
+    - get: ci
+      resource: infrastructure-ci
     - get: release
       resource: consul-release-develop
       passed: [consats-linux-turbulence]
