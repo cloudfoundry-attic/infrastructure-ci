@@ -84,7 +84,6 @@ function force_compilation() {
 
     bosh -d compilation -n deploy "${ROOT}/eats_compilation.yml"
     bosh -d compilation export-release "etcd/${ETCD_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
-    bosh -d compilation export-release "etcd/${LATEST_ETCD_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     bosh -d compilation export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     bosh -d compilation export-release "turbulence/${TURBULENCE_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
     bosh -d compilation -n delete-deployment
