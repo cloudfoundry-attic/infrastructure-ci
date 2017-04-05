@@ -2,8 +2,8 @@
 groups:
 - name: infrastructure-ci
   jobs:
-  - infrastructure-ci-unit-tests
-- name: windows-worker
+  - unit-tests
+- name: ci-workers
   jobs:
   - setup-worker-infrastructure
   - teardown-worker-infrastructure
@@ -33,21 +33,19 @@ resources:
     url: https://hooks.slack.com/services/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
 
 jobs:
-- name: infrastructure-ci-unit-tests
+- name: unit-tests
   public: true
   plan:
   - do:
-    - get: infrastructure-ci
+    - get: ci
+      resource: infrastructure-ci
       trigger: true
     - task: infrastructure-ci-tests
-      file: infrastructure-ci/scripts/infrastructure-ci/task.yml
+      file: infrastructure-ci/scripts/infrastructure-ci/run-tests/task.yml
       on_failure:
         put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 # Infrastructure
 
@@ -78,11 +76,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
+        text: {{slack_failure_text}}
 - name: teardown-worker-infrastructure
   public: true
   serial: true
@@ -105,7 +99,4 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}

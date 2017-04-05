@@ -4,7 +4,7 @@ set -eux
 
 root_dir=$(cd "$(dirname $0)/../../.." && pwd)
 
-scripts_dir="${root_dir}/infrastructure-ci/scripts"
+scripts_dir="${root_dir}/ci/scripts"
 
 # install ginkgo
 go get -v github.com/onsi/ginkgo/ginkgo
