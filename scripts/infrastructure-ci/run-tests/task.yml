@@ -10,4 +10,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/infrastructure-ci/task
+  path: ci/scripts/infrastructure-ci/run-tests/task
