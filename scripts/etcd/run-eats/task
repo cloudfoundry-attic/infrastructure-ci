@@ -60,11 +60,14 @@ function upload_releases() {
 function generate_vars_file() {
   set +x
   cat > "${ROOT}/vars.yml" <<EOF
+etcd_release_version: ${ETCD_RELEASE_VERSION}
+latest_etcd_release_version: ${LATEST_ETCD_RELEASE_VERSION}
+stemcell_version: ${STEMCELL_VERSION}
 bosh_target: ${BOSH_ENVIRONMENT}
 bosh_username: ${BOSH_CLIENT}
 bosh_password: ${BOSH_CLIENT_SECRET}
 bosh_director_ca_cert: '${BOSH_CA_CERT}'
-enable_turbulence_tests: false
+enable_turbulence_tests: ${ENABLE_TURBULENCE_TESTS}
 parallel_nodes: ${PARALLEL_NODES}
 EOF
   set -x
