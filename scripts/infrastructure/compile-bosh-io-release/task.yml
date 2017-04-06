@@ -1,0 +1,24 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: infrastructure-ci
+  - name: bosh-io-release
+  - name: stemcell
+  - name: bbl-states-repo
+
+outputs:
+  - name: compiled-bosh-release
+
+params:
+  BBL_STATE_DIR:
+  COMPILED_RELEASE_BUCKET:
+  RELEASE_NAME:
+
+run:
+  path: infrastructure-ci/scripts/infrastructure/compile-bosh-io-release/task

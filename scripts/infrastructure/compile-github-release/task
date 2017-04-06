@@ -1,0 +1,85 @@
+#!/bin/bash -exu
+
+export ROOT="${PWD}"
+export STEMCELL_VERSION=$(cat "${ROOT}"/stemcell/version)
+export RELEASE_VERSION="99999+dev.$(date +%s)"
+export BOSH_DEPLOYMENT="compilation_${RELEASE_NAME}"
+
+function main() {
+  setup_env_from_bbl_state
+  check_existing_release_in_bucket
+  upload_stemcell
+  upload_release
+  force_compilation
+}
+
+function setup_env_from_bbl_state() {
+  pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    eval "$(bbl print-env)"
+  popd > /dev/null
+}
+
+function check_existing_release_in_bucket() {
+  local filename
+  filename="release-${RELEASE_NAME}-${RELEASE_VERSION}-on-ubuntu-trusty-stemcell-${STEMCELL_VERSION}.tgz"
+
+  set +e
+  curl -f "https://s3.amazonaws.com/${COMPILED_RELEASE_BUCKET}/${filename}" > /dev/null
+  if [ $? -eq 0 ]; then
+    echo "${filename} already exists on S3."
+    exit 0
+  fi
+  set -e
+}
+
+function upload_stemcell() {
+  pushd "${ROOT}/stemcell" > /dev/null
+    bosh upload-stemcell stemcell.tgz
+  popd > /dev/null
+}
+
+function upload_release() {
+  pushd "${ROOT}/github-release" > /dev/null
+    bosh -n create-release --force --version "${RELEASE_VERSION}"
+    bosh upload-release release.tgz
+  popd > /dev/null
+}
+
+function force_compilation() {
+  pushd /tmp > /dev/null
+    sed \
+      -e "s/REPLACE_ME_RELEASE_VERSION/${RELEASE_VERSION}/g" \
+      -e "s/REPLACE_ME_RELEASE_NAME/${RELEASE_NAME}/g" \
+      "${ROOT}/infrastructure-ci/scripts/infrastructure/compile-github-release/fixtures/compilation.yml" > "compilation.yml"
+    bosh -n deploy "/tmp/compilation.yml"
+  popd > /dev/null
+
+  pushd "${ROOT}/compiled-bosh-release" > /dev/null
+    bosh export-release "${RELEASE_NAME}/${RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
+  popd > /dev/null
+
+  bosh -n delete-deployment
+}
+
+function cleanup_releases() {
+  bosh -n clean-up --all
+}
+
+function rollup() {
+  set +x
+  local input
+  input="${1}"
+
+  local output
+
+  IFS=$'\n'
+  for line in ${input}; do
+    output="${output:-""}\n${line}"
+  done
+
+  printf "%s" "${output#'\n'}"
+  set -x
+}
+
+trap cleanup_releases EXIT
+main
