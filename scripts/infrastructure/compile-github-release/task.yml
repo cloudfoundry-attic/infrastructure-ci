@@ -17,7 +17,6 @@ outputs:
 
 params:
   BBL_STATE_DIR:
-  COMPILED_RELEASE_BUCKET:
   RELEASE_NAME:
 
 run:
