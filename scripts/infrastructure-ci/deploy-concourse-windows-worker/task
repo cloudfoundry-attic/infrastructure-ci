@@ -12,7 +12,7 @@ function main() {
 
   bosh -d ${DEPLOYMENT_NAME} -n deploy \
     "${root_dir}/ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/fixtures/windows-worker.yml" \
-    --vars-file "${root_dir}/vars.yml"
+    --vars-file "${root_dir}/vars.yml" \
     --var-file tsa_worker_private_key="${root_dir}/tsa_worker.key"
 
   bosh -n clean-up
