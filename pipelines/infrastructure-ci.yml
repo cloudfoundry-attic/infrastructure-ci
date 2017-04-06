@@ -7,6 +7,7 @@ groups:
   jobs:
   - setup-worker-infrastructure
   - deploy-windows-worker
+  - delete-windows-worker-deployment
   - teardown-worker-infrastructure
 
 resource_types:
@@ -112,7 +113,29 @@ jobs:
       TSA_HOST: {{wings_tsa_host}}
       TSA_PUBLIC_KEY: {{wings_tsa_public_key}}
       TSA_WORKER_PRIVATE_KEY: {{windows_tsa_worker_private_key}}
-
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+- name: delete-windows-worker-deployment
+  public: true
+  serial: true
+  serial_groups: [infrastructure]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: delete-windows-worker-deployment
+    file: ci/scripts/delete-deployment/task.yml
+    params:
+      DEPLOYMENT_NAME: wings-windows-worker
+      BBL_STATE_DIR: ci-workers
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
 - name: teardown-worker-infrastructure
   public: true
   serial: true
@@ -123,6 +146,8 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed: [delete-windows-worker-deployment]
+      trigger: true
   - task: bbl-destroy
     file: ci/scripts/infrastructure/bbl-destroy/task.yml
     params:
