@@ -10,7 +10,7 @@ function main() {
   upload_release "${root_dir}/concourse-windows"
   generate_vars_file "${root_dir}"
 
-  bosh -d ${DEPLOYMENT_NAME} deploy \
+  bosh -d ${DEPLOYMENT_NAME} -n deploy \
     "${root_dir}/ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/fixtures/windows-worker.yml" \
     --vars-file "${root_dir}/vars.yml"
 
