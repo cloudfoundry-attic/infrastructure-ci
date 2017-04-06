@@ -147,7 +147,6 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
       passed: [delete-windows-worker-deployment]
-      trigger: true
   - task: bbl-destroy
     file: ci/scripts/infrastructure/bbl-destroy/task.yml
     params:
