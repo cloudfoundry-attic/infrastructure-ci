@@ -66,7 +66,7 @@ stemcell_version: ${STEMCELL_VERSION}
 bosh_target: ${BOSH_ENVIRONMENT}
 bosh_username: ${BOSH_CLIENT}
 bosh_password: ${BOSH_CLIENT_SECRET}
-bosh_director_ca_cert: '${BOSH_CA_CERT}'
+bosh_director_ca_cert: "${BOSH_CA_CERT}"
 enable_turbulence_tests: ${ENABLE_TURBULENCE_TESTS}
 parallel_nodes: ${PARALLEL_NODES}
 EOF
