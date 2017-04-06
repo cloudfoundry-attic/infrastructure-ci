@@ -13,6 +13,7 @@ function main() {
   bosh -d ${DEPLOYMENT_NAME} -n deploy \
     "${root_dir}/ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/fixtures/windows-worker.yml" \
     --vars-file "${root_dir}/vars.yml"
+    --var-file tsa_worker_private_key="${root_dir}/tsa_worker.key"
 
   bosh -n clean-up
 }
@@ -58,8 +59,9 @@ name: ${DEPLOYMENT_NAME}
 concourse_team: ${CONCOURSE_TEAM}
 tsa_host: ${TSA_HOST}
 tsa_public_key: ${TSA_PUBLIC_KEY}
-tsa_worker_private_key: '${TSA_WORKER_PRIVATE_KEY}'
 EOF
+
+  echo "${TSA_WORKER_PRIVATE_KEY}" > "${root_dir}/tsa_worker.key"
   set -x
 }
 
