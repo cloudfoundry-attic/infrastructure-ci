@@ -27,7 +27,7 @@ function upload_stemcell() {
 function upload_release() {
   pushd "${ROOT}/github-release" > /dev/null
     bosh -n create-release --force --version "${RELEASE_VERSION}"
-    bosh upload-release release.tgz
+    bosh upload-release
   popd > /dev/null
 }
 
