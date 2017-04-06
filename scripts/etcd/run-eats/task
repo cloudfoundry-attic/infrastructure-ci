@@ -58,6 +58,8 @@ function upload_releases() {
 }
 
 function generate_vars_file() {
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/ci" "infrastructure-ci"
 
