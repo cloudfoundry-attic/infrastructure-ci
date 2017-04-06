@@ -58,7 +58,7 @@ name: ${DEPLOYMENT_NAME}
 concourse_team: ${CONCOURSE_TEAM}
 tsa_host: ${TSA_HOST}
 tsa_public_key: ${TSA_PUBLIC_KEY}
-tsa_worker_private_key: ${TSA_WORKER_PRIVATE_KEY}
+tsa_worker_private_key: '${TSA_WORKER_PRIVATE_KEY}'
 EOF
   set -x
 }
