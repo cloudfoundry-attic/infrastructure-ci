@@ -6,6 +6,7 @@ groups:
 - name: ci-workers
   jobs:
   - setup-worker-infrastructure
+  - deploy-windows-worker
   - teardown-worker-infrastructure
 
 resource_types:
@@ -27,6 +28,16 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: {{cf_infra_bot_user_github_private_key}}
     branch: master
+- name: concourse-windows-fork
+  type: git
+  source:
+    uri: https://github.com/christianang/concourse-windows-release.git
+    branch: team-property
+- name: windows-stemcell
+  type: s3
+  source:
+    bucket: bosh-windows-stemcells
+    regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 - name: slack-alert
   type: slack-notification
   source:
@@ -46,9 +57,7 @@ jobs:
         put: slack-alert
         params:
           text: {{slack_failure_text}}
-
 # Infrastructure
-
 - name: setup-worker-infrastructure
   public: true
   serial: true
@@ -77,6 +86,29 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+- name: deploy-windows-worker
+  public: true
+  serial: true
+  serial_groups: [infrastructure]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+    - get: windows-stemcell
+    - get: concourse-windows
+      resource: concourse-windows-fork
+  - task: deploy-windows-worker
+    file: ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/task.yml
+    params:
+      DEPLOYMENT_NAME: wings-windows-worker
+      BBL_STATE_DIR: ci-workers
+      CONCOURSE_TEAM: {{wings_concourse_team}}
+      TSA_HOST: {{wings_tsa_host}}
+      TSA_PUBLIC_KEY: {{wings_tsa_public_key}}
+      TSA_WORKER_PRIVATE_KEY: {{windows_tsa_worker_private_key}}
+
 - name: teardown-worker-infrastructure
   public: true
   serial: true
