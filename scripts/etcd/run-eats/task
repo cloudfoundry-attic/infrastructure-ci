@@ -58,19 +58,15 @@ function upload_releases() {
 }
 
 function generate_vars_file() {
-  set +x
-  cat > "${ROOT}/vars.yml" <<EOF
-etcd_release_version: ${ETCD_RELEASE_VERSION}
-latest_etcd_release_version: ${LATEST_ETCD_RELEASE_VERSION}
-stemcell_version: ${STEMCELL_VERSION}
-bosh_target: ${BOSH_ENVIRONMENT}
-bosh_username: ${BOSH_CLIENT}
-bosh_password: ${BOSH_CLIENT_SECRET}
-bosh_director_ca_cert: "${BOSH_CA_CERT}"
-enable_turbulence_tests: ${ENABLE_TURBULENCE_TESTS}
-parallel_nodes: ${PARALLEL_NODES}
-EOF
-  set -x
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${ROOT}/ci" "infrastructure-ci"
+
+    pushd "${GOPATH}/src/github.com/cloudfoundry/infrastructure-ci" > /dev/null
+      go run \
+        "./scripts/etcd/run-eats/main.go" \
+        > "${ROOT}/vars.yml"
+    popd > /dev/null
+  popd > /dev/null
 }
 
 function force_compilation() {
@@ -98,7 +94,6 @@ function teardown() {
   bosh -n delete-release turbulence
   set -e
 }
-
 
 trap teardown EXIT
 
