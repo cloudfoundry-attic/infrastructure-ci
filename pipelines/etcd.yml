@@ -470,9 +470,10 @@ jobs:
       AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
       AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
       AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_DIRECTOR: {{eats_bosh_director}}
-      BOSH_PASSWORD: {{eats_bosh_password}}
-      BOSH_USER: {{eats_bosh_username}}
+      BOSH_ENVIRONMENT: {{eats_bosh_director}}
+      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
+      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
+      BOSH_CLIENT: {{eats_bosh_username}}
       MANIFEST_PATH: manifests/aws/multi-az-no-ssl.yml
     on_failure:
       put: slack-alert
@@ -484,9 +485,10 @@ jobs:
       AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
       AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
       AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_DIRECTOR: {{eats_bosh_director}}
-      BOSH_PASSWORD: {{eats_bosh_password}}
-      BOSH_USER: {{eats_bosh_username}}
+      BOSH_ENVIRONMENT: {{eats_bosh_director}}
+      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
+      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
+      BOSH_CLIENT: {{eats_bosh_username}}
       MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
     on_failure:
       put: slack-alert
