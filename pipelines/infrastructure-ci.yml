@@ -31,11 +31,11 @@ resources:
     branch: master
     paths:
     - ci-workers
-- name: concourse-windows-fork
+- name: concourse-windows-master
   type: git
   source:
-    uri: https://github.com/christianang/concourse-windows-release.git
-    branch: team-property
+    uri: https://github.com/pivotal-cf-experimental/concourse-windows-release.git
+    branch: master
 - name: windows-stemcell
   type: s3
   source:
@@ -103,7 +103,7 @@ jobs:
       trigger: true
     - get: windows-stemcell
     - get: concourse-windows
-      resource: concourse-windows-fork
+      resource: concourse-windows-master
   - task: deploy-windows-worker
     file: ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/task.yml
     params:
