@@ -6,6 +6,7 @@ function main() {
   upload_stemcell
   upload_dependencies
   create_and_upload_release
+  update_cloud_config
   deploy_manifests
 }
 
@@ -58,6 +59,14 @@ function create_and_upload_release() {
     /opt/rubies/ruby-2.2.4/bin/bosh -n create release --force
     /opt/rubies/ruby-2.2.4/bin/bosh -n upload release
   popd > /dev/null
+}
+
+function update_cloud_config() {
+  set +e
+  pushd "${BUILD_DIR}/release" > /dev/null
+    bosh update cloud-config "${CLOUD_CONFIG}"
+  popd > /dev/null
+  set -e
 }
 
 function deploy_manifests() {
