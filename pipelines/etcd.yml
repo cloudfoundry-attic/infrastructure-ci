@@ -75,11 +75,11 @@ resources:
 - name: diego-release-master
   type: git
   source:
-    branch: master
+    branch: develop
     ignore_paths:
     - .final_builds
     - releases
-    uri: https://github.com/cloudfoundry/diego-release.git
+    uri: https://github.com/christianang/diego-release.git
 
 - name: infrastructure-ci-bbl-states
   type: git
