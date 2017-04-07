@@ -527,7 +527,7 @@ jobs:
       passed: [consats-linux-turbulence]
       trigger: true
   - task: deploy-aws-manifests
-    file: ci/scripts/deploy-aws-manifests/deploy-consul-aws-manifests.yml
+    file: ci/scripts/common/deploy-aws-manifests/deploy-consul-aws-manifests.yml
     params:
       BOSH_DIRECTOR: {{consats_linux_bosh_director}}
       BOSH_USER: {{consats_linux_bosh_username}}

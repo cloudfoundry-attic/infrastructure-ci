@@ -9,7 +9,6 @@ image_resource:
 inputs:
   - name: infrastructure-ci
   - name: release
-  - name: consul-release
 
 params:
   BOSH_ENVIRONMENT:
@@ -22,4 +21,5 @@ params:
   MANIFEST_PATH:
 
 run:
-  path: infrastructure-ci/scripts/deploy-aws-manifests/deploy-etcd-aws-manifests
+  path: infrastructure-ci/scripts/common/deploy-aws-manifests/deploy-consul-aws-manifests
+

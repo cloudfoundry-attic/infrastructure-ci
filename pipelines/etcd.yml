@@ -465,7 +465,7 @@ jobs:
       trigger: true
       resource: etcd-release-develop
   - task: deploy-multi-az-no-ssl-manifest
-    file: ci/scripts/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
     params:
       AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
       AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
@@ -479,7 +479,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
   - task: deploy-multi-az-ssl-manifest
-    file: ci/scripts/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
     params:
       AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
       AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
