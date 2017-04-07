@@ -65,7 +65,7 @@ function generate_vars_file() {
 
     pushd "${GOPATH}/src/github.com/cloudfoundry/infrastructure-ci" > /dev/null
       go run \
-        "./scripts/etcd/run-eats/main.go" \
+        "./scripts/etcd/run-eats/generate_vars_file.go" \
         > "${ROOT}/vars.yml"
     popd > /dev/null
   popd > /dev/null
