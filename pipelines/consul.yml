@@ -205,7 +205,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: consats-linux
-    file: ci/scripts/run-consats/task.yml
+    file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 7
@@ -238,7 +238,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: consats-linux
-    file: ci/scripts/run-consats/task.yml
+    file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 3
@@ -271,7 +271,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: consats-windows
-    file: ci/scripts/run-consats/task.yml
+    file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
       PARALLEL_NODES: 5
@@ -305,7 +305,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: consats-windows
-    file: ci/scripts/run-consats/task.yml
+    file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
       PARALLEL_NODES: 3

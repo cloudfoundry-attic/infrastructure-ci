@@ -16,7 +16,7 @@ inputs:
   - name: bbl-states-repo
 
 run:
-  path: ci/scripts/run-consats/task
+  path: ci/scripts/consul/run-consats/task
 
 params:
   BBL_STATE_DIR:
