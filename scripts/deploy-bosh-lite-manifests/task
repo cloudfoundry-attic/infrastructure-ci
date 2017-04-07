@@ -63,7 +63,7 @@ function create_and_upload_release() {
 
 function update_cloud_config() {
   set +e
-  bosh update cloud-config "${PWD}/release/${CLOUD_CONFIG}"
+  /opt/rubies/ruby-2.2.4/bin/bosh update cloud-config "${PWD}/release/${CLOUD_CONFIG}"
   set -e
 }
 
