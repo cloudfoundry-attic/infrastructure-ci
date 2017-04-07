@@ -15,7 +15,7 @@ function upload_release() {
 function deploy_etcd() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-    ln -s "${ROOT}/infrastructure-ci"
+    ln -s "${ROOT}/ci" "infrastructure-ci"
     pushd ./infrastructure-ci/scripts/common/deploy-aws-manifests > /dev/null
       set +x
       go run main.go \
