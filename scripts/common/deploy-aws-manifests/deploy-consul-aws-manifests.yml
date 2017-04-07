@@ -7,7 +7,7 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
-  - name: infrastructure-ci
+  - name: ci
   - name: release
 
 params:
@@ -21,5 +21,4 @@ params:
   MANIFEST_PATH:
 
 run:
-  path: infrastructure-ci/scripts/common/deploy-aws-manifests/deploy-consul-aws-manifests
-
+  path: ci/scripts/common/deploy-aws-manifests/deploy-consul-aws-manifests
