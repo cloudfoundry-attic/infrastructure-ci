@@ -63,9 +63,7 @@ function create_and_upload_release() {
 
 function update_cloud_config() {
   set +e
-  pushd "${BUILD_DIR}/release" > /dev/null
-    bosh update cloud-config "${CLOUD_CONFIG}"
-  popd > /dev/null
+  bosh update cloud-config "${PWD}/release/${CLOUD_CONFIG}"
   set -e
 }
 
