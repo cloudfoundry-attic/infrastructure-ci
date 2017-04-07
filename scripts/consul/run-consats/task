@@ -70,7 +70,7 @@ function force_compilation() {
     sed  -e "s/CONSUL_RELEASE_VERSION/${CONSUL_RELEASE_VERSION}/g" \
       -e "s/TURBULENCE_RELEASE_VERSION/${TURBULENCE_RELEASE_VERSION}/g" \
       -e "s/STEMCELL_VERSION/${STEMCELL_VERSION}/g" \
-      "${ROOT}/ci/scripts/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
+      "${ROOT}/ci/scripts/consul/run-consats/fixtures/consul_compilation.yml" > "consul_compilation.yml"
 
     /usr/local/bin/bosh -d compilation -n deploy consul_compilation.yml
     /usr/local/bin/bosh -d compilation export-release "consul/${CONSUL_RELEASE_VERSION}" "ubuntu-trusty/${STEMCELL_VERSION}"
@@ -88,7 +88,7 @@ function generate_manifest() {
 
     pushd "${GOPATH}/src/github.com/cloudfoundry/infrastructure-ci" > /dev/null
       GO15VENDOREXPERIMENT=1 go run \
-        "./scripts/run-consats/generate_manifest.go" \
+        "./scripts/consul/run-consats/generate_manifest.go" \
         "${ROOT}/consul-release/manifests/consats.yml" \
         > "${ROOT}/consats.yml"
     popd > /dev/null
