@@ -1,8 +1,8 @@
 package subnetchecker
 
 import (
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/clients"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/manifests"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/clients"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/manifests"
 )
 
 type SubnetChecker struct {

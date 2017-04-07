@@ -20,7 +20,7 @@ var (
 var _ = BeforeSuite(func() {
 	var err error
 
-	pathToMain, err = gexec.Build("github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests")
+	pathToMain, err = gexec.Build("github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests")
 	Expect(err).NotTo(HaveOccurred())
 })
 

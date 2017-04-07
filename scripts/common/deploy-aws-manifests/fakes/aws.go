@@ -1,6 +1,6 @@
 package fakes
 
-import "github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/clients"
+import "github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/clients"
 
 type AWS struct {
 	SessionCall struct {

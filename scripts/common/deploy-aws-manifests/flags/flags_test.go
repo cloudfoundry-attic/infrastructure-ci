@@ -1,7 +1,7 @@
 package flags_test
 
 import (
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/flags"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/flags"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

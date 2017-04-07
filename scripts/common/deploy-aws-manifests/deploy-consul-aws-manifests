@@ -15,7 +15,7 @@ function deploy_consul() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${root_dir}/infrastructure-ci"
-    pushd ./infrastructure-ci/scripts/deploy-aws-manifests > /dev/null
+    pushd ./infrastructure-ci/scripts/common/deploy-aws-manifests > /dev/null
       set +x
       go run main.go \
         --manifest-path "${root_dir}/release/${MANIFEST_PATH}" \

@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/awsdeployer"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/clients"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/fakes"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/awsdeployer"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/clients"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/fakes"
 	"github.com/pivotal-cf-experimental/bosh-test/bosh"
 
 	. "github.com/onsi/ginkgo"

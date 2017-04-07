@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/manifests"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/manifests"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

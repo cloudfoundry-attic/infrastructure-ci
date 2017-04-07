@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/clients"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/fakes"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/subnetchecker"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/clients"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/fakes"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/subnetchecker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

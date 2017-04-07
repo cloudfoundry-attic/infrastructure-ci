@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/clients"
-	"github.com/cloudfoundry/infrastructure-ci/scripts/deploy-aws-manifests/fakes"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/clients"
+	"github.com/cloudfoundry/infrastructure-ci/scripts/common/deploy-aws-manifests/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
