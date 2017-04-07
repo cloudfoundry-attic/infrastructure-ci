@@ -13,3 +13,9 @@
 [submodule "scripts/deploy-aws-manifests/vendor/gopkg.in/yaml.v2"]
 	path = scripts/deploy-aws-manifests/vendor/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
+[submodule "scripts/etcd/run-eats/vendor/github.com/pivotal-cf-experimental/gomegamatchers"]
+	path = scripts/etcd/run-eats/vendor/github.com/pivotal-cf-experimental/gomegamatchers
+	url = https://github.com/pivotal-cf-experimental/gomegamatchers
+[submodule "scripts/etcd/run-eats/vendor/gopkg.in/yaml.v2"]
+	path = scripts/etcd/run-eats/vendor/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
