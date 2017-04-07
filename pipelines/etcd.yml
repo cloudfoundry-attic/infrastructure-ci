@@ -1,0 +1,567 @@
+groups:
+- name: etcd
+  jobs:
+  - check-git-submodules
+  - test-etcd-proxy
+  - test-etcd-metrics-server
+  - eats
+  - eats-turbulence
+  - deploy-bosh-lite-manifests
+  - deploy-aws-manifests
+  - deploy-with-cf
+  - deploy-with-diego
+  - test-with-diego
+  - test-cf-tls-upgrade
+  - delete-deployments
+  - merge-master-into-develop
+- name: cleanup
+  jobs:
+  - delete-eats-deployments
+- name: infrastructure
+  jobs:
+  - setup-eats-infrastructure
+  - teardown-eats-infrastructure
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
+resources:
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+- name: etcd-release-develop
+  type: git
+  source:
+    branch: develop
+    ignore_paths:
+    - .final_builds
+    - releases
+    uri: https://github.com/cloudfoundry-incubator/etcd-release.git
+
+- name: etcd-release-master
+  type: git
+  source:
+    branch: master
+    private_key: {{etcd_release_private_key}}
+    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
+
+- name: etcd-release-merge-target
+  type: git
+  source:
+    branch: develop
+    private_key: {{etcd_release_private_key}}
+    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
+
+- name: consul-release-master
+  type: git
+  source:
+    branch: master
+    private_key: {{consul-release-private-key}}
+    uri: git@github.com:cloudfoundry-incubator/consul-release.git
+
+- name: cf-release
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/cloudfoundry/cf-release.git
+
+- name: diego-release-master
+  type: git
+  source:
+    branch: master
+    ignore_paths:
+    - .final_builds
+    - releases
+    uri: https://github.com/cloudfoundry/diego-release.git
+
+- name: infrastructure-ci-bbl-states
+  type: git
+  source:
+    branch: master
+    private_key: {{cf_infra_bot_user_github_private_key}}
+    uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
+
+- name: etcd-cf-env
+  type: git
+  source:
+    branch: master
+    private_key: {{etcd-cf-env-private-key}}
+    uri: git@github.com:cloudfoundry/etcd-cf-env.git
+
+- name: gcp-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+
+- name: turbulence-release
+  type: github-release
+  source:
+    repository: turbulence-release
+    user: christianang
+
+- name: consul-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/consul-release
+
+- name: latest-etcd-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/etcd-release
+
+- name: bosh-lite
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-lite.git
+
+- name: bosh-lite-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+
+jobs:
+- name: check-git-submodules
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: repo
+      trigger: true
+      resource: etcd-release-develop
+  - task: check-git-submodules
+    file: ci/scripts/check-git-submodules/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: test-etcd-proxy
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - check-git-submodules
+      trigger: true
+      resource: etcd-release-develop
+  - task: test-etcd-proxy
+    file: ci/scripts/etcd/test-etcd-proxy/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: test-etcd-metrics-server
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - check-git-submodules
+      trigger: true
+      resource: etcd-release-develop
+  - task: test-etcd-metrics-server
+    file: ci/scripts/etcd/test-etcd-metrics-server/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: eats
+  public: true
+  serial: true
+  serial_groups:
+  - eats
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - test-etcd-proxy
+      - test-etcd-metrics-server
+      trigger: true
+      resource: etcd-release-develop
+    - get: stemcell
+      resource: gcp-stemcell
+    - get: turbulence-release
+    - get: consul-release
+    - get: latest-etcd-release
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: run-eats
+    file: ci/scripts/etcd/run-eats/task.yml
+    params:
+      BBL_STATE_DIR: eats
+      ENABLE_TURBULENCE_TESTS: false
+      PARALLEL_NODES: 7
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: eats-turbulence
+  public: true
+  serial: true
+  serial_groups:
+  - eats
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - eats
+      trigger: true
+      resource: etcd-release-develop
+    - get: stemcell
+      passed:
+      - eats
+      resource: gcp-stemcell
+    - get: turbulence-release
+    - get: consul-release
+    - get: latest-etcd-release
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: run-eats
+    file: ci/scripts/etcd/run-eats/task.yml
+    params:
+      BBL_STATE_DIR: eats
+      ENABLE_TURBULENCE_TESTS: true
+      PARALLEL_NODES: 3
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-with-cf
+  public: true
+  serial_groups:
+  - cf
+  plan:
+  - aggregate:
+    - get: infrastructure-ci
+    - get: etcd-cf-env
+    - get: etcd-release
+      passed:
+      - eats-turbulence
+      trigger: true
+      resource: etcd-release-develop
+    - get: cf-release
+    - get: stemcell
+      resource: aws-stemcell
+  - task: deploy-etcd-cf
+    file: infrastructure-ci/scripts/etcd/deploy-cf/task.yml
+    params:
+      BOSH_CA_CERT: {{etcd_cf_bosh_ca_cert}}
+      BOSH_CLIENT: {{etcd_cf_bosh_client}}
+      BOSH_CLIENT_SECRET: {{etcd_cf_bosh_client_secret}}
+      BOSH_ENVIRONMENT: {{etcd_cf_bosh_environment}}
+      CF_DEPLOYMENT_TRACE: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-with-diego
+  public: true
+  serial_groups:
+  - cf
+  plan:
+  - aggregate:
+    - get: infrastructure-ci
+    - get: etcd-cf-env
+    - get: etcd-release
+      passed:
+      - deploy-with-cf
+      trigger: true
+      resource: etcd-release-develop
+    - get: diego-release
+      resource: diego-release-master
+    - get: stemcell
+      resource: aws-stemcell
+  - task: deploy-etcd-diego
+    file: infrastructure-ci/scripts/etcd/deploy-diego/task.yml
+    params:
+      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
+      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
+      BOSH_USER: {{etcd_cf_bosh_client}}
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: test-with-diego
+  public: true
+  serial_groups:
+  - cf
+  plan:
+  - aggregate:
+    - get: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - deploy-with-diego
+      trigger: true
+      resource: etcd-release-develop
+  - task: run-cats
+    file: infrastructure-ci/scripts/etcd/test-diego/task.yml
+    params:
+      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
+      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
+      BOSH_USER: {{etcd_cf_bosh_client}}
+      CF_DOMAIN: {{etcd_cf_domain}}
+      CF_PASSWORD: {{etcd_cf_password}}
+      CF_USER: {{etcd_cf_user}}
+      DEPLOYMENT_NAME: etcd-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: test-cf-tls-upgrade
+  serial_groups:
+  - cf
+  plan:
+  - aggregate:
+    - get: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - test-with-diego
+      trigger: true
+      resource: etcd-release-develop
+  - task: run-cf-tls-upgrade-test
+    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
+    params:
+      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
+      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
+      BOSH_USER: {{etcd_cf_bosh_client}}
+      CF_DOMAIN: {{etcd_cf_domain}}
+      CF_PASSWORD: {{etcd_cf_password}}
+      CF_USER: {{etcd_cf_user}}
+      DEPLOYMENT_NAME: etcd-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: delete-deployments
+  public: true
+  serial_groups:
+  - cf
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: etcd-release
+      passed:
+      - test-cf-tls-upgrade
+      trigger: true
+      resource: etcd-release-develop
+  - task: delete-deployments
+    file: ci/scripts/delete-deployments/task-no-bbl.yml
+    params:
+      BOSH_CA_CERT: {{etcd_cf_bosh_ca_cert}}
+      BOSH_CLIENT: {{etcd_cf_bosh_client}}
+      BOSH_CLIENT_SECRET: {{etcd_cf_bosh_client_secret}}
+      BOSH_ENVIRONMENT: {{etcd_cf_bosh_environment}}
+      DEPLOYMENTS_WITH_WORD: etcd-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: merge-master-into-develop
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: release-repo-master
+      trigger: true
+      resource: etcd-release-master
+    - get: release-repo
+      resource: etcd-release-merge-target
+  - task: merge-master-into-develop
+    file: ci/scripts/merge-master-into-develop/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - put: etcd-release-merge-target
+    params:
+      repository: final-release-repo
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-bosh-lite-manifests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-lite
+    - get: bosh-lite-stemcell
+    - get: release
+      passed:
+      - eats-turbulence
+      trigger: true
+      resource: etcd-release-develop
+  - task: deploy-bosh-lite-manifests
+    file: ci/scripts/deploy-bosh-lite-manifests/task.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_LITE_KEYPAIR: bosh-lite
+      BOSH_LITE_NAME: bosh-lite-etcd
+      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
+      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
+      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
+      DEPENDENCIES: cloudfoundry-incubator/consul-release
+      MANIFESTS: manifests/bosh-lite/3-node-with-ssl.yml manifests/bosh-lite/3-node-no-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-aws-manifests
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-master
+    - get: release
+      passed:
+      - eats-turbulence
+      trigger: true
+      resource: etcd-release-develop
+  - task: deploy-multi-az-no-ssl-manifest
+    file: ci/scripts/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
+      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_DIRECTOR: {{eats_bosh_director}}
+      BOSH_PASSWORD: {{eats_bosh_password}}
+      BOSH_USER: {{eats_bosh_username}}
+      MANIFEST_PATH: manifests/aws/multi-az-no-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - task: deploy-multi-az-ssl-manifest
+    file: ci/scripts/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
+      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_DIRECTOR: {{eats_bosh_director}}
+      BOSH_PASSWORD: {{eats_bosh_password}}
+      BOSH_USER: {{eats_bosh_username}}
+      MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: delete-eats-deployments
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: delete-deployments
+    file: ci/scripts/delete-deployments/task.yml
+    params:
+      BBL_STATE_DIR: eats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: setup-eats-infrastructure
+  public: true
+  serial: true
+  serial_groups:
+  - eats
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/infrastructure/bbl-up/task.yml
+    params:
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_NAME: eats
+      BBL_STATE_DIR: eats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        rebase: true
+        repository: bbl-states-repo-out
+
+- name: teardown-eats-infrastructure
+  public: true
+  serial: true
+  serial_groups:
+  - eats
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      passed:
+      - setup-eats-infrastructure
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-destroy
+    file: ci/scripts/infrastructure/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: eats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        rebase: true
+        repository: bbl-states-repo-out
