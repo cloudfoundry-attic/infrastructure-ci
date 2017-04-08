@@ -1,7 +1,5 @@
 #!/bin/bash -exu
 
-export GOPATH="$PWD/etcd-release"
-
 function create_integration_config() {
   cat > eats_config.json <<EOF
   {
