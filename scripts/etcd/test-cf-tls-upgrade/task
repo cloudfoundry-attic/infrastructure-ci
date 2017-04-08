@@ -23,16 +23,22 @@ EOF
 function main() {
   local ROOT=$1
 
-  pushd "${ROOT}/etcd-release" > /dev/null
-    create_integration_config
-    EATS_CONFIG="${PWD}/eats_config.json" ginkgo \
-      -r \
-      -randomizeAllSpecs \
-      -randomizeSuites \
-      -failFast \
-      -succinct \
-      -slowSpecThreshold 300 \
-      ./src/cf-tls-upgrade/
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${ROOT}/etcd-release"
+
+    pushd "${GOPATH}/src/github.com/cloudfoundry/etcd-release" > /dev/null
+      create_integration_config
+      EATS_CONFIG="${PWD}/eats_config.json" ginkgo \
+        -r \
+        -randomizeAllSpecs \
+        -randomizeSuites \
+        -failFast \
+        -succinct \
+        -slowSpecThreshold 300 \
+        ./src/cf-tls-upgrade/
+    popd > /dev/null
   popd > /dev/null
 }
 
