@@ -9,6 +9,7 @@ groups:
   - deploy-bosh-lite-manifests
   - deploy-aws-manifests
   - deploy-with-cf-deployment
+  - run-cats-cf-deployment
   - delete-cf-deployment
   - deploy-with-cf
   - deploy-with-diego
@@ -165,6 +166,18 @@ resources:
 - name: empty-ops-files
   type: time
   source: {interval: 5m}
+
+- name: cats-concourse-task
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cats-concourse-task.git
+
+- name: cf-acceptance-tests
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
 
 jobs:
 - name: check-git-submodules
@@ -399,6 +412,46 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
+- name: run-cats-cf-deployment
+  public: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: integration-configs
+      resource: infrastructure-ci
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+    - get: cats-concourse-task
+    - get: cf-acceptance-tests
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [deploy-with-cf-deployment]
+      trigger: true
+    - get: release
+      resource: etcd-release-develop
+      passed: [deploy-with-cf-deployment]
+  - task: update-integration-config
+    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    params:
+      CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
+      VARS_STORE_FILE: etcd-cf-deployment/deployment-vars.yml
+      SYSTEM_DOMAIN: etcd-cf-deployment.infrastructure.cf-app.com
+  - task: run-cats
+    file: cats-concourse-task/task.yml
+    input_mapping: {integration-config: updated-integration-configs }
+    params:
+      CONFIG_FILE_PATH: artifacts/cats_config.json
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - put: slack-alert
+    params:
+      icon_emoji: ":white_check_mark:"
+      text: |
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed!
+
 - name: delete-cf-deployment
   public: true
   serial_groups: [cf-deployment]
@@ -406,12 +459,12 @@ jobs:
   - aggregate:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [deploy-with-cf-deployment]
+      passed: [run-cats-cf-deployment]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: release
       resource: etcd-release-develop
-      passed: [deploy-with-cf-deployment]
+      passed: [run-cats-cf-deployment]
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
