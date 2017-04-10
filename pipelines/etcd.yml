@@ -313,7 +313,7 @@ jobs:
       passed: [eats-turbulence]
       trigger: true
   - task: deploy-bosh-lite-manifests
-    file: ci/scripts/deploy-bosh-lite-manifests/task.yml
+    file: ci/scripts/common/deploy-bosh-lite-manifests/task.yml
     params:
       BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
       BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}

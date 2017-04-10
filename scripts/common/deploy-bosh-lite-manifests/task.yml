@@ -25,4 +25,4 @@ params:
   DEPENDENCIES:
 
 run:
-  path: ci/scripts/deploy-bosh-lite-manifests/task
+  path: ci/scripts/common/deploy-bosh-lite-manifests/task
