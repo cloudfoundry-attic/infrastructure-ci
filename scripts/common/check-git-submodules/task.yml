@@ -11,7 +11,7 @@ inputs:
   - name: repo
 
 run:
-  path: ci/scripts/check-git-submodules/task
+  path: ci/scripts/common/check-git-submodules/task
 
 params:
   PROTOCOL: https

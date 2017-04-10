@@ -191,7 +191,7 @@ jobs:
       trigger: true
       resource: etcd-release-develop
   - task: check-git-submodules
-    file: ci/scripts/check-git-submodules/task.yml
+    file: ci/scripts/common/check-git-submodules/task.yml
     on_failure:
       put: slack-alert
       params:
