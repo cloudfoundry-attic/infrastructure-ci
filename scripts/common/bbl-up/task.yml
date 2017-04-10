@@ -14,7 +14,15 @@ outputs:
   - name: bbl-states-repo-out
 
 run:
-  path: ci/scripts/infrastructure/bbl-destroy/task
+  path: ci/scripts/common/bbl-up/task
 
 params:
+  BBL_GCP_SERVICE_ACCOUNT_KEY:
+  BBL_GCP_PROJECT_ID:
+  BBL_GCP_REGION:
+  BBL_GCP_ZONE:
   BBL_STATE_DIR:
+  BBL_NAME:
+  BBL_LB_DOMAIN:
+  BBL_LB_CERT:
+  BBL_LB_KEY:

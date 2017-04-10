@@ -20,4 +20,4 @@ params:
   RELEASE_NAME:
 
 run:
-  path: infrastructure-ci/scripts/infrastructure/compile-bosh-io-release/task
+  path: infrastructure-ci/scripts/common/compile-bosh-io-release/task

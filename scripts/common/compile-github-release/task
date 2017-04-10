@@ -2,7 +2,7 @@
 
 export ROOT="${PWD}"
 export STEMCELL_VERSION=$(cat "${ROOT}"/stemcell/version)
-export RELEASE_VERSION=$(cat "${ROOT}"/bosh-io-release/version)
+export RELEASE_VERSION="99999+dev.$(date +%s)"
 export BOSH_DEPLOYMENT="compilation_${RELEASE_NAME}"
 
 function main() {
@@ -13,11 +13,9 @@ function main() {
 }
 
 function setup_env_from_bbl_state() {
-  set +x
   pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
     eval "$(bbl print-env)"
   popd > /dev/null
-  set -x
 }
 
 function upload_stemcell() {
@@ -27,8 +25,9 @@ function upload_stemcell() {
 }
 
 function upload_release() {
-  pushd "${ROOT}/bosh-io-release" > /dev/null
-    bosh upload-release release.tgz
+  pushd "${ROOT}/github-release" > /dev/null
+    bosh -n create-release --force --version "${RELEASE_VERSION}"
+    bosh upload-release
   popd > /dev/null
 }
 
@@ -37,7 +36,7 @@ function force_compilation() {
     sed \
       -e "s/REPLACE_ME_RELEASE_VERSION/${RELEASE_VERSION}/g" \
       -e "s/REPLACE_ME_RELEASE_NAME/${RELEASE_NAME}/g" \
-      "${ROOT}/infrastructure-ci/scripts/infrastructure/compile-bosh-io-release/fixtures/compilation.yml" > "compilation.yml"
+      "${ROOT}/infrastructure-ci/scripts/common/compile-github-release/fixtures/compilation.yml" > "compilation.yml"
     bosh -n deploy "/tmp/compilation.yml"
   popd > /dev/null
 

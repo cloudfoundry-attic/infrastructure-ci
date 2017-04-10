@@ -72,7 +72,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
-    file: ci/scripts/infrastructure/bbl-up/task.yml
+    file: ci/scripts/common/bbl-up/task.yml
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
@@ -148,7 +148,7 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [delete-windows-worker-deployment]
   - task: bbl-destroy
-    file: ci/scripts/infrastructure/bbl-destroy/task.yml
+    file: ci/scripts/common/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: ci-workers
     ensure:

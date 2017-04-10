@@ -20,4 +20,4 @@ params:
   RELEASE_NAME:
 
 run:
-  path: infrastructure-ci/scripts/infrastructure/compile-github-release/task
+  path: infrastructure-ci/scripts/common/compile-github-release/task
