@@ -8,14 +8,11 @@ image_resource:
 
 inputs:
   - name: ci
+  - name: bbl-states-repo
 
 run:
-  path: ci/scripts/delete-deployments/task
+  path: ci/scripts/common/delete-deployments/task
 
 params:
-  BOSH_ENVIRONMENT:
-  BOSH_CLIENT:
-  BOSH_CLIENT_SECRET:
-  BOSH_CA_CERT:
   BBL_STATE_DIR:
   DEPLOYMENTS_WITH_WORD:

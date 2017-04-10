@@ -526,7 +526,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: delete-deployments
-    file: ci/scripts/delete-deployments/task.yml
+    file: ci/scripts/common/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-linux
     on_failure:
@@ -548,7 +548,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: delete-deployments
-    file: ci/scripts/delete-deployments/task.yml
+    file: ci/scripts/common/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-windows
     on_failure:

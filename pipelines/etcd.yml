@@ -598,7 +598,7 @@ jobs:
       trigger: true
       resource: etcd-release-develop
   - task: delete-deployments
-    file: ci/scripts/delete-deployments/task-no-bbl.yml
+    file: ci/scripts/common/delete-deployments/task-no-bbl.yml
     params:
       BOSH_CA_CERT: {{etcd_cf_bosh_ca_cert}}
       BOSH_CLIENT: {{etcd_cf_bosh_client}}
@@ -668,7 +668,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: delete-deployments
-    file: ci/scripts/delete-deployments/task.yml
+    file: ci/scripts/common/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: eats
     on_failure:
