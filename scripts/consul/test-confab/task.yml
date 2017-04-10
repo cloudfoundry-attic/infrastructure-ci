@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/test-confab/task
+  path: ci/scripts/consul/test-confab/task
