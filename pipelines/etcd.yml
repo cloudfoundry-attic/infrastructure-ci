@@ -266,6 +266,81 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
+- name: deploy-bosh-lite-manifests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-lite
+    - get: bosh-lite-stemcell
+    - get: release
+      resource: etcd-release-develop
+      passed: [eats-turbulence]
+      trigger: true
+  - task: deploy-bosh-lite-manifests
+    file: ci/scripts/deploy-bosh-lite-manifests/task.yml
+    params:
+      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
+      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
+      BOSH_LITE_NAME: bosh-lite-etcd
+      BOSH_LITE_KEYPAIR: bosh-lite
+      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
+      CLOUD_CONFIG: manifests/bosh-lite/cloud-config.yml
+      MANIFESTS: manifests/bosh-lite/3-node-with-ssl.yml manifests/bosh-lite/3-node-no-ssl.yml
+      DEPENDENCIES: cloudfoundry-incubator/consul-release
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-aws-manifests
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: consul-release
+      resource: consul-release-master
+    - get: release
+      passed:
+      - eats-turbulence
+      trigger: true
+      resource: etcd-release-develop
+  - task: deploy-multi-az-no-ssl-manifest
+    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
+      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_ENVIRONMENT: {{eats_bosh_director}}
+      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
+      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
+      BOSH_CLIENT: {{eats_bosh_username}}
+      MANIFEST_PATH: manifests/aws/multi-az-no-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - task: deploy-multi-az-ssl-manifest
+    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
+      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
+      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
+      BOSH_ENVIRONMENT: {{eats_bosh_director}}
+      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
+      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
+      BOSH_CLIENT: {{eats_bosh_username}}
+      MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
 - name: deploy-with-cf
   public: true
   serial_groups:
@@ -447,81 +522,6 @@ jobs:
   - put: etcd-release-merge-target
     params:
       repository: final-release-repo
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: deploy-bosh-lite-manifests
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-lite
-    - get: bosh-lite-stemcell
-    - get: release
-      resource: etcd-release-develop
-      passed: [eats-turbulence]
-      trigger: true
-  - task: deploy-bosh-lite-manifests
-    file: ci/scripts/deploy-bosh-lite-manifests/task.yml
-    params:
-      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
-      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
-      BOSH_LITE_NAME: bosh-lite-etcd
-      BOSH_LITE_KEYPAIR: bosh-lite
-      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
-      CLOUD_CONFIG: manifests/bosh-lite/cloud-config.yml
-      MANIFESTS: manifests/bosh-lite/3-node-with-ssl.yml manifests/bosh-lite/3-node-no-ssl.yml
-      DEPENDENCIES: cloudfoundry-incubator/consul-release
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: deploy-aws-manifests
-  public: true
-  serial: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: consul-release
-      resource: consul-release-master
-    - get: release
-      passed:
-      - eats-turbulence
-      trigger: true
-      resource: etcd-release-develop
-  - task: deploy-multi-az-no-ssl-manifest
-    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
-      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_ENVIRONMENT: {{eats_bosh_director}}
-      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
-      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
-      BOSH_CLIENT: {{eats_bosh_username}}
-      MANIFEST_PATH: manifests/aws/multi-az-no-ssl.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-  - task: deploy-multi-az-ssl-manifest
-    file: ci/scripts/common/deploy-aws-manifests/deploy-etcd-aws-manifests.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
-      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_ENVIRONMENT: {{eats_bosh_director}}
-      BOSH_CA_CERT: {{eats_bosh_ca_cert}}
-      BOSH_CLIENT_SECRET: {{eats_bosh_password}}
-      BOSH_CLIENT: {{eats_bosh_username}}
-      MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
     on_failure:
       put: slack-alert
       params:
