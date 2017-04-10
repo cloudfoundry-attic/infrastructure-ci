@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/check-a-record/task
+  path: ci/scripts/misc/check-a-record/task

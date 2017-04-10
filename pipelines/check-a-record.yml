@@ -36,7 +36,7 @@ jobs:
     - get: check-a-record
       trigger: true
   - task: test
-    file: ci/scripts/check-a-record/task.yml
+    file: ci/scripts/misc/check-a-record/task.yml
     on_failure:
       put: slack-alert
       params:
