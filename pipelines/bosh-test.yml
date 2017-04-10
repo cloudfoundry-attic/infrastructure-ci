@@ -36,7 +36,7 @@ jobs:
     - get: bosh-test
       trigger: true
   - task: test
-    file: ci/scripts/bosh-test/task.yml
+    file: ci/scripts/misc/bosh-test/task.yml
     on_failure:
       put: slack-alert
       params:

@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/bosh-test/task
+  path: ci/scripts/misc/bosh-test/task
