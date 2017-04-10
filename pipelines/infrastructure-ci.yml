@@ -23,6 +23,7 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/infrastructure-ci
     branch: master
+
 - name: infrastructure-ci-bbl-states
   type: git
   source:
@@ -31,16 +32,19 @@ resources:
     branch: master
     paths:
     - ci-workers
+
 - name: concourse-windows-master
   type: git
   source:
     uri: https://github.com/pivotal-cf-experimental/concourse-windows-release.git
     branch: master
+
 - name: windows-stemcell
   type: s3
   source:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
+
 - name: slack-alert
   type: slack-notification
   source:
@@ -60,6 +64,7 @@ jobs:
         put: slack-alert
         params:
           text: {{slack_failure_text}}
+
 # Infrastructure
 - name: setup-worker-infrastructure
   public: true
@@ -89,6 +94,7 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+
 - name: deploy-windows-worker
   public: true
   serial: true
@@ -117,6 +123,7 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+
 - name: delete-windows-worker-deployment
   public: true
   serial: true
@@ -128,14 +135,15 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: delete-windows-worker-deployment
-    file: ci/scripts/delete-deployment/task.yml
+    file: ci/scripts/common/delete-deployments/task.yml
     params:
-      DEPLOYMENT_NAME: wings-windows-worker
+      DEPLOYMENTS_WITH_WORD: wings-windows-worker
       BBL_STATE_DIR: ci-workers
     on_failure:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+
 - name: teardown-worker-infrastructure
   public: true
   serial: true
