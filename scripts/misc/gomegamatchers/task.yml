@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/gomegamatchers/task
+  path: ci/scripts/misc/gomegamatchers/task

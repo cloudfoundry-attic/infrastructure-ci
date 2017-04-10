@@ -36,7 +36,7 @@ jobs:
     - get: gomegamatchers
       trigger: true
   - task: test
-    file: ci/scripts/gomegamatchers/task.yml
+    file: ci/scripts/misc/gomegamatchers/task.yml
     on_failure:
       put: slack-alert
       params:
