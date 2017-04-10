@@ -8,6 +8,8 @@ groups:
   - eats-turbulence
   - deploy-bosh-lite-manifests
   - deploy-aws-manifests
+  - deploy-with-cf-deployment
+  - delete-cf-deployment
   - deploy-with-cf
   - deploy-with-diego
   - test-with-diego
@@ -22,6 +24,8 @@ groups:
   jobs:
   - setup-eats-infrastructure
   - teardown-eats-infrastructure
+  - setup-cf-deployment-infrastructure
+  - teardown-cf-deployment-infrastructure
 
 resource_types:
 - name: slack-notification
@@ -81,6 +85,19 @@ resources:
     - .final_builds
     - releases
     uri: https://github.com/christianang/diego-release.git
+
+# ToDo: Revert to cf/master when PR is merged.
+- name: cf-deployment
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/davewalter/cf-deployment.git
+
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
 - name: infrastructure-ci-bbl-states
   type: git
@@ -144,6 +161,10 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+
+- name: empty-ops-files
+  type: time
+  source: {interval: 5m}
 
 jobs:
 - name: check-git-submodules
@@ -336,6 +357,65 @@ jobs:
       BOSH_CLIENT_SECRET: {{eats_bosh_password}}
       BOSH_CLIENT: {{eats_bosh_username}}
       MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-with-cf-deployment
+  public: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+    - get: cf-deployment
+    - get: cf-deployment-concourse-tasks
+    - get: ops-files
+      resource: empty-ops-files
+    - get: release
+      resource: etcd-release-develop
+      passed: [eats-turbulence]
+      trigger: true
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
+  - task: deploy
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
+      SYSTEM_DOMAIN: etcd-cf-deployment.infrastructure.cf-app.com
+      VARS_STORE_FILE: etcd-cf-deployment/deployment-vars.yml
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: delete-cf-deployment
+  public: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [deploy-with-cf-deployment]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: release
+      resource: etcd-release-develop
+      passed: [deploy-with-cf-deployment]
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
     on_failure:
       put: slack-alert
       params:
@@ -599,3 +679,61 @@ jobs:
       params:
         rebase: true
         repository: bbl-states-repo-out
+
+- name: setup-cf-deployment-infrastructure
+  public: true
+  serial: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/infrastructure/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: etcd-cf-deployment
+      BBL_NAME: etcd-cf-deployment
+      BBL_LB_DOMAIN: etcd-cf-deployment.infrastructure.cf-app.com
+      BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
+      BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: teardown-cf-deployment-infrastructure
+  public: true
+  serial: true
+  serial_groups: [cf-deployment]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-cf-deployment-infrastructure
+  - task: bbl-destroy
+    file: ci/scripts/infrastructure/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
