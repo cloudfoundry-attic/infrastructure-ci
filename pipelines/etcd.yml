@@ -625,7 +625,7 @@ jobs:
     - get: release-repo-master
       resource: etcd-release-master
   - task: create-final-release
-    file: ci/scripts/create-final-release/task.yml
+    file: ci/scripts/common/create-final-release/task.yml
     params:
       RELEASE_NAME: etcd
   - put: etcd-release-master

@@ -16,7 +16,7 @@ outputs:
   - name: final-release-repo
 
 run:
-  path: ci/scripts/create-final-release/task
+  path: ci/scripts/common/create-final-release/task
 
 params:
   RELEASE_NAME:
