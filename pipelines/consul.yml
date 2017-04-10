@@ -8,8 +8,7 @@ groups:
   - consats-linux-turbulence
   - consats-windows
   - consats-windows-turbulence
-  - deploy-bosh-lite-manifests
-  - deploy-aws-manifests
+  - deploy-sample-manifest
   - deploy-with-cf-deployment
   - run-cats-cf-deployment
   - delete-cf-deployment
@@ -484,7 +483,7 @@ jobs:
     params:
       repository: final-release-repo
 
-- name: deploy-bosh-lite-manifests
+- name: deploy-sample-manifest
   public: true
   plan:
   - aggregate:
@@ -496,7 +495,7 @@ jobs:
       resource: consul-release-develop
       passed: [consats-linux-turbulence]
       trigger: true
-  - task: deploy-bosh-lite-manifests
+  - task: deploy-sample-manifest
     file: ci/scripts/deploy-bosh-lite-manifests/task.yml
     params:
       BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
@@ -506,36 +505,8 @@ jobs:
       BOSH_LITE_NAME: bosh-lite-consul
       BOSH_LITE_KEYPAIR: bosh-lite
       BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
-      MANIFESTS: "manifests/bosh-lite/3-node-with-ssl.yml"
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: deploy-aws-manifests
-  public: true
-  serial: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: release
-      resource: consul-release-develop
-      passed: [consats-linux-turbulence]
-      trigger: true
-  - task: deploy-aws-manifests
-    file: ci/scripts/common/deploy-aws-manifests/deploy-consul-aws-manifests.yml
-    params:
-      BOSH_DIRECTOR: {{consats_linux_bosh_director}}
-      BOSH_USER: {{consats_linux_bosh_username}}
-      BOSH_PASSWORD: {{consats_linux_bosh_password}}
-      AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      AWS_DEFAULT_REGION: {{infrastructure_account_aws_default_region}}
-      MANIFEST_PATH: manifests/aws/multi-az-ssl.yml
+      CLOUD_CONFIG: "manifests/cloud_config.yml"
+      MANIFESTS: "manifests/multi-az-with-ssl.yml"
     on_failure:
       put: slack-alert
       params:
