@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/destiny/task
+  path: ci/scripts/misc/destiny/task

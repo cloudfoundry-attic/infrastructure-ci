@@ -38,7 +38,7 @@ jobs:
     - get: destiny
       trigger: true
   - task: test
-    file: ci/scripts/destiny/task.yml
+    file: ci/scripts/misc/destiny/task.yml
     on_failure:
       put: slack-alert
       params:
