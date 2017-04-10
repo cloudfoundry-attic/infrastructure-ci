@@ -647,7 +647,7 @@ jobs:
     - get: release-repo
       resource: etcd-release-merge-target
   - task: merge-master-into-develop
-    file: ci/scripts/merge-master-into-develop/task.yml
+    file: ci/scripts/common/merge-master-into-develop/task.yml
     on_failure:
       put: slack-alert
       params:

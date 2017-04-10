@@ -15,6 +15,6 @@ outputs:
   - name: final-release-repo
 
 run:
-  path: ci/scripts/merge-master-into-develop/task
+  path: ci/scripts/common/merge-master-into-develop/task
 
 params: {}
