@@ -35,7 +35,7 @@ function main() {
         -failFast \
         -succinct \
         -slowSpecThreshold 300 \
-        ./src/cf-tls-upgrade/
+        ./src/acceptance-tests/cf-tls-upgrade/
     popd > /dev/null
   popd > /dev/null
 }
