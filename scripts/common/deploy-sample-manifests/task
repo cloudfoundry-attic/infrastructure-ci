@@ -4,6 +4,7 @@ ROOT=${PWD}
 
 function main() {
   deploy_boshlite
+  setup_bosh_env_vars
   upload_stemcell
   upload_dependencies
   create_and_upload_release
@@ -27,18 +28,14 @@ function deploy_boshlite() {
     ${ROOT}/bosh-deployment/bosh.yml
 }
 
-# function target_director() {
-#   set +e
-#   local rc
-#   rc=1
-
-#   while [ "${rc}" -ne "0" ]; do
-#     sleep 10
-#     curl -k -s "https://${BOSH_ENVIRONMENT}:25555/info" > /dev/null
-#     rc=$?
-#   done
-#   set -e
-# }
+function setup_bosh_env_vars() {
+  set +x
+  export BOSH_ENVIRONMENT=$(bbl director-address)
+  export BOSH_CA_CERT="$(bbl director-ca-cert)"
+  export BOSH_CLIENT=$(bbl director-username)
+  export BOSH_CLIENT_SECRET=$(bbl director-password)
+  set -x
+}
 
 function upload_stemcell() {
   bosh upload-stemcell "${ROOT}/bosh-lite-stemcell/stemcell.tgz"
