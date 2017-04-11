@@ -15,7 +15,7 @@ function main() {
     --vars-file "${root_dir}/vars.yml" \
     --var-file tsa_worker_private_key="${root_dir}/tsa_worker.key"
 
-  bosh -n clean-up
+  bosh -n clean-up --all
 }
 
 function setup_bosh_env_vars() {

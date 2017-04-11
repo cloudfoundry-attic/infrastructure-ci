@@ -10,7 +10,7 @@ function main() {
   done
 
   echo "cleaning up orphaned disks and releases"
-  bosh -n clean-up
+  bosh -n clean-up --all
 }
 
 function setup_bosh_env_vars() {
