@@ -31,9 +31,9 @@ function deploy_boshlite() {
 function setup_bosh_env_vars() {
   set +x
   export BOSH_ENVIRONMENT=$(bbl director-address)
-  export BOSH_CA_CERT="$(bbl director-ca-cert)"
-  export BOSH_CLIENT=$(bbl director-username)
-  export BOSH_CLIENT_SECRET=$(bbl director-password)
+  export BOSH_CA_CERT="$(bosh int bosh-vars.yml --path /default_ca/ca)"
+  export BOSH_CLIENT=admin
+  export BOSH_CLIENT_SECRET=$(bosh int bosh-vars.yml --path /admin_password)
   set -x
 }
 
