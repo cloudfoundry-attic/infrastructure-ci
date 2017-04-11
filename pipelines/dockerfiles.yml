@@ -5,7 +5,6 @@ groups:
   - minimal-docker-image
   - golang-docker-image
   - deployment-docker-image
-  - vagrant-docker-image
 
 resource_types:
 - name: slack-notification
@@ -30,14 +29,6 @@ resources:
     branch: master
     paths:
     - dockerfiles/golang
-
-- name: vagrant-dockerfile
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/infrastructure-ci
-    branch: master
-    paths:
-    - dockerfiles/vagrant
 
 - name: minimal-dockerfile
   type: git
@@ -73,14 +64,6 @@ resources:
   type: docker-image
   source:
     repository: cfinfrastructure/deployment
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
-
-- name: vagrant-docker-image
-  type: docker-image
-  source:
-    repository: cfinfrastructure/vagrant
     username: {{docker-username}}
     password: {{docker-password}}
     email: {{docker-email}}
@@ -156,31 +139,6 @@ jobs:
     - put: deployment-docker-image
       params:
         build: infrastructure-ci/dockerfiles/deployment
-        cache: false
-      on_failure:
-        put: slack-alert
-        params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: vagrant-docker-image
-  public: true
-  plan:
-  - do:
-    - aggregate:
-      - get: deployment-docker-image
-        passed: [deployment-docker-image]
-        trigger: true
-        params:
-          skip_download: true
-      - get: infrastructure-ci
-        resource: vagrant-dockerfile
-        trigger: true
-    - put: vagrant-docker-image
-      params:
-        build: infrastructure-ci/dockerfiles/vagrant
         cache: false
       on_failure:
         put: slack-alert
