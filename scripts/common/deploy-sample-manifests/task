@@ -66,12 +66,17 @@ function deploy_manifests() {
       local name
       name="$(bosh int ${manifest} --path /name)"
       bosh -d "${name}" -n deploy "${manifest}"
-      bosh -d "${name}" -n delete-deployment
     done
   popd > /dev/null
 }
 
 function destroy_boshlite() {
+  for i in $(bosh deployments | awk '{ print $1 }' | uniq); do
+    bosh -d $i -n delete-deployment
+  done
+
+  bosh clean-up --all
+
   bosh delete-env \
     --vars-store bosh-vars.yml \
     --state bosh-state.yml \
