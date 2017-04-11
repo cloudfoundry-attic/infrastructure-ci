@@ -6,7 +6,7 @@ groups:
   - test-etcd-metrics-server
   - eats
   - eats-turbulence
-  - deploy-bosh-lite-manifests
+  - deploy-sample-manifests
   - deploy-aws-manifests
   - deploy-with-cf-deployment
   - run-cats-cf-deployment
@@ -140,11 +140,11 @@ resources:
   source:
     repository: cloudfoundry-incubator/etcd-release
 
-- name: bosh-lite
+- name: bosh-deployment
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry/bosh-lite.git
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
 
 - name: bosh-lite-stemcell
   type: bosh-io-stemcell
@@ -300,28 +300,25 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: deploy-bosh-lite-manifests
+- name: deploy-sample-manifests
   public: true
   plan:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: bosh-lite
+    - get: bosh-deployment
     - get: bosh-lite-stemcell
     - get: release
       resource: etcd-release-develop
       passed: [eats-turbulence]
       trigger: true
-  - task: deploy-bosh-lite-manifests
-    file: ci/scripts/common/deploy-bosh-lite-manifests/task.yml
+  - task: deploy-sample-manifests
+    file: ci/scripts/common/deploy-sample-manifests/task.yml
     params:
-      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
-      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
-      BOSH_LITE_NAME: bosh-lite-etcd
-      BOSH_LITE_KEYPAIR: bosh-lite
-      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
       CLOUD_CONFIG: manifests/bosh-lite/cloud-config.yml
       MANIFESTS: manifests/bosh-lite/3-node-with-ssl.yml manifests/bosh-lite/3-node-no-ssl.yml
       DEPENDENCIES: cloudfoundry-incubator/consul-release

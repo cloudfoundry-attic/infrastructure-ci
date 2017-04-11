@@ -42,6 +42,12 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+
 - name: cf-deployment
   type: git
   source:
@@ -110,12 +116,6 @@ resources:
     branch: master
     private_key: {{oss-s3-buckets-stack-private-key}}
     uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
-
-- name: bosh-lite
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/bosh-lite.git
 
 - name: bosh-lite-stemcell
   type: bosh-io-stemcell
@@ -511,24 +511,21 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: bosh-lite
+    - get: bosh-deployment
     - get: bosh-lite-stemcell
     - get: release
       resource: consul-release-develop
       passed: [consats-linux-turbulence]
       trigger: true
   - task: deploy-sample-manifest
-    file: ci/scripts/common/deploy-bosh-lite-manifests/task.yml
+    file: ci/scripts/common/deploy-sample-manifests/task.yml
     params:
-      BOSH_AWS_ACCESS_KEY_ID: {{infrastructure_account_aws_access_key_id}}
-      BOSH_AWS_SECRET_ACCESS_KEY: {{infrastructure_account_aws_secret_access_key}}
-      BOSH_LITE_SECURITY_GROUP: {{bosh_lite_security_group}}
-      BOSH_LITE_SUBNET_ID: {{bosh_lite_subnet_id}}
-      BOSH_LITE_NAME: bosh-lite-consul
-      BOSH_LITE_KEYPAIR: bosh-lite
-      BOSH_LITE_PRIVATE_KEY_CONTENTS: {{bosh_lite_private_key}}
-      CLOUD_CONFIG: "manifests/cloud_config.yml"
-      MANIFESTS: "manifests/multi-az-with-ssl.yml"
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      CLOUD_CONFIG: manifests/cloud_config.yml
+      MANIFESTS: manifests/multi-az-with-ssl.yml
     on_failure:
       put: slack-alert
       params:

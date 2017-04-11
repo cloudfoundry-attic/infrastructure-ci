@@ -1,0 +1,95 @@
+#!/bin/bash -exu
+
+ROOT=${PWD}
+
+function main() {
+  deploy_boshlite
+  upload_stemcell
+  upload_dependencies
+  create_and_upload_release
+  update_cloud_config
+  deploy_manifests
+}
+
+function deploy_boshlite() {
+  bbl up --iaas gcp --no-director
+
+  bosh create-env \
+    --vars-store bosh-vars.yml \
+    --state bosh-state.yml \
+    -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
+    -o ${ROOT}/bosh-deployment/bosh-lite.yml \
+    -o ${ROOT}/bosh-deployment/external-ip-not-recommended.yml \
+    -o ${ROOT}/bosh-deployment/gcp/bosh-lite-vm-type.yml \
+    -o ${ROOT}/bosh-deployment/jumpbox-user.yml \
+    -o ${ROOT}/bosh-deployment/bosh-lite-runc.yml \
+    --vars-file <(bbl bosh-deployment-vars) \
+    ${ROOT}/bosh-deployment/bosh.yml
+}
+
+# function target_director() {
+#   set +e
+#   local rc
+#   rc=1
+
+#   while [ "${rc}" -ne "0" ]; do
+#     sleep 10
+#     curl -k -s "https://${BOSH_ENVIRONMENT}:25555/info" > /dev/null
+#     rc=$?
+#   done
+#   set -e
+# }
+
+function upload_stemcell() {
+  bosh upload-stemcell "${ROOT}/bosh-lite-stemcell/stemcell.tgz"
+}
+
+function upload_dependencies() {
+  for dependency in ${DEPENDENCIES}; do
+    bosh -n upload-release "https://bosh.io/d/github.com/${dependency}"
+  done
+}
+
+function create_and_upload_release() {
+  pushd "${ROOT}/release" > /dev/null
+    bosh -n create-release --force
+    bosh -n upload-release
+  popd > /dev/null
+}
+
+function update_cloud_config() {
+  set +e
+  bosh update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
+  set -e
+}
+
+function deploy_manifests() {
+  pushd "${ROOT}/release" > /dev/null
+    for manifest in ${MANIFESTS}; do
+      local name
+      name="$(bosh int ${manifest} --path /name)"
+      bosh -d "${name}" -n deploy "${manifest}"
+      bosh -d "${name}" -n delete-deployment
+    done
+  popd > /dev/null
+}
+
+function destroy_boshlite() {
+  bosh delete-env \
+    --vars-store bosh-vars.yml \
+    --state bosh-state.yml \
+    -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
+    -o ${ROOT}/bosh-deployment/bosh-lite.yml \
+    -o ${ROOT}/bosh-deployment/external-ip-not-recommended.yml \
+    -o ${ROOT}/bosh-deployment/gcp/bosh-lite-vm-type.yml \
+    -o ${ROOT}/bosh-deployment/jumpbox-user.yml \
+    -o ${ROOT}/bosh-deployment/bosh-lite-runc.yml \
+    --vars-file <(bbl bosh-deployment-vars) \
+    ${ROOT}/bosh-deployment/bosh.yml
+
+  bbl destroy --no-confirm
+}
+
+trap destroy_boshlite EXIT
+
+main "${ROOT}"
