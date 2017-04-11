@@ -342,6 +342,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -383,7 +384,9 @@ jobs:
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
+      passed: [bbl-downstream-setup-env]
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-setup-env]
   - task: destroy-infrastructure
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
