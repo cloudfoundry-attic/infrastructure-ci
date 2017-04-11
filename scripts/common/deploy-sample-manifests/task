@@ -15,7 +15,7 @@ function main() {
 function deploy_boshlite() {
   bbl up --iaas gcp --no-director
 
-  bosh create-env \
+  bosh -n create-env \
     --vars-store bosh-vars.yml \
     --state bosh-state.yml \
     -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
@@ -56,7 +56,7 @@ function create_and_upload_release() {
 
 function update_cloud_config() {
   set +e
-  bosh update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
+  bosh -n update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
   set -e
 }
 
@@ -65,7 +65,7 @@ function deploy_manifests() {
     for manifest in ${MANIFESTS}; do
       local name
       name="$(bosh int ${manifest} --path /name)"
-      bosh -d "${name}" -n deploy "${manifest}"
+      bosh -n -d "${name}" deploy "${manifest}"
     done
   popd > /dev/null
 }
@@ -77,7 +77,7 @@ function destroy_boshlite() {
 
   bosh -n clean-up --all
 
-  bosh delete-env \
+  bosh -n delete-env \
     --vars-store bosh-vars.yml \
     --state bosh-state.yml \
     -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
