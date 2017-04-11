@@ -65,7 +65,9 @@ function deploy_manifests() {
     for manifest in ${MANIFESTS}; do
       local name
       name="$(bosh int ${manifest} --path /name)"
-      bosh -n -d "${name}" deploy "${manifest}"
+      local base_manifest_name
+      base_manifest_name="$(basename ${manifest} .yml)"
+      bosh -n -d "${name}" deploy "${manifest}" --vars-store "${base_manifest_name}-store.yml"
     done
   popd > /dev/null
 }
