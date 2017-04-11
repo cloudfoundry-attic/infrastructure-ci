@@ -16,6 +16,7 @@ function setup_env() {
   set +x
   export BOSH_CLIENT="admin"
   export BOSH_CLIENT_SECRET="admin"
+  export BOSH_CA_CERT="$(cat ${ROOT}/bosh-lite/ca/certs/ca.crt)"
 
   export BOSH_LITE_PRIVATE_KEY="${ROOT}/bosh-lite.pem"
   echo "${BOSH_LITE_PRIVATE_KEY_CONTENTS}" > "${BOSH_LITE_PRIVATE_KEY}"
