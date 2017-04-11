@@ -11,16 +11,8 @@ preflight_check() {
   set -x
 }
 
-function install_bosh_cli() {
-  pushd "${ROOT}" > /dev/null
-    wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-0.0.147-linux-amd64
-    mv bosh-cli-0.0.147-linux-amd64 /usr/local/bin/boshv2
-    chmod +x /usr/local/bin/boshv2
-  popd > /dev/null
-}
-
 deploy() {
-  boshv2 \
+  bosh \
     -n \
     -d etcd-cf-deployment \
     interpolate "${@}" > final-cf.yml
@@ -91,7 +83,7 @@ EOF
 
 upload_stemcell() {
   pushd "${ROOT}/stemcell" > /dev/null
-    boshv2 upload-stemcell stemcell.tgz
+    bosh upload-stemcell stemcell.tgz
   popd > /dev/null
 }
 
@@ -103,7 +95,6 @@ main() {
 
   mkdir stubs
 
-  install_bosh_cli
   upload_stemcell
 
   pushd stubs > /dev/null
