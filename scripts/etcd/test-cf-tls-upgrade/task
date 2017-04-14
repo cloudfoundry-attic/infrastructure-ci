@@ -1,12 +1,25 @@
 #!/bin/bash -exu
 
+export ROOT="${PWD}"
+
+function setup_bosh_env_vars() {
+  set +x
+  pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    export BOSH_ENVIRONMENT=$(bbl director-address)
+    export BOSH_CA_CERT="$(bbl director-ca-cert)"
+    export BOSH_CLIENT=$(bbl director-username)
+    export BOSH_CLIENT_SECRET=$(bbl director-password)
+  popd > /dev/null
+  set -x
+}
+
 function create_integration_config() {
   cat > eats_config.json <<EOF
   {
     "bosh":{
-      "target": "${BOSH_DIRECTOR}",
-      "username": "${BOSH_USER}",
-      "password": "${BOSH_PASSWORD}",
+      "target": "${BOSH_ENVIRONMENT}",
+      "username": "${BOSH_CLIENT}",
+      "password": "${BOSH_CLIENT_SECRET}",
       "deployment_name": "${DEPLOYMENT_NAME}"
     },
     "cf": {
@@ -19,7 +32,7 @@ EOF
 }
 
 function main() {
-  local ROOT=$1
+  setup_bosh_env_vars
 
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry-incubator"
 
@@ -40,4 +53,4 @@ function main() {
   popd > /dev/null
 }
 
-main "${PWD}"
+main

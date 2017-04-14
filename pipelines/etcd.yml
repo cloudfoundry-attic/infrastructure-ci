@@ -8,13 +8,9 @@ groups:
   - eats-turbulence
   - deploy-sample-manifests
   - deploy-with-cf-deployment
+  - test-cf-tls-upgrade
   - run-cats-cf-deployment
   - delete-cf-deployment
-  - deploy-with-cf
-  - deploy-with-diego
-  - test-with-diego
-  - test-cf-tls-upgrade
-  - delete-deployments
   - create-final-release
   - merge-master-into-develop
 - name: cleanup
@@ -64,21 +60,6 @@ resources:
     private_key: {{etcd_release_private_key}}
     uri: git@github.com:cloudfoundry-incubator/etcd-release.git
 
-- name: cf-release
-  type: git
-  source:
-    branch: develop
-    uri: https://github.com/cloudfoundry/cf-release.git
-
-- name: diego-release-master
-  type: git
-  source:
-    branch: develop
-    ignore_paths:
-    - .final_builds
-    - releases
-    uri: https://github.com/christianang/diego-release.git
-
 # ToDo: Revert to cf/master when PR is merged.
 - name: cf-deployment
   type: git
@@ -110,11 +91,6 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
-
-- name: aws-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
 - name: turbulence-release
   type: github-release
@@ -330,6 +306,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: ops-files
       resource: empty-ops-files
+    - get: etcd-cf-env
     - get: release
       resource: etcd-release-develop
       passed: [eats-turbulence]
@@ -346,11 +323,38 @@ jobs:
       BBL_STATE_DIR: etcd-cf-deployment
       SYSTEM_DOMAIN: etcd-cf-deployment.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-deployment/deployment-vars.yml
+      OPS_FILES: etcd-cf-env/opsfiles/non-tls-cf-deployment.yml
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: updated-vars-store
         rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: test-cf-tls-upgrade
+  serial_groups:
+  - cf-deployment
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [deploy-with-cf-deployment]
+      trigger: true
+    - get: infrastructure-ci
+    - get: etcd-release
+      trigger: true
+      resource: etcd-release-develop
+  - task: run-cf-tls-upgrade-test
+    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
+      CF_DOMAIN: {{etcd_cf_domain}}
+      CF_PASSWORD: {{etcd_cf_password}}
+      CF_USER: {{etcd_cf_user}}
+      DEPLOYMENT_NAME: etcd-cf-deployment
     on_failure:
       put: slack-alert
       params:
@@ -370,11 +374,11 @@ jobs:
     - get: cf-acceptance-tests
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [deploy-with-cf-deployment]
+      passed: [test-cf-tls-upgrade]
       trigger: true
     - get: release
       resource: etcd-release-develop
-      passed: [deploy-with-cf-deployment]
+      passed: [test-cf-tls-upgrade]
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     params:
@@ -418,143 +422,6 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: deploy-with-cf
-  public: true
-  serial_groups:
-  - cf
-  plan:
-  - aggregate:
-    - get: infrastructure-ci
-    - get: etcd-cf-env
-    - get: etcd-release
-      passed:
-      - eats-turbulence
-      trigger: true
-      resource: etcd-release-develop
-    - get: cf-release
-    - get: stemcell
-      resource: aws-stemcell
-  - task: deploy-etcd-cf
-    file: infrastructure-ci/scripts/etcd/deploy-cf/task.yml
-    params:
-      BOSH_CA_CERT: {{etcd_cf_bosh_ca_cert}}
-      BOSH_CLIENT: {{etcd_cf_bosh_client}}
-      BOSH_CLIENT_SECRET: {{etcd_cf_bosh_client_secret}}
-      BOSH_ENVIRONMENT: {{etcd_cf_bosh_environment}}
-      CF_DEPLOYMENT_TRACE: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: deploy-with-diego
-  public: true
-  serial_groups:
-  - cf
-  plan:
-  - aggregate:
-    - get: infrastructure-ci
-    - get: etcd-cf-env
-    - get: etcd-release
-      passed:
-      - deploy-with-cf
-      trigger: true
-      resource: etcd-release-develop
-    - get: diego-release
-      resource: diego-release-master
-    - get: stemcell
-      resource: aws-stemcell
-  - task: deploy-etcd-diego
-    file: infrastructure-ci/scripts/etcd/deploy-diego/task.yml
-    params:
-      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
-      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
-      BOSH_USER: {{etcd_cf_bosh_client}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: test-with-diego
-  public: true
-  serial_groups:
-  - cf
-  plan:
-  - aggregate:
-    - get: infrastructure-ci
-    - get: etcd-release
-      passed:
-      - deploy-with-diego
-      trigger: true
-      resource: etcd-release-develop
-  - task: run-cats
-    file: infrastructure-ci/scripts/etcd/test-diego/task.yml
-    params:
-      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
-      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
-      BOSH_USER: {{etcd_cf_bosh_client}}
-      CF_DOMAIN: {{etcd_cf_domain}}
-      CF_PASSWORD: {{etcd_cf_password}}
-      CF_USER: {{etcd_cf_user}}
-      DEPLOYMENT_NAME: etcd-cf-deployment
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: test-cf-tls-upgrade
-  serial_groups:
-  - cf-tls
-  # Changed the serial group so we don't block other jobs
-  plan:
-  - aggregate:
-    - get: infrastructure-ci
-    - get: etcd-release
-      passed:
-      - test-with-diego
-      trigger: true
-      resource: etcd-release-develop
-  - task: run-cf-tls-upgrade-test
-    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
-    params:
-      BOSH_DIRECTOR: {{etcd_cf_bosh_environment}}
-      BOSH_PASSWORD: {{etcd_cf_bosh_client_secret}}
-      BOSH_USER: {{etcd_cf_bosh_client}}
-      CF_DOMAIN: {{etcd_cf_domain}}
-      CF_PASSWORD: {{etcd_cf_password}}
-      CF_USER: {{etcd_cf_user}}
-      DEPLOYMENT_NAME: etcd-cf-deployment
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: delete-deployments
-  public: true
-  serial_groups:
-  - cf
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: etcd-release
-      passed:
-      - test-with-diego
-      trigger: true
-      resource: etcd-release-develop
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task-no-bbl.yml
-    params:
-      BOSH_CA_CERT: {{etcd_cf_bosh_ca_cert}}
-      BOSH_CLIENT: {{etcd_cf_bosh_client}}
-      BOSH_CLIENT_SECRET: {{etcd_cf_bosh_client_secret}}
-      BOSH_ENVIRONMENT: {{etcd_cf_bosh_environment}}
-      DEPLOYMENTS_WITH_WORD: etcd-cf-deployment
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
 - name: create-final-release
   public: true
   serial: true
@@ -565,7 +432,7 @@ jobs:
     - get: oss-s3-buckets-stack
     - get: release-repo
       resource: etcd-release-develop
-      passed: [delete-deployments]
+      passed: [delete-cf-deployment]
       trigger: true
     - get: release-repo-master
       resource: etcd-release-master

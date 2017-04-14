@@ -7,6 +7,7 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
+  - name: bbl-state
   - name: infrastructure-ci
   - name: etcd-release
 
@@ -14,10 +15,8 @@ run:
   path: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task
 
 params:
+  BBL_STATE_DIR:
   CF_DOMAIN:
   CF_USER:
   CF_PASSWORD:
-  BOSH_DIRECTOR:
-  BOSH_USER:
-  BOSH_PASSWORD:
   DEPLOYMENT_NAME:
