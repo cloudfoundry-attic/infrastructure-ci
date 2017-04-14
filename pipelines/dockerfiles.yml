@@ -68,6 +68,12 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: bbl-release
+  type: github-release
+  source:
+    repository: bosh-bootloader
+    user: cloudfoundry
+
 - name: slack-alert
   type: slack-notification
   source:
@@ -135,6 +141,8 @@ jobs:
           skip_download: true
       - get: infrastructure-ci
         resource: deployment-dockerfile
+        trigger: true
+      - get: bbl-release
         trigger: true
     - put: deployment-docker-image
       params:
