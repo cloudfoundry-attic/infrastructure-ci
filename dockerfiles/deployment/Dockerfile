@@ -42,7 +42,9 @@ RUN wget https://releases.hashicorp.com/terraform/0.8.8/terraform_0.8.8_linux_am
   mv terraform /usr/local/bin/terraform
 
 # Install bbl
-RUN wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/v3.0.4/bbl-v3.0.4_linux_x86-64 && \
+RUN curl -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
+  sed -n '/browser_download_url.*linux/p' | \
+  cut -d\" -f4 | xargs wget && \
   mv bbl-* /usr/local/bin/bbl && \
   chmod +x /usr/local/bin/bbl
 
