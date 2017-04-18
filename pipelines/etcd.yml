@@ -8,8 +8,8 @@ groups:
   - eats-turbulence
   - deploy-sample-manifests
   - deploy-with-cf-deployment
-  - test-cf-tls-upgrade
   - run-cats-cf-deployment
+  - test-cf-tls-upgrade
   - delete-cf-deployment
   - create-final-release
   - merge-master-into-develop
@@ -323,38 +323,11 @@ jobs:
       BBL_STATE_DIR: etcd-cf-deployment
       SYSTEM_DOMAIN: etcd-cf-deployment.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-deployment/deployment-vars.yml
-      OPS_FILES: etcd-cf-env/opsfiles/non-tls-cf-deployment.yml
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: updated-vars-store
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: test-cf-tls-upgrade
-  serial_groups:
-  - cf-deployment
-  plan:
-  - aggregate:
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [deploy-with-cf-deployment]
-      trigger: true
-    - get: infrastructure-ci
-    - get: etcd-release
-      trigger: true
-      resource: etcd-release-develop
-  - task: run-cf-tls-upgrade-test
-    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-deployment
-      CF_DOMAIN: {{etcd_cf_domain}}
-      CF_PASSWORD: {{etcd_cf_password}}
-      CF_USER: {{etcd_cf_user}}
-      DEPLOYMENT_NAME: etcd-cf-deployment
     on_failure:
       put: slack-alert
       params:
@@ -374,11 +347,11 @@ jobs:
     - get: cf-acceptance-tests
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [test-cf-tls-upgrade]
+      passed: [deploy-with-cf-deployment]
       trigger: true
     - get: release
       resource: etcd-release-develop
-      passed: [test-cf-tls-upgrade]
+      passed: [deploy-with-cf-deployment]
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     params:
@@ -400,6 +373,33 @@ jobs:
       text: |
         [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed!
 
+- name: test-cf-tls-upgrade
+  serial_groups:
+  - cf-deployment
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [run-cats-cf-deployment]
+      trigger: true
+    - get: infrastructure-ci
+    - get: etcd-release
+      trigger: true
+      resource: etcd-release-develop
+      passed: [run-cats-cf-deployment]
+  - task: run-cf-tls-upgrade-test
+    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-deployment
+      CF_DOMAIN: {{etcd_cf_domain}}
+      CF_PASSWORD: {{etcd_cf_password}}
+      CF_USER: {{etcd_cf_user}}
+      DEPLOYMENT_NAME: etcd-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
 - name: delete-cf-deployment
   public: true
   serial_groups: [cf-deployment]
@@ -407,12 +407,12 @@ jobs:
   - aggregate:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [run-cats-cf-deployment]
+      passed: [test-cf-tls-upgrade]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: release
       resource: etcd-release-develop
-      passed: [run-cats-cf-deployment]
+      passed: [test-cf-tls-upgrade]
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
