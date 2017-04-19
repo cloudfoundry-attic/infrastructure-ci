@@ -603,7 +603,7 @@ jobs:
 - name: setup-cf-cats-infrastructure
   public: true
   serial: true
-  serial_groups: [cf-deployment]
+  serial_groups: [cf-cats]
   plan:
   - aggregate:
     - get: ci
@@ -635,15 +635,14 @@ jobs:
 - name: teardown-cf-cats-infrastructure
   public: true
   serial: true
-  serial_groups: [cf-deployment]
+  serial_groups: [cf-cats]
   plan:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-cats-infrastructure
+      passed: [setup-cf-cats-infrastructure]
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -700,8 +699,7 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-tls-upgrade-infrastructure
+      passed: [setup-cf-tls-upgrade-infrastructure]
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
