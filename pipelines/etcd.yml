@@ -63,12 +63,11 @@ resources:
     private_key: {{etcd_release_private_key}}
     uri: git@github.com:cloudfoundry-incubator/etcd-release.git
 
-# ToDo: Revert to cf/master when PR is merged.
 - name: cf-deployment
   type: git
   source:
     branch: develop
-    uri: https://github.com/davewalter/cf-deployment.git
+    uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: cf-deployment-concourse-tasks
   type: git
