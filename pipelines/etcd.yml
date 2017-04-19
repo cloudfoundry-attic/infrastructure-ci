@@ -10,6 +10,7 @@ groups:
   - deploy-cf-cats
   - run-cats
   - delete-cf-cats
+  - deploy-cf-tls-upgrade
   - run-cf-tls-upgrade
   - delete-cf-tls-upgrade
   - create-final-release
@@ -389,13 +390,52 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
+- name: deploy-cf-tls-upgrade
+  public: true
+  serial_groups: [cf-tls-upgrade]
+  plan:
+  - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+    - get: cf-deployment
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci
+    - get: ops-files
+      resource: empty-ops-files
+    - get: release
+      resource: etcd-release-develop
+      passed: [eats-turbulence]
+      trigger: true
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+  - task: deploy
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+      OPS_FILES: infrastructure-ci/scripts/etcd/opsfiles/non-tls-cf-deployment.yml
+      SYSTEM_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+      VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
 - name: run-cf-tls-upgrade
   serial_groups: [cf-tls-upgrade]
   plan:
   - aggregate:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [setup-cf-tls-upgrade-infrastructure]
+      passed: [deploy-cf-tls-upgrade]
       trigger: true
     - get: infrastructure-ci
     - get: etcd-release
