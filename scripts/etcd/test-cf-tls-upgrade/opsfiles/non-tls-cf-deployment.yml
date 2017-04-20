@@ -75,11 +75,6 @@
 - type: remove
   path: /instance_groups/name=etcd/jobs/name=etcd_metrics_server/properties/etcd_metrics_server/etcd/client_key
 
-# --- Make the consul link shared ---
-- type: replace
-  path: /instance_groups/name=consul/jobs/name=consul_agent/provides/consul/shared?
-  value: true
-
 # --- Remove etcd properties on all metron agent jobs ---
 - type: remove
   path: /instance_groups/name=consul/jobs/name=metron_agent/properties/metron_agent/etcd
