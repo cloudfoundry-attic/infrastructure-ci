@@ -677,8 +677,8 @@ jobs:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       BBL_NAME: etcd-cf-tls-upgrade
       BBL_LB_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
-      BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
-      BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
+      BBL_LB_CERT: {{etcd_cf_tls_upgrade_lb_cert}}
+      BBL_LB_KEY: {{etcd_cf_tls_upgrade_lb_key}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
