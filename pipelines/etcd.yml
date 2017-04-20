@@ -416,7 +416,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
-      OPS_FILES: infrastructure-ci/scripts/etcd/opsfiles/non-tls-cf-deployment.yml
+      OPS_FILES: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/opsiles/non-tls-cf-deployment.yml
       SYSTEM_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
     ensure:
