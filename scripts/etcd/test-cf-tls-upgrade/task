@@ -20,7 +20,7 @@ function create_integration_config() {
       "target": "${BOSH_ENVIRONMENT}",
       "username": "${BOSH_CLIENT}",
       "password": "${BOSH_CLIENT_SECRET}",
-      "deployment_name": "${DEPLOYMENT_NAME}"
+      "deployment_vars_path": "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}/deployment-vars.yml"
     },
     "cf": {
       "domain": "${CF_DOMAIN}",

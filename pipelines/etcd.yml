@@ -448,7 +448,6 @@ jobs:
       CF_DOMAIN: {{etcd_cf_domain}}
       CF_PASSWORD: {{etcd_cf_password}}
       CF_USER: {{etcd_cf_user}}
-      DEPLOYMENT_NAME: etcd-cf-tls-upgrade
     on_failure:
       put: slack-alert
       params:

@@ -10,7 +10,6 @@ inputs:
   - name: bbl-state
   - name: infrastructure-ci
   - name: etcd-release
-  - name: cf-deployment
 
 run:
   path: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task
@@ -20,4 +19,3 @@ params:
   CF_DOMAIN:
   CF_USER:
   CF_PASSWORD:
-  DEPLOYMENT_NAME:
