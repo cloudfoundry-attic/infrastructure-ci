@@ -7,12 +7,12 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
-  - name: bbl-state
-  - name: infrastructure-ci
+  - name: bbl-states-repo
+  - name: ci
   - name: etcd-release
 
 run:
-  path: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task
+  path: ci/scripts/etcd/test-cf-tls-upgrade/task
 
 params:
   BBL_STATE_DIR:
