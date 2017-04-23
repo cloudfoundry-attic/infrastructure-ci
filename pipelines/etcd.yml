@@ -5,6 +5,7 @@ groups:
   - test-etcd-proxy
   - test-etcd-metrics-server
   - setup-eats-infrastructure
+  - delete-eats-deployments
   - eats
   - eats-turbulence
   - teardown-eats-infrastructure
@@ -28,6 +29,7 @@ groups:
 - name: eats
   jobs:
   - setup-eats-infrastructure
+  - delete-eats-deployments
   - eats
   - eats-turbulence
   - teardown-eats-infrastructure
@@ -49,9 +51,6 @@ groups:
   - run-cf-tls-upgrade
   - delete-cf-tls-upgrade
   - teardown-cf-tls-upgrade-infrastructure
-- name: cleanup
-  jobs:
-  - delete-eats-deployments
 
 resource_types:
 - name: slack-notification
@@ -255,6 +254,24 @@ jobs:
       params:
         rebase: true
         repository: bbl-states-repo-out
+
+- name: delete-eats-deployments
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-eats-infrastructure
+  - task: delete-deployments
+    file: ci/scripts/common/delete-deployments/task.yml
+    params:
+      BBL_STATE_DIR: eats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
 
 - name: eats
   public: true
@@ -836,22 +853,6 @@ jobs:
   - put: etcd-release-merge-target
     params:
       repository: final-release-repo
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: delete-eats-deployments
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
-    params:
-      BBL_STATE_DIR: eats
     on_failure:
       put: slack-alert
       params:
