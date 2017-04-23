@@ -725,7 +725,7 @@ jobs:
       - deploy-cf-tls-upgrade
       trigger: true
   - task: run-cf-tls-upgrade
-    file: infrastructure-ci/scripts/etcd/test-cf-tls-upgrade/task.yml
+    file: ci/scripts/etcd/test-cf-tls-upgrade/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       CF_DOMAIN: {{etcd_cf_domain}}
