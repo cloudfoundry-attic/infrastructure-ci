@@ -8,7 +8,6 @@ function main() {
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${root_dir}/ci" infrastructure-ci
     pushd infrastructure-ci > /dev/null
-      export GO15VENDOREXPERIMENT=1
       ginkgo \
         -p \
         -r \
