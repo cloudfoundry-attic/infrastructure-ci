@@ -336,6 +336,11 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - put: slack-alert
+    params:
+      icon_emoji: ":white_check_mark:"
+      text: |
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
 
 - name: teardown-eats-infrastructure
   public: true
@@ -553,7 +558,7 @@ jobs:
     params:
       icon_emoji: ":white_check_mark:"
       text: |
-        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed!
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
 
 - name: delete-cf-cats
   public: true
@@ -752,6 +757,11 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - put: slack-alert
+    params:
+      icon_emoji: ":white_check_mark:"
+      text: |
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
 
 - name: delete-cf-tls-upgrade
   public: true
@@ -831,6 +841,11 @@ jobs:
       repository: final-release-repo
       tag: final-release-repo/version_number
       tag_prefix: v
+  - put: slack-alert
+    params:
+      icon_emoji: ":shipit:"
+      text: |
+        Final release of etcd released.
 
 - name: merge-master-into-develop
   public: true
