@@ -777,8 +777,6 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       CF_DOMAIN: {{etcd_cf_domain}}
-      CF_PASSWORD: {{etcd_cf_password}}
-      CF_USER: {{etcd_cf_user}}
     on_failure:
       put: slack-alert
       params:
