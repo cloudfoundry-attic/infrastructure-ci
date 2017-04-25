@@ -489,7 +489,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-cats-early
-      trigger: true
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -702,7 +701,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-tls-upgrade-early
-      trigger: true
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
