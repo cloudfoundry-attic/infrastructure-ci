@@ -4,6 +4,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 RUN \
       apt-get update && \
       apt-get -qqy install --fix-missing \
+            apt-transport-https \
             awscli \
             openssl \
             unzip \
@@ -40,6 +41,12 @@ RUN wget https://releases.hashicorp.com/terraform/0.8.8/terraform_0.8.8_linux_am
   unzip terraform_0.8.8_linux_amd64.zip && \
   rm terraform_0.8.8_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
+
+# Install gcloud
+RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk-trusty main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+  apt-get update && \
+  apt-get -qqy install google-cloud-sdk
 
 # Install bbl
 RUN curl -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
