@@ -454,6 +454,15 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+      ACTION: add
 
 - name: delete-cf-cats-early
   public: true
@@ -483,6 +492,15 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-cats-early
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+      ACTION: remove
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -617,6 +635,15 @@ jobs:
       passed:
       - delete-cf-cats
       trigger: true
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+      ACTION: remove
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -666,6 +693,15 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+      ACTION: add
 
 - name: delete-cf-tls-upgrade-early
   public: true
@@ -695,6 +731,15 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-tls-upgrade-early
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+      ACTION: remove
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -817,6 +862,15 @@ jobs:
       passed:
       - delete-cf-tls-upgrade
       trigger: true
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+      ACTION: remove
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:

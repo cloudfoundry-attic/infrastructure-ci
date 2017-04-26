@@ -1,0 +1,33 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+
+function write_service_account_key_to_file() {
+  local service_account_path
+  service_account_path="$1"
+
+  set +x
+  echo "${GCP_DNS_SERVICE_ACCOUNT_KEY}" > "${service_account_path}"
+  set -x
+}
+
+function main() {
+  export GOOGLE_APPLICATION_CREDENTIALS="/tmp/service_account_key.json"
+  write_service_account_key_to_file "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+  local dns_servers
+  dns_servers=()
+  for dns_server in $(bbl --state-dir "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" lbs --json | jq -r ".cf_system_domain_dns_servers[] | ."); do
+    dns_servers+=("${dns_server}")
+  done
+
+  gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
+  gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction "${ACTION}" -z "${GCP_DNS_ZONE_NAME}" \
+    --name "${GCP_DNS_RECORD_SET_NAME}" \
+    --ttl ${GCP_DNS_RECORD_TTL-300} \
+    --type NS \
+    "${dns_servers[@]}"
+  gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction execute -z "${GCP_DNS_ZONE_NAME}"
+}
+
+main

@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: ci
+  - name: bbl-states-repo
+
+params:
+  BBL_STATE_DIR:
+  GCP_DNS_PROJECT_ID:
+  GCP_DNS_SERVICE_ACCOUNT_KEY:
+  GCP_DNS_ZONE_NAME:
+  GCP_DNS_RECORD_SET_NAME:
+  GCP_DNS_RECORD_TTL:
+  ACTION:
+
+run:
+  path: ci/scripts/common/manage-gcp-dns/task
