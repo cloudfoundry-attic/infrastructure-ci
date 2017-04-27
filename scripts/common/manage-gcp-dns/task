@@ -27,7 +27,7 @@ function main() {
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction "${ACTION}" -z "${GCP_DNS_ZONE_NAME}" \
     --name "${GCP_DNS_RECORD_SET_NAME}" \
-    --ttl ${GCP_DNS_RECORD_TTL-300} \
+    --ttl ${GCP_DNS_RECORD_TTL} \
     --type NS \
     "${dns_servers[@]}"
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction execute -z "${GCP_DNS_ZONE_NAME}"
