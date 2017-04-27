@@ -1,3 +1,8 @@
+# --- Scale up doppler ---
+- type: replace
+  path: /instance_groups/name=doppler/instances
+  value: 4
+
 # --- Remove consul agent job on etcd ---
 - type: remove
   path: /instance_groups/name=etcd/jobs/name=consul_agent
