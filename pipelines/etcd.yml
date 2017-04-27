@@ -459,6 +459,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-cats
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
@@ -497,6 +498,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-cats
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
@@ -640,6 +642,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-cats
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
@@ -698,6 +701,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
@@ -736,6 +740,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
@@ -867,6 +872,7 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com

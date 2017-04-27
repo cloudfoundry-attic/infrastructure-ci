@@ -12,8 +12,11 @@ function write_service_account_key_to_file() {
 }
 
 function main() {
-  export GOOGLE_APPLICATION_CREDENTIALS="/tmp/service_account_key.json"
-  write_service_account_key_to_file "${GOOGLE_APPLICATION_CREDENTIALS}"
+  local gcp_service_account_key_path
+  gcp_service_account_key_path="/tmp/service_account_key.json"
+
+  write_service_account_key_to_file "${gcp_service_account_key_path}"
+  gcloud auth activate-service-account "${GCP_DNS_SERVICE_ACCOUNT_EMAIL}" --key-file="${gcp_service_account_key_path}"
 
   local dns_servers
   dns_servers=()
