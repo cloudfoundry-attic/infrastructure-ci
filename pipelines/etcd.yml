@@ -10,11 +10,13 @@ groups:
   - teardown-eats-infrastructure
   - deploy-sample-manifests
   - setup-cf-cats-infrastructure
+  - add-cf-cats-to-dns
   - deploy-cf-cats
   - run-cats
   - delete-cf-cats
   - teardown-cf-cats-infrastructure
   - setup-cf-tls-upgrade-infrastructure
+  - add-cf-tls-upgrade-to-dns
   - deploy-cf-tls-upgrade
   - run-cf-tls-upgrade
   - delete-cf-tls-upgrade
@@ -34,6 +36,7 @@ groups:
   - setup-cf-cats-infrastructure
   - delete-cf-cats-early
   - teardown-cf-cats-infrastructure-early
+  - add-cf-cats-to-dns
   - deploy-cf-cats
   - run-cats
   - delete-cf-cats
@@ -43,6 +46,7 @@ groups:
   - setup-cf-tls-upgrade-infrastructure
   - delete-cf-tls-upgrade-early
   - teardown-cf-tls-upgrade-infrastructure-early
+  - add-cf-tls-upgrade-to-dns
   - deploy-cf-tls-upgrade
   - run-cf-tls-upgrade
   - delete-cf-tls-upgrade
@@ -454,16 +458,6 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
-  - task: add-to-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
-      ACTION: add
 
 - name: delete-cf-cats-early
   public: true
@@ -517,7 +511,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: deploy-cf-cats
+- name: add-cf-cats-to-dns
   public: true
   plan:
   - aggregate:
@@ -525,6 +519,36 @@ jobs:
       resource: etcd-release-develop
       passed:
       - setup-cf-cats-infrastructure
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-cf-cats-infrastructure
+      trigger: true
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+      ACTION: add
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-cf-cats
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: etcd-release-develop
+      passed:
+      - add-cf-cats-to-dns
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
     - get: ops-files
@@ -532,7 +556,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
-      - setup-cf-cats-infrastructure
+      - add-cf-cats-to-dns
       trigger: true
     - get: vars-store
       resource: infrastructure-ci-bbl-states
@@ -696,16 +720,6 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
-  - task: add-to-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
-      ACTION: add
 
 - name: delete-cf-tls-upgrade-early
   public: true
@@ -759,7 +773,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: deploy-cf-tls-upgrade
+- name: add-cf-tls-upgrade-to-dns
   public: true
   plan:
   - aggregate:
@@ -767,6 +781,36 @@ jobs:
       resource: etcd-release-develop
       passed:
       - setup-cf-tls-upgrade-infrastructure
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-cf-tls-upgrade-infrastructure
+      trigger: true
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+      ACTION: add
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: deploy-cf-tls-upgrade
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: etcd-release-develop
+      passed:
+      - add-cf-tls-upgrade-to-dns
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
     - get: ops-files
@@ -774,7 +818,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
-      - setup-cf-tls-upgrade-infrastructure
+      - add-cf-tls-upgrade-to-dns
       trigger: true
     - get: vars-store
       resource: infrastructure-ci-bbl-states
