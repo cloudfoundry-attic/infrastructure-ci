@@ -4,6 +4,7 @@ groups:
   - check-git-submodules
   - test-etcd-proxy
   - test-etcd-consistency-checker
+  - test-etcdfab
   - test-etcd-metrics-server
   - setup-eats-infrastructure
   - eats
@@ -223,6 +224,24 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
+- name: test-etcdfab
+  public: true
+  plan:
+  - aggregate:
+    - get: etcd-release
+      resource: etcd-release-develop
+      passed:
+      - check-git-submodules
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: test-etcdfab
+    file: ci/scripts/etcd/test-etcdfab/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
 - name: test-etcd-metrics-server
   public: true
   plan:
@@ -248,6 +267,7 @@ jobs:
     - get: etcd-release
       resource: etcd-release-develop
       passed:
+      - test-etcdfab
       - test-etcd-consistency-checker
       - test-etcd-proxy
       - test-etcd-metrics-server
@@ -450,6 +470,7 @@ jobs:
     - get: release
       resource: etcd-release-develop
       passed:
+      - test-etcdfab
       - test-etcd-consistency-checker
       - test-etcd-proxy
       - test-etcd-metrics-server
@@ -713,6 +734,7 @@ jobs:
     - get: release
       resource: etcd-release-develop
       passed:
+      - test-etcdfab
       - test-etcd-consistency-checker
       - test-etcd-proxy
       - test-etcd-metrics-server
