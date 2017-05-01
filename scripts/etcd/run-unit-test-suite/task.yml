@@ -14,4 +14,4 @@ params:
   TEST_SUITE:
 
 run:
-  path: ci/scripts/etcd/run-unit-tests/task
+  path: ci/scripts/etcd/run-unit-test-suite/task
