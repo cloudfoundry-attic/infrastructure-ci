@@ -49,11 +49,13 @@ function delete_bbl_env() {
       fi
 
       bbl destroy -n
+      if [ $? -eq 0 ]; then
+        echo "Removed state file from s3 bucket."
+        aws s3 rm s3://bbl-integration-tests/${1}
+      fi
       set -e
     fi
   popd > /dev/null
-
-  aws s3 rm s3://bbl-integration-tests/${1}
 }
 
 function delete_bbl_deployments() {
