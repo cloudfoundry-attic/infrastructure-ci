@@ -47,13 +47,10 @@ function delete_bbl_env() {
       else
         echo "No director address found."
       fi
+      set -e
 
       bbl destroy -n
-      if [ $? -eq 0 ]; then
-        echo "Removed state file from s3 bucket."
-        aws s3 rm s3://bbl-integration-tests/${1}
-      fi
-      set -e
+      aws s3 rm s3://bbl-integration-tests/${1}
     fi
   popd > /dev/null
 }
