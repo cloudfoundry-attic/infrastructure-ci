@@ -10,5 +10,8 @@ inputs:
 - name: etcd-release
 - name: ci
 
+params:
+  TEST_SUITE:
+
 run:
-  path: ci/scripts/etcd/test-etcd-consistency-checker/task
+  path: ci/scripts/etcd/run-unit-tests/task

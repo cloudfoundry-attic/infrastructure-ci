@@ -8,7 +8,7 @@ function main() {
 
   pushd "${GOPATH}/src/github.com/cloudfoundry-incubator" > /dev/null
     ln -s "${root_dir}/etcd-release"
-    chpst -u testuser:testuser ginkgo -r ./etcd-release/src/etcd-consistency-checker
+    chpst -u testuser:testuser ginkgo -race -r "./etcd-release/src/${TEST_SUITE}"
   popd > /dev/null
 }
 
