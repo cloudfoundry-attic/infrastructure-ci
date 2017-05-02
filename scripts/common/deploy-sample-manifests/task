@@ -80,18 +80,18 @@ function destroy_boshlite() {
   bosh -n clean-up --all
 
   bosh -n delete-env \
-    --vars-store bosh-vars.yml \
-    --state bosh-state.yml \
+    --vars-store ${ROOT}/bosh-vars.yml \
+    --state ${ROOT}/bosh-state.yml \
     -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
     -o ${ROOT}/bosh-deployment/bosh-lite.yml \
     -o ${ROOT}/bosh-deployment/external-ip-not-recommended.yml \
     -o ${ROOT}/bosh-deployment/gcp/bosh-lite-vm-type.yml \
     -o ${ROOT}/bosh-deployment/jumpbox-user.yml \
     -o ${ROOT}/bosh-deployment/bosh-lite-runc.yml \
-    --vars-file <(bbl bosh-deployment-vars) \
+    --vars-file <(bbl --state-dir ${ROOT} bosh-deployment-vars) \
     ${ROOT}/bosh-deployment/bosh.yml
 
-  bbl destroy --no-confirm
+  bbl --state-dir ${ROOT} destroy --no-confirm
 }
 
 trap destroy_boshlite EXIT
