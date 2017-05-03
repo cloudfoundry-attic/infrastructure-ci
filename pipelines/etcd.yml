@@ -528,6 +528,14 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
 
 - name: teardown-cf-cats-infrastructure-early
   public: true
@@ -698,6 +706,14 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
 
 - name: teardown-cf-cats-infrastructure
   public: true
@@ -788,6 +804,14 @@ jobs:
       - setup-cf-tls-upgrade-infrastructure
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
     on_failure:
@@ -946,6 +970,14 @@ jobs:
       trigger: true
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: etcd-cf-tls-upgrade
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
     on_failure:

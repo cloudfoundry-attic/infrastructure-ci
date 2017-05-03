@@ -447,6 +447,17 @@ jobs:
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-deployment
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: create-final-release
   public: true
