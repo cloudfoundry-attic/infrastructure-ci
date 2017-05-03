@@ -302,6 +302,7 @@ jobs:
         repository: bbl-states-repo-out
 
 - name: delete-eats-deployments
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: ci
@@ -345,6 +346,7 @@ jobs:
 
 - name: eats
   public: true
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: etcd-release
@@ -376,6 +378,7 @@ jobs:
 
 - name: eats-turbulence
   public: true
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: etcd-release
@@ -509,6 +512,7 @@ jobs:
 
 - name: delete-cf-cats-early
   public: true
+  serial_groups: [cf-cats]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
@@ -591,6 +595,7 @@ jobs:
 
 - name: deploy-cf-cats
   public: true
+  serial_groups: [cf-cats]
   plan:
   - aggregate:
     - get: release
@@ -773,6 +778,7 @@ jobs:
 
 - name: delete-cf-tls-upgrade-early
   public: true
+  serial_groups: [cf-tls-upgrade]
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
@@ -855,6 +861,7 @@ jobs:
 
 - name: deploy-cf-tls-upgrade
   public: true
+  serial_groups: [cf-tls-upgrade]
   plan:
   - aggregate:
     - get: release
