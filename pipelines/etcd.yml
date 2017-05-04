@@ -1034,7 +1034,7 @@ jobs:
     - get: release-repo
       resource: etcd-release-develop
       passed:
-      - deploy-sample-manifests
+      - teardown-eats-infrastructure
       - teardown-cf-cats-infrastructure
       - teardown-cf-tls-upgrade-infrastructure
       trigger: true
