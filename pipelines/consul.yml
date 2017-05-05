@@ -5,28 +5,49 @@ groups:
   - check-git-submodules
   - test-confab
   - test-confab-windows
+  - setup-consats-linux-infrastructure
   - consats-linux
   - consats-linux-turbulence
+  - teardown-consats-linux-infrastructure
+  - deploy-sample-manifest
+  - setup-consats-windows-infrastructure
   - consats-windows
   - consats-windows-turbulence
-  - deploy-sample-manifest
-  - deploy-with-cf-deployment
-  - run-cats-cf-deployment
-  - delete-cf-deployment
+  - teardown-consats-windows-infrastructure
+  - setup-cf-cats-infrastructure
+  - add-cf-cats-to-dns
+  - deploy-cf-cats
+  - run-cats
+  - delete-cf-cats
+  - teardown-cf-cats-infrastructure
   - create-final-release
   - merge-master-into-develop
-- name: cleanup
-  jobs:
-  - delete-consats-linux-deployments
-  - delete-consats-windows-deployments
-- name: infrastructure
+- name: consats-linux
   jobs:
   - setup-consats-linux-infrastructure
+  - delete-consats-linux-deployments
+  - teardown-consats-linux-infrastructure-early
+  - consats-linux
+  - consats-linux-turbulence
   - teardown-consats-linux-infrastructure
+- name: consats-windows
+  jobs:
   - setup-consats-windows-infrastructure
+  - delete-consats-windows-deployments
+  - teardown-consats-windows-infrastructure-early
+  - consats-windows
+  - consats-windows-turbulence
   - teardown-consats-windows-infrastructure
-  - setup-cf-deployment-infrastructure
-  - teardown-cf-deployment-infrastructure
+- name: cats
+  jobs:
+  - setup-cf-cats-infrastructure
+  - delete-cf-cats-early
+  - teardown-cf-cats-infrastructure-early
+  - add-cf-cats-to-dns
+  - deploy-cf-cats
+  - run-cats
+  - delete-cf-cats
+  - teardown-cf-cats-infrastructure
 
 resource_types:
 - name: slack-notification
@@ -206,18 +227,102 @@ jobs:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
-- name: consats-linux
+- name: setup-consats-linux-infrastructure
   public: true
-  serial: true
-  serial_groups: [consats]
+  plan:
+  - aggregate:
+    - get: consul-release
+      resource: consul-release-develop
+      passed:
+      - test-confab
+      - test-confab-windows
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/common/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: consats-linux
+      BBL_NAME: consats-linux
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: delete-consats-linux-deployments
+  serial_groups: [consats-linux]
   plan:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-linux-infrastructure
+  - task: delete-deployments
+    file: ci/scripts/common/delete-deployments/task.yml
+    params:
+      BBL_STATE_DIR: consats-linux
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: teardown-consats-linux-infrastructure-early
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - delete-consats-linux-deployments
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consats-linux
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: consats-linux
+  public: true
+  serial_groups: [consats-linux]
+  plan:
+  - aggregate:
     - get: consul-release
       resource: consul-release-develop
-      passed: [test-confab, test-confab-windows]
-      trigger: true
+      passed:
+      - setup-consats-linux-infrastructure
+    - get: ci
+      resource: infrastructure-ci
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
@@ -225,6 +330,9 @@ jobs:
     - get: latest-consul-release
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-linux-infrastructure
+      trigger: true
   - task: consats-linux
     file: ci/scripts/consul/run-consats/task.yml
     params:
@@ -241,16 +349,15 @@ jobs:
 
 - name: consats-linux-turbulence
   public: true
-  serial: true
-  serial_groups: [consats]
+  serial_groups: [consats-linux]
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
     - get: consul-release
       resource: consul-release-develop
-      passed: [consats-linux]
-      trigger: true
+      passed:
+      - consats-linux
+    - get: ci
+      resource: infrastructure-ci
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
@@ -258,6 +365,9 @@ jobs:
     - get: latest-consul-release
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - consats-linux
+      trigger: true
   - task: consats-linux
     file: ci/scripts/consul/run-consats/task.yml
     params:
@@ -271,6 +381,158 @@ jobs:
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - put: slack-alert
+    params:
+      icon_emoji: ":white_check_mark:"
+      text: |
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
+
+- name: teardown-consats-linux-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - consats-linux-turbulence
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - consats-linux-turbulence
+      trigger: true
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consats-linux
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: deploy-sample-manifest
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - teardown-consats-linux-infrastructure
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-deployment
+    - get: bosh-lite-stemcell
+  - task: deploy-sample-manifest
+    file: ci/scripts/common/deploy-sample-manifests/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      CLOUD_CONFIG: manifests/cloud_config.yml
+      MANIFESTS: manifests/multi-az-with-ssl.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: setup-consats-windows-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: consul-release
+      resource: consul-release-develop
+      passed:
+      - test-confab
+      - test-confab-windows
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/common/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: consats-windows
+      BBL_NAME: consats-windows
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: delete-consats-windows-deployments
+  serial_groups: [consats-windows]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-windows-infrastructure
+  - task: delete-deployments
+    file: ci/scripts/common/delete-deployments/task.yml
+    params:
+      BBL_STATE_DIR: consats-windows
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: teardown-consats-windows-infrastructure-early
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - delete-consats-windows-deployments
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consats-windows
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
 
 - name: consats-windows
   public: true
@@ -278,12 +540,12 @@ jobs:
   serial_groups: [consats-windows]
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
     - get: consul-release
       resource: consul-release-develop
-      passed: [test-confab, test-confab-windows]
-      trigger: true
+      passed:
+      - setup-consats-windows-infrastructure
+    - get: ci
+      resource: infrastructure-ci
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
@@ -291,6 +553,9 @@ jobs:
     - get: latest-consul-release
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-consats-windows-infrastructure
+      trigger: true
   - task: consats-windows
     file: ci/scripts/consul/run-consats/task.yml
     params:
@@ -308,16 +573,15 @@ jobs:
 
 - name: consats-windows-turbulence
   public: true
-  serial: true
   serial_groups: [consats-windows]
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
     - get: consul-release
       resource: consul-release-develop
-      passed: [consats-windows]
-      trigger: true
+      passed:
+      - consats-windows
+    - get: ci
+      resource: infrastructure-ci
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
@@ -325,6 +589,9 @@ jobs:
     - get: latest-consul-release
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+      passed:
+      - consats-windows
+      trigger: true
   - task: consats-windows
     file: ci/scripts/consul/run-consats/task.yml
     params:
@@ -339,34 +606,216 @@ jobs:
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - put: slack-alert
+    params:
+      icon_emoji: ":white_check_mark:"
+      text: |
+        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
 
-- name: deploy-with-cf-deployment
+- name: teardown-consats-windows-infrastructure
   public: true
-  serial_groups: [cf-deployment]
   plan:
   - aggregate:
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-    - get: cf-deployment
-    - get: cf-deployment-concourse-tasks
-    - get: ops-files
-      resource: empty-ops-files
     - get: release
       resource: consul-release-develop
-      passed: [consats-linux-turbulence, consats-windows-turbulence]
+      passed:
+      - consats-windows-turbulence
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - consats-windows-turbulence
+      trigger: true
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consats-windows
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: setup-cf-cats-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - test-confab
+      - test-confab-windows
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/common/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: consul-cf-cats
+      BBL_NAME: consul-cf-cats
+      BBL_LB_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
+      BBL_LB_CERT: {{consul_cf_deployment_lb_cert}}
+      BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: delete-cf-cats-early
+  public: true
+  serial_groups: [cf-cats]
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-cf-cats-infrastructure
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: teardown-cf-cats-infrastructure-early
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - delete-cf-cats-early
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
+      ACTION: remove
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: add-cf-cats-to-dns
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - setup-cf-cats-infrastructure
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - setup-cf-cats-infrastructure
+      trigger: true
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
+      ACTION: add
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: deploy-cf-cats
+  public: true
+  serial_groups: [cf-cats]
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - add-cf-cats-to-dns
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment
+    - get: ops-files
+      resource: empty-ops-files
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - add-cf-cats-to-dns
       trigger: true
     - get: vars-store
       resource: infrastructure-ci-bbl-states
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
-      BBL_STATE_DIR: consul-cf-deployment
+      BBL_STATE_DIR: consul-cf-cats
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
-      BBL_STATE_DIR: consul-cf-deployment
-      SYSTEM_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
-      VARS_STORE_FILE: consul-cf-deployment/deployment-vars.yml
+      BBL_STATE_DIR: consul-cf-cats
+      SYSTEM_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
+      VARS_STORE_FILE: consul-cf-cats/deployment-vars.yml
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -380,31 +829,34 @@ jobs:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
-- name: run-cats-cf-deployment
+- name: run-cats
   public: true
-  serial_groups: [cf-deployment]
   plan:
   - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - deploy-cf-cats
     - get: cf-deployment-concourse-tasks
+    - get: cats-concourse-task
     - get: integration-configs
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
-    - get: cats-concourse-task
     - get: cf-acceptance-tests
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [deploy-with-cf-deployment]
+      passed:
+      - deploy-cf-cats
       trigger: true
-    - get: release
-      resource: consul-release-develop
-      passed: [deploy-with-cf-deployment]
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - deploy-cf-cats
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     params:
       CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
-      VARS_STORE_FILE: consul-cf-deployment/deployment-vars.yml
-      SYSTEM_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
+      VARS_STORE_FILE: consul-cf-cats/deployment-vars.yml
+      SYSTEM_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
   - task: run-cats
     file: cats-concourse-task/task.yml
     input_mapping: {integration-config: updated-integration-configs }
@@ -423,23 +875,24 @@ jobs:
       text: |
         [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed!
 
-- name: delete-cf-deployment
+- name: delete-cf-cats
   public: true
-  serial_groups: [cf-deployment]
   plan:
   - aggregate:
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [run-cats-cf-deployment]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
     - get: release
       resource: consul-release-develop
-      passed: [run-cats-cf-deployment]
+      passed:
+      - run-cats
+    - get: cf-deployment-concourse-tasks
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - run-cats
+      trigger: true
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
-      BBL_STATE_DIR: consul-cf-deployment
+      BBL_STATE_DIR: consul-cf-cats
     on_failure:
       put: slack-alert
       params:
@@ -450,7 +903,49 @@ jobs:
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
-      BBL_STATE_DIR: consul-cf-deployment
+      BBL_STATE_DIR: consul-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: teardown-cf-cats-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: release
+      resource: consul-release-develop
+      passed:
+      - delete-cf-cats
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - delete-cf-cats
+      trigger: true
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
+      ACTION: remove
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
     on_failure:
       put: slack-alert
       params:
@@ -466,14 +961,16 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: oss-s3-buckets-stack
-      resource: oss-s3-buckets-stack
     - get: release-repo
       resource: consul-release-develop
-      passed: [delete-cf-deployment]
+      passed:
+      - teardown-consats-linux-infrastructure
+      - teardown-consats-windows-infrastructure
+      - teardown-cf-cats-infrastructure
       trigger: true
     - get: release-repo-master
       resource: consul-release-master
+    - get: oss-s3-buckets-stack
   - task: create-final-release
     file: ci/scripts/common/create-final-release/task.yml
     params:
@@ -490,6 +987,11 @@ jobs:
       repository: final-release-repo
       tag: final-release-repo/version_number
       tag_prefix: v
+  - put: slack-alert
+    params:
+      icon_emoji: ":shipit:"
+      text: |
+        Final release of consul released.
 
 - name: merge-master-into-develop
   public: true
@@ -515,259 +1017,6 @@ jobs:
   - put: consul-release-merge-target
     params:
       repository: final-release-repo
-
-- name: deploy-sample-manifest
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-deployment
-    - get: bosh-lite-stemcell
-    - get: release
-      resource: consul-release-develop
-      passed: [consats-linux-turbulence]
-      trigger: true
-  - task: deploy-sample-manifest
-    file: ci/scripts/common/deploy-sample-manifests/task.yml
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
-      CLOUD_CONFIG: manifests/cloud_config.yml
-      MANIFESTS: manifests/multi-az-with-ssl.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: delete-consats-linux-deployments
-  public: false
-  serial: true
-  serial_groups: [consats-linux]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
-    params:
-      BBL_STATE_DIR: consats-linux
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: delete-consats-windows-deployments
-  public: false
-  serial: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-# Infrastructure
-- name: setup-consats-linux-infrastructure
-  public: true
-  serial: true
-  serial_groups: [consats-linux]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: bbl-up
-    file: ci/scripts/common/bbl-up/task.yml
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
-      BBL_STATE_DIR: consats-linux
-      BBL_NAME: consats-linux
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: teardown-consats-linux-infrastructure
-  public: true
-  serial: true
-  serial_groups: [consats-linux]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-consats-linux-infrastructure
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-linux
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: setup-consats-windows-infrastructure
-  public: true
-  serial: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: bbl-up
-    file: ci/scripts/common/bbl-up/task.yml
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
-      BBL_STATE_DIR: consats-windows
-      BBL_NAME: consats-windows
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: teardown-consats-windows-infrastructure
-  public: true
-  serial: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-consats-windows-infrastructure
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: setup-cf-deployment-infrastructure
-  public: true
-  serial: true
-  serial_groups: [cf-deployment]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-  - task: bbl-up
-    file: ci/scripts/common/bbl-up/task.yml
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
-      BBL_STATE_DIR: consul-cf-deployment
-      BBL_NAME: consul-cf-deployment
-      BBL_LB_DOMAIN: consul-cf-deployment.infrastructure.cf-app.com
-      BBL_LB_CERT: {{consul_cf_deployment_lb_cert}}
-      BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-
-- name: teardown-cf-deployment-infrastructure
-  public: true
-  serial: true
-  serial_groups: [cf-deployment]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-deployment-infrastructure
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consul-cf-deployment
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
     on_failure:
       put: slack-alert
       params:
