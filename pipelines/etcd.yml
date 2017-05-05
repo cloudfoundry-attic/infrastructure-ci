@@ -65,50 +65,50 @@ resources:
 - name: infrastructure-ci
   type: git
   source:
-    branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+    branch: master
 
 - name: etcd-release-develop
   type: git
   source:
+    uri: https://github.com/cloudfoundry-incubator/etcd-release.git
     branch: develop
     ignore_paths:
     - .final_builds
     - releases
-    uri: https://github.com/cloudfoundry-incubator/etcd-release.git
 
 - name: etcd-release-master
   type: git
   source:
+    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
     branch: master
     private_key: {{etcd_release_private_key}}
-    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
 
 - name: etcd-release-merge-target
   type: git
   source:
+    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
     branch: develop
     private_key: {{etcd_release_private_key}}
-    uri: git@github.com:cloudfoundry-incubator/etcd-release.git
 
 - name: cf-deployment
   type: git
   source:
-    branch: develop
     uri: https://github.com/cloudfoundry/cf-deployment.git
+    branch: develop
 
 - name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    branch: master
 
 - name: infrastructure-ci-bbl-states
   type: git
   source:
+    uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     branch: master
     private_key: {{cf_infra_bot_user_github_private_key}}
-    uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
 
 - name: gcp-stemcell
   type: bosh-io-stemcell
@@ -118,8 +118,8 @@ resources:
 - name: turbulence-release
   type: github-release
   source:
-    repository: turbulence-release
     user: christianang
+    repository: turbulence-release
 
 - name: consul-release
   type: bosh-io-release
@@ -134,8 +134,8 @@ resources:
 - name: bosh-deployment
   type: git
   source:
-    branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
+    branch: master
 
 - name: bosh-lite-stemcell
   type: bosh-io-stemcell
@@ -145,9 +145,9 @@ resources:
 - name: oss-s3-buckets-stack
   type: git
   source:
+    uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
     branch: master
     private_key: {{oss-s3-buckets-stack-private-key}}
-    uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
 
 - name: slack-alert
   type: slack-notification
@@ -161,14 +161,22 @@ resources:
 - name: cats-concourse-task
   type: git
   source:
-    branch: master
     uri: https://github.com/cloudfoundry/cats-concourse-task.git
+    branch: master
 
 - name: cf-acceptance-tests
   type: git
   source:
-    branch: master
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
+    branch: master
+
+- name: deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks
+    branch: master
+    pool: deployments
+    private_key: {{cf_infra_bot_user_github_private_key}}
 
 jobs:
 - name: check-git-submodules
@@ -282,6 +290,10 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+  - put: deployment-lock
+    params:
+      claim: etcd-eats
+      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -311,6 +323,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - setup-eats-infrastructure
+    - get: deployment-lock
+      passed:
+      - setup-eats-infrastructure
   - task: delete-deployments
     file: ci/scripts/common/delete-deployments/task.yml
     params:
@@ -330,6 +345,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-eats-deployments
+    - get: deployment-lock
+      passed:
+      - delete-eats-deployments
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -343,6 +361,9 @@ jobs:
       params:
         rebase: true
         repository: bbl-states-repo-out
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: eats
   public: true
@@ -365,6 +386,9 @@ jobs:
       passed:
       - setup-eats-infrastructure
       trigger: true
+    - get: deployment-lock
+      passed:
+      - setup-eats-infrastructure
   - task: run-eats
     file: ci/scripts/etcd/run-eats/task.yml
     params:
@@ -399,6 +423,9 @@ jobs:
       passed:
       - eats
       trigger: true
+    - get: deployment-lock
+      passed:
+      - eats
   - task: run-eats-turbulence
     file: ci/scripts/etcd/run-eats/task.yml
     params:
@@ -430,6 +457,9 @@ jobs:
       passed:
       - eats-turbulence
       trigger: true
+    - get: deployment-lock
+      passed:
+      - eats-turbulence
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
@@ -443,6 +473,9 @@ jobs:
       params:
         rebase: true
         repository: bbl-states-repo-out
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: deploy-sample-manifests
   public: true
@@ -488,6 +521,10 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+  - put: deployment-lock
+    params:
+      claim: etcd-cf-cats
+      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -520,6 +557,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - setup-cf-cats-infrastructure
+    - get: deployment-lock
+      passed:
+      - setup-cf-cats-infrastructure
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
@@ -547,6 +587,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-cats-early
+    - get: deployment-lock
+      passed:
+      - delete-cf-cats-early
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -561,15 +604,18 @@ jobs:
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: bbl-states-repo-out
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: add-cf-cats-to-dns
   public: true
@@ -586,6 +632,9 @@ jobs:
       passed:
       - setup-cf-cats-infrastructure
       trigger: true
+    - get: deployment-lock
+      passed:
+      - setup-cf-cats-infrastructure
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -621,6 +670,9 @@ jobs:
       trigger: true
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: deployment-lock
+      passed:
+      - add-cf-cats-to-dns
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
@@ -663,6 +715,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - deploy-cf-cats
+    - get: deployment-lock
+      passed:
+      - deploy-cf-cats
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     params:
@@ -698,6 +753,9 @@ jobs:
       passed:
       - run-cats
       trigger: true
+    - get: deployment-lock
+      passed:
+      - run-cats
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
@@ -730,6 +788,9 @@ jobs:
       passed:
       - delete-cf-cats
       trigger: true
+    - get: deployment-lock
+      passed:
+      - delete-cf-cats
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -744,15 +805,18 @@ jobs:
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: bbl-states-repo-out
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: setup-cf-tls-upgrade-infrastructure
   public: true
@@ -770,6 +834,10 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+  - put: deployment-lock
+    params:
+      claim: etcd-cf-tls-upgrade
+      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -802,6 +870,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - setup-cf-tls-upgrade-infrastructure
+    - get: deployment-lock
+      passed:
+      - setup-cf-tls-upgrade-infrastructure
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
@@ -829,6 +900,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed:
       - delete-cf-tls-upgrade-early
+    - get: deployment-lock
+      passed:
+      - delete-cf-tls-upgrade-early
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -843,15 +917,18 @@ jobs:
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: bbl-states-repo-out
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: add-cf-tls-upgrade-to-dns
   public: true
@@ -868,6 +945,9 @@ jobs:
       passed:
       - setup-cf-tls-upgrade-infrastructure
       trigger: true
+    - get: deployment-lock
+      passed:
+      - setup-cf-tls-upgrade-infrastructure
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -903,6 +983,9 @@ jobs:
       trigger: true
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: deployment-lock
+      passed:
+      - add-cf-tls-upgrade-to-dns
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
@@ -939,6 +1022,9 @@ jobs:
       passed:
       - deploy-cf-tls-upgrade
       trigger: true
+    - get: deployment-lock
+      passed:
+      - deploy-cf-tls-upgrade
   - task: run-cf-tls-upgrade
     file: ci/scripts/etcd/test-cf-tls-upgrade/task.yml
     params:
@@ -968,6 +1054,9 @@ jobs:
       passed:
       - run-cf-tls-upgrade
       trigger: true
+    - get: deployment-lock
+      passed:
+      - run-cf-tls-upgrade
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
@@ -1000,6 +1089,9 @@ jobs:
       passed:
       - delete-cf-tls-upgrade
       trigger: true
+    - get: deployment-lock
+      passed:
+      - delete-cf-tls-upgrade
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -1014,15 +1106,18 @@ jobs:
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
         repository: bbl-states-repo-out
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - put: deployment-lock
+    params:
+      release: deployment-lock
 
 - name: create-final-release
   public: true
