@@ -275,6 +275,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: setup-eats-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -291,9 +292,9 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - put: deployment-lock
+    timeout: 3h
     params:
       claim: etcd-eats
-      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -336,6 +337,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-eats-infrastructure-early
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -443,6 +445,7 @@ jobs:
         [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
 
 - name: teardown-eats-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -506,6 +509,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: setup-cf-cats-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -522,9 +526,9 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - put: deployment-lock
+    timeout: 3h
     params:
       claim: etcd-cf-cats
-      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -578,6 +582,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-cf-cats-infrastructure-early
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -774,6 +779,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-cf-cats-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -819,6 +825,7 @@ jobs:
       release: deployment-lock
 
 - name: setup-cf-tls-upgrade-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -835,9 +842,9 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - put: deployment-lock
+    timeout: 3h
     params:
       claim: etcd-cf-tls-upgrade
-      timeout: 3h
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -891,6 +898,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-cf-tls-upgrade-infrastructure-early
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
@@ -1075,6 +1083,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-cf-tls-upgrade-infrastructure
+  serial_groups: [bbl-states]
   public: true
   plan:
   - aggregate:
