@@ -1,0 +1,11 @@
+---
+applications:
+- name: bbl
+  memory: 64M
+  disk_quota: 64M
+  buildpack: go_buildpack
+  instances: 3
+  path: .
+  env:
+    GOVERSION: go1.8
+    GOPACKAGENAME: main
