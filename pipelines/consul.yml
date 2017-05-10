@@ -804,6 +804,8 @@ jobs:
       passed:
       - add-cf-cats-to-dns
       trigger: true
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
   - task: upload-stemcell
