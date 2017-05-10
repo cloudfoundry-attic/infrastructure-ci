@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/misc/bbl-latest/task
+  path: ci/scripts/misc/bbl-latest/unit-tests/task

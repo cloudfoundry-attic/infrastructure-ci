@@ -2,7 +2,7 @@ groups:
 - name: bbl-latest
   jobs:
   - unit-tests
-  #- deploy-app
+  - deploy-app
 
 resource_types:
 - name: slack-notification
@@ -28,6 +28,14 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+- name: pws
+  type: cf
+  source:
+    api: https://api.run.pivotal.io
+    username: {{pws_username}}
+    password: {{pws_password}}
+    organization: {{pws_organization}}
+    space: {{pws_space}}
 
 jobs:
 - name: unit-tests
@@ -39,11 +47,21 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/misc/bbl-latest/task.yml
+    file: ci/scripts/misc/bbl-latest/unit-tests/task.yml
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
+- name: deploy-app
+  public: true
+  plan:
+  - get: bbl-latest-app
+    passed: [unit-tests]
+    trigger: true
+  - put: pws
+    params:
+      manifest: bbl-latest-app/apps/bbl-latest/manifest.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
