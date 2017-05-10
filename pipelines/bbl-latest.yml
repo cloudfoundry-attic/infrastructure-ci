@@ -35,6 +35,7 @@ jobs:
   plan:
   - aggregate:
     - get: bbl-latest-app
+      trigger: true
     - get: ci
       resource: infrastructure-ci
   - task: test
