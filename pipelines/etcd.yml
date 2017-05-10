@@ -991,6 +991,8 @@ jobs:
       passed:
       - add-cf-tls-upgrade-to-dns
       trigger: true
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
     - get: deployment-lock
