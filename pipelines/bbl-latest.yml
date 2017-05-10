@@ -1,0 +1,48 @@
+groups:
+- name: bbl-latest
+  jobs:
+  - unit-tests
+  #- deploy-app
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
+resources:
+- name: bbl-latest-app
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+    paths:
+    - apps/bbl-latest
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+
+jobs:
+- name: unit-tests
+  public: true
+  plan:
+  - aggregate:
+    - get: bbl-latest-app
+    - get: ci
+      resource: infrastructure-ci
+  - task: test
+    file: ci/scripts/misc/bbl-latest/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
