@@ -5,6 +5,6 @@ ROOT="${PWD}"
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-  ln -s "${ROOT}/infrastructure-ci"
+  ln -s "${ROOT}/ci" "infrastructure-ci"
   ginkgo -r infrastructure-ci/apps/bbl-latest
 popd > /dev/null
