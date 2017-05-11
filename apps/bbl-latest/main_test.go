@@ -27,10 +27,10 @@ var _ = Describe("bbl-latest", func() {
 	})
 
 	Context("when someone hits /", func() {
-		It("returns status ok", func() {
-			response, err := http.Get(fmt.Sprintf("http://localhost:%s/latest?os=linux", port))
+		It("returns status not found", func() {
+			response, err := http.Get(fmt.Sprintf("http://localhost:%s/", port))
 			Expect(err).NotTo(HaveOccurred())
-			Expect(response.StatusCode).To(Equal(http.StatusOK))
+			Expect(response.StatusCode).To(Equal(http.StatusNotFound))
 		})
 	})
 
