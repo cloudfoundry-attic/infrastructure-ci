@@ -81,6 +81,7 @@ func getLatestBBLVersion() string {
 	}
 	response, err := http.Get("https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest")
 	Expect(err).NotTo(HaveOccurred())
+	Expect(response.StatusCode).To(Equal(http.StatusOK))
 	defer response.Body.Close()
 
 	bodyContents, err := ioutil.ReadAll(response.Body)
