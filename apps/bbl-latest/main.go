@@ -32,6 +32,7 @@ func main() {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Failed to query github.com for latest bbl version. Try again later."))
 				fmt.Println(err.Error())
+				break
 			}
 			cachedLatestBBLVersion = latestBBLVersion
 			cachedLastModified = lastModified
