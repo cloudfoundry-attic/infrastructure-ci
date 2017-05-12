@@ -8,4 +8,4 @@ applications:
   path: .
   env:
     GOVERSION: go1.8
-    GOPACKAGENAME: main
+    GOPACKAGENAME: github.com/cloudfoundry/infrastructure-ci/apps/bbl-latest
