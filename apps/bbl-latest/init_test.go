@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"testing"
 	"time"
@@ -79,7 +80,7 @@ func getLatestBBLVersion() string {
 	var latestJson struct {
 		TagName string `json:"tag_name"`
 	}
-	accessToken := os.GetEnv("GITHUB_OAUTH_TOKEN")
+	accessToken := os.Getenv("GITHUB_OAUTH_TOKEN")
 	response, err := http.Get(fmt.Sprintf("https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest?access_token=%s", accessToken))
 	Expect(err).NotTo(HaveOccurred())
 	Expect(response.StatusCode).To(Equal(http.StatusOK))
