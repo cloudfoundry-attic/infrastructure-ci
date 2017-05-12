@@ -48,6 +48,8 @@ jobs:
       resource: infrastructure-ci
   - task: test
     file: ci/scripts/misc/bbl-latest/unit-tests/task.yml
+    params:
+      GITHUB_OAUTH_TOKEN: {{github_oauth_token}}
     on_failure:
       put: slack-alert
       params:

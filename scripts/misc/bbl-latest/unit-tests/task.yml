@@ -12,3 +12,6 @@ inputs:
 
 run:
   path: ci/scripts/misc/bbl-latest/unit-tests/task
+
+params:
+  GITHUB_OAUTH_TOKEN:
