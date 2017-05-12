@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -89,6 +90,9 @@ func getLatestBBLVersion() string {
 	Expect(err).NotTo(HaveOccurred())
 
 	latestVersion := latestJson.TagName
+	if latestVersion == "" {
+		fmt.Printf("latestVersion is empty: GitHub Response Body:\n%s\n", string(bodyContents))
+	}
 	Expect(latestVersion).To(MatchRegexp(`v[0-9]+\.[0-9]+\.[0-9]+`))
 	return latestVersion
 }
