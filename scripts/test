@@ -11,6 +11,7 @@ function main() {
       ginkgo \
         -p \
         -r \
+        -skipPackage apps/bbl-latest \
         -race \
         -randomizeAllSpecs \
         -randomizeSuites \
