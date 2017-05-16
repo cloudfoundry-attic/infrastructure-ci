@@ -10,6 +10,9 @@ groups:
   - bbl-downstream-docker-image
   - bbl-downstream-setup-env
   - bbl-downstream-destroy-env
+  - setup-aws-terraform-infrastructure
+  - aws-terraform-cf-deploy
+  - teardown-aws-terraform-infrastructure
 - name: smoke-tests
   jobs:
   - test-with-latest-terraform
@@ -90,6 +93,14 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+- name: empty-ops-files
+  type: time
+  source: {interval: 5m}
+- name: cf-deployment
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/cloudfoundry/cf-deployment.git
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
@@ -303,6 +314,115 @@ jobs:
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 # CF Deployment Pipeline
+- name: setup-aws-terraform-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/common/bbl-up-aws-terraform/task.yml
+    params:
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_GCP_REGION: {{aws_region}}
+      BBL_STATE_DIR: bbl-aws-terraform
+      BBL_NAME: bbl-aws-terraform
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: aws-terraform-cf-deploy
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [setup-aws-terraform-infrastructure]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment
+    - get: ops-files
+      resource: empty-ops-files
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-terraform
+  - task: deploy
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-terraform
+      SYSTEM_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
+      VARS_STORE_FILE: bbl-aws-terraform/deployment-vars.yml
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: teardown-aws-terraform-infrastructure
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed:
+      - aws-terraform-cf-deploy
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed:
+      - aws-terraform-cf-deploy
+      trigger: true
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-terraform
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+
 - name: bbl-downstream-docker-image
   public: true
   plan:
