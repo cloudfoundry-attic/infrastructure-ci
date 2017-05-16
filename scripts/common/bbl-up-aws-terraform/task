@@ -139,9 +139,9 @@ function main() {
     --debug \
     --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
     up \
-      --terraform \
       --name ${BBL_NAME} \
-      --ops-file "${ops_file_path}"  > bbl_up.log
+      --terraform \
+      --ops-file "${ops_file_path}" > bbl_up.log
 
   if [ -n "${BBL_LB_DOMAIN}" ]; then
     create_or_update_lbs
