@@ -24,12 +24,12 @@ function main() {
 
   if [[ "${ACTION}" = "add" && -n "${zone_info}" ]]; then
     echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" already exists in zone \"${GCP_DNS_ZONE_NAME}\"."
-    return
+    exit 1
   fi
 
   if [[ "${ACTION}" = "remove" && -z "${zone_info}" ]]; then
     echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" not found in zone \"${GCP_DNS_ZONE_NAME}\"."
-    return
+    exit 1
   fi
 
   local dns_servers
