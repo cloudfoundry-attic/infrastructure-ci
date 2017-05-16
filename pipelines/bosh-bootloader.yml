@@ -12,6 +12,7 @@ groups:
   - bbl-downstream-destroy-env
   - setup-aws-terraform-infrastructure
   - aws-terraform-cf-deploy
+  - aws-terraform-cf-delete
   - teardown-aws-terraform-infrastructure
 - name: smoke-tests
   jobs:
@@ -331,7 +332,7 @@ jobs:
     params:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      BBL_GCP_REGION: {{aws_region}}
+      BBL_AWS_REGION: {{aws_region}}
       BBL_STATE_DIR: bbl-aws-terraform
       BBL_NAME: bbl-aws-terraform
     on_failure:
@@ -390,20 +391,53 @@ jobs:
 
           https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
+- name: aws-terraform-cf-delete
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [aws-terraform-cf-deploy]
+    - get: cf-deployment-concourse-tasks
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [aws-terraform-cf-deploy]
+      trigger: true
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-terraform
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-terraform
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
 - name: teardown-aws-terraform-infrastructure
   public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed:
-      - aws-terraform-cf-deploy
+      passed: [aws-terraform-cf-delete]
     - get: ci
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
-      passed:
-      - aws-terraform-cf-deploy
+      passed: [aws-terraform-cf-delete]
       trigger: true
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
