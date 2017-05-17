@@ -373,8 +373,9 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-terraform
+      INFRASTRUCTURE: aws
   - task: deploy
-    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-terraform
       SYSTEM_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
