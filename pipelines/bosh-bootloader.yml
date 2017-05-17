@@ -336,8 +336,8 @@ jobs:
       BBL_STATE_DIR: bbl-aws-terraform
       BBL_NAME: bbl-aws-terraform
       BBL_LB_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      BBL_LB_CERT: {{bbl_aws_terraform_cf_lb_cert}}
+      BBL_LB_KEY: {{bbl_aws_terraform_cf_lb_key}}
     on_failure:
       put: slack-alert
       params:
