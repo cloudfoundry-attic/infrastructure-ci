@@ -94,9 +94,6 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
-- name: empty-ops-files
-  type: time
-  source: {interval: 5m}
 - name: cf-deployment
   type: git
   source:
@@ -317,6 +314,7 @@ jobs:
 # CF Deployment Pipeline
 - name: setup-aws-terraform-infrastructure
   public: true
+  serial: true
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -332,7 +330,7 @@ jobs:
     params:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      BBL_AWS_REGION: {{aws_region}}
+      BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bbl-aws-terraform
       BBL_NAME: bbl-aws-terraform
       BBL_LB_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
@@ -367,7 +365,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
     - get: ops-files
-      resource: empty-ops-files
+      resource: cf-deployment
     - get: vars-files
       resource: infrastructure-ci-bbl-states
     - get: vars-store
@@ -383,6 +381,7 @@ jobs:
       BBL_STATE_DIR: bbl-aws-terraform
       SYSTEM_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-aws-terraform/deployment-vars.yml
+      OPS_FILES: "operations/aws.yml"
     ensure:
       put: infrastructure-ci-bbl-states
       params:
