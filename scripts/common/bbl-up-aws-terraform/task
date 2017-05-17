@@ -43,20 +43,6 @@ function check_fast_fails() {
   set -x
 }
 
-function pathify_access_keys() {
-  local access_key_id_path
-  access_key_id_path="/tmp/bbl_aws_access_key_id"
-  local secret_access_key_path
-  secret_access_key_path="/tmp/bbl_aws_secret_access_key"
-
-  set +x
-  echo ${BBL_AWS_ACCESS_KEY_ID} > "${access_key_id_path}"
-  echo ${BBL_AWS_SECRET_ACCESS_KEY} > "${secret_access_key_path}"
-  set -x
-
-  export BBL_AWS_ACCESS_KEY_ID="${access_key_id_path}"
-  export BBL_AWS_SECRET_ACCESS_KEY="${secret_access_key_path}"
-}
 
 function create_or_update_lbs() {
   local bbl_lb_key_path
@@ -129,7 +115,6 @@ function main() {
   root_dir="${1}"
 
   check_fast_fails
-  pathify_access_keys
 
   local ops_file_path
   ops_file_path=$(write_ops_file_to_bump_compilation_workers "${root_dir}")
