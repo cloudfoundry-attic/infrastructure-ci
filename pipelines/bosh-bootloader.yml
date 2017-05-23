@@ -4,7 +4,8 @@ groups:
   - test-bosh-bootloader
   - aws-integration-tests
   - gcp-integration-tests
-  - concourse-integration-tests
+  - aws-concourse-integration-tests
+  - gcp-concourse-integration-tests
 - name: cf-deployment
   jobs:
   - bbl-downstream-docker-image
@@ -36,6 +37,22 @@ resource_types:
     tag: latest
 
 resources:
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+- name: gcp-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+- name: garden-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry/garden-runc-release
+- name: concourse-release
+  type: bosh-io-release
+  source:
+    repository: concourse/concourse
 - name: bosh-bootloader-develop
   type: git
   source:
@@ -212,16 +229,55 @@ jobs:
 
             https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
-- name: concourse-integration-tests
+- name: gcp-concourse-integration-tests
   serial: true
   public: true
   plan:
   - aggregate:
+    - get: concourse-release
+    - get: garden-release
+    - get: stemcell
+      resource: gcp-stemcell
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-integration-tests, gcp-integration-tests]
+      passed: [gcp-integration-tests]
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      GCP_PROJECT_ID: {{gcp_project_id}}
+      GCP_REGION: {{gcp_region}}
+      GCP_ZONE: {{gcp_zone}}
+      BBL_TEST_ENV_ID_PREFIX: bbl-ci
+    on_failure:
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: |
+            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
+- name: aws-concourse-integration-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: concourse-release
+    - get: garden-release
+    - get: stemcell
+      resource: aws-stemcell
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [aws-integration-tests]
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
@@ -229,10 +285,6 @@ jobs:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       AWS_REGION: {{aws_region}}
-      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      GCP_PROJECT_ID: {{gcp_project_id}}
-      GCP_REGION: {{gcp_region}}
-      GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:

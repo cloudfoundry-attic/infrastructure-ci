@@ -9,6 +9,9 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: ci
+  - name: concourse-release
+  - name: garden-release
+  - name: stemcell
 outputs:
   - name: bbl-integration-s3
 
