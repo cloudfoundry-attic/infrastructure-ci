@@ -315,6 +315,7 @@ jobs:
         repository: bbl-states-repo-out
 
 - name: delete-eats-deployments
+  public: true
   serial_groups: [eats]
   plan:
   - aggregate:
@@ -1020,6 +1021,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: run-cf-tls-upgrade
+  public: true
   plan:
   - aggregate:
     - get: etcd-release

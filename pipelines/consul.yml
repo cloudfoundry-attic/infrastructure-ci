@@ -264,6 +264,7 @@ jobs:
         rebase: true
 
 - name: delete-consats-linux-deployments
+  public: true
   serial_groups: [consats-linux]
   plan:
   - aggregate:
@@ -486,6 +487,7 @@ jobs:
         rebase: true
 
 - name: delete-consats-windows-deployments
+  public: true
   serial_groups: [consats-windows]
   plan:
   - aggregate:
