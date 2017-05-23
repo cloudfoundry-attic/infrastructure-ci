@@ -403,6 +403,7 @@ jobs:
 
 - name: aws-terraform-cf-deploy
   public: true
+  serial: true
   plan:
   - aggregate:
     - get: bosh-bootloader
