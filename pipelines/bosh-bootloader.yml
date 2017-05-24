@@ -6,6 +6,7 @@ groups:
   - gcp-integration-tests
   - aws-concourse-integration-tests
   - gcp-concourse-integration-tests
+  - aws-terraform-concourse-integration-tests
 - name: cf-deployment
   jobs:
   - bbl-downstream-docker-image
@@ -281,6 +282,39 @@ jobs:
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
+    on_failure:
+      do:
+      - put: bbl-integration-s3
+        params:
+          file: bbl-integration-s3/*.tgz
+      - put: slack-alert
+        params:
+          text: {{slack_failure_text}}
+
+- name: aws-terraform-concourse-integration-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: concourse-release
+    - get: garden-release
+    - get: concourse-deployment
+    - get: stemcell
+      resource: aws-stemcell
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [aws-integration-tests]
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_REGION: {{aws_region}}
+      BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
+      ENABLE_TERRAFORM_FLAG: true
     on_failure:
       do:
       - put: bbl-integration-s3
