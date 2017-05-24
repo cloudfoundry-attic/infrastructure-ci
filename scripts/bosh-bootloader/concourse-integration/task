@@ -17,6 +17,7 @@ function main() {
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/bosh-bootloader"
 
+    export CONCOURSE_DEPLOYMENT_PATH="${ROOT}/concourse-deployment"
     export CONCOURSE_RELEASE_PATH="${ROOT}/concourse-release/release.tgz"
     export GARDEN_RELEASE_PATH="${ROOT}/garden-release/release.tgz"
     export STEMCELL_PATH="${ROOT}/stemcell/stemcell.tgz"
