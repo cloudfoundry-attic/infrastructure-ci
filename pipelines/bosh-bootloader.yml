@@ -168,10 +168,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: aws-integration-tests
   serial: true
@@ -198,10 +195,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: gcp-integration-tests
   serial: true
@@ -229,10 +223,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: gcp-concourse-integration-tests
   serial: true
@@ -265,10 +256,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: aws-concourse-integration-tests
   serial: true
@@ -300,10 +288,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 # Smoke-tests
 - name: test-with-latest-terraform
@@ -333,10 +318,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: test-with-latest-bosh-cli
   serial: true
@@ -365,10 +347,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 # CF Deployment Pipeline
 - name: setup-aws-terraform-infrastructure
@@ -398,10 +377,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -450,10 +426,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: aws-terraform-cf-delete
   public: true
@@ -474,10 +447,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -485,10 +455,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: teardown-aws-terraform-infrastructure
   public: true
@@ -510,10 +477,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -542,10 +506,7 @@ jobs:
       on_failure:
         put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: bbl-downstream-setup-env
   serial_groups: [downstream]
@@ -585,10 +546,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: bbl-downstream-destroy-env
   serial_groups: [downstream]
@@ -620,10 +578,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 # Final Release Pipeline
 - name: major
