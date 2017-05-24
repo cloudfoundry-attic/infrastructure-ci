@@ -116,6 +116,11 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/cf-deployment.git
+- name: concourse-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/evanfarrar/concourse-deployment.git
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
@@ -236,6 +241,7 @@ jobs:
   - aggregate:
     - get: concourse-release
     - get: garden-release
+    - get: concourse-deployment
     - get: stemcell
       resource: gcp-stemcell
     - get: ci
@@ -271,6 +277,7 @@ jobs:
   - aggregate:
     - get: concourse-release
     - get: garden-release
+    - get: concourse-deployment
     - get: stemcell
       resource: aws-stemcell
     - get: ci

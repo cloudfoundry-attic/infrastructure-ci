@@ -11,6 +11,7 @@ inputs:
   - name: ci
   - name: concourse-release
   - name: garden-release
+  - name: concourse-deployment
   - name: stemcell
 outputs:
   - name: bbl-integration-s3
