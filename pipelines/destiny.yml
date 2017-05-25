@@ -45,4 +45,4 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME

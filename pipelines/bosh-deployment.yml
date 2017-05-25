@@ -90,10 +90,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - put: bump-bosh-deployment-ci
     resource: bosh-bootloader-bump-bosh-deployment-ci
     params:
@@ -115,10 +112,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: aws-integration-tests
   serial: true
@@ -145,10 +139,7 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: gcp-integration-tests
   serial: true
@@ -176,7 +167,4 @@ jobs:
           file: bbl-integration-s3/*.tgz
       - put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}

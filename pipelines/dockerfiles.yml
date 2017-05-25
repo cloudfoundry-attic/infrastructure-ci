@@ -99,10 +99,7 @@ jobs:
       on_failure:
         put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: golang-docker-image
   public: true
@@ -124,10 +121,7 @@ jobs:
       on_failure:
         put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
 
 - name: deployment-docker-image
   public: true
@@ -151,7 +145,4 @@ jobs:
       on_failure:
         put: slack-alert
         params:
-          text: |
-            [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-            https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          text: {{slack_failure_text}}
