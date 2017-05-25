@@ -504,8 +504,10 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [aws-terraform-cf-delete]
       trigger: true
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: bbl-aws-terraform
     on_failure:
