@@ -16,9 +16,6 @@ ENV GOPATH /go
 # add go and GOPATH/bin to PATH
 ENV PATH $PATH:$GOPATH/bin:/usr/local/go/bin
 
-# use the vendor experiment
-ENV GO15VENDOREXPERIMENT 1
-
 # install test dependencies
 RUN go get github.com/onsi/ginkgo/...
 RUN go get github.com/onsi/gomega/...
