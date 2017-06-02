@@ -71,8 +71,9 @@ resources:
 - name: bbl-release
   type: github-release
   source:
+    owner: cloudfoundry
     repository: bosh-bootloader
-    user: cloudfoundry
+    access_token: {{cf_infra_bot_user_github_access_token}}
 
 - name: slack-alert
   type: slack-notification
