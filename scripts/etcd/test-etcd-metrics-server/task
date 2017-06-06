@@ -11,19 +11,16 @@ function main() {
   tar zxf "${root_dir}"/etcd-release/blobs/etcd/etcd-*.tar.gz -C /tmp "$etcd_binary"
 
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry-incubator"
-  pushd "${GOPATH}/src/github.com/cloudfoundry-incubator" > /dev/null
-    ln -s "${root_dir}/etcd-release/src/etcd-metrics-server"
-    pushd ./etcd-metrics-server > /dev/null
-      export GOPATH="${PWD}/Godeps/_workspace:${GOPATH}"
-      export PATH="${PWD}/Godeps/_workspace/bin:${PATH}"
+  ln -s "${root_dir}/etcd-release/src/etcd-metrics-server" "${GOPATH}/src/github.com/cloudfoundry-incubator"
+  server_dir="${GOPATH}/src/github.com/cloudfoundry-incubator/etcd-metrics-server"
+  export GOPATH="${server_dir}/Godeps/_workspace:${GOPATH}"
+  export PATH="${server_dir}/Godeps/_workspace/bin:${PATH}"
 
-      mkdir -p "${PWD}/Godeps/_workspace/bin"
-      mv "/tmp/$etcd_binary" "${PWD}/Godeps/_workspace/bin/"
+  mkdir -p "${server_dir}/Godeps/_workspace/bin"
+  mv "/tmp/$etcd_binary" "${server_dir}/Godeps/_workspace/bin/"
 
-      ginkgo -r -race -randomizeAllSpecs -randomizeSuites
-    popd > /dev/null
+  ginkgo -r -race -randomizeAllSpecs -randomizeSuites "$server_dir"
 
-  popd > /dev/null
 }
 
 main "${PWD}"
