@@ -549,9 +549,13 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+    do:
+      - put: deployment-lock
+        params:
+          release: deployment-lock
+      - put: slack-alert
+        params:
+          text: {{slack_failure_text}}
 
 - name: delete-cf-cats-early
   public: true
@@ -864,9 +868,13 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+      do:
+      - put: deployment-lock
+        params:
+          release: deployment-lock
+      - put: slack-alert
+        params:
+          text: {{slack_failure_text}}
 
 - name: delete-cf-tls-upgrade-early
   public: true
