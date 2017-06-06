@@ -673,6 +673,6 @@ jobs:
   - task: cleanup
     file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml
     params:
-      BBL_AWS_DEFAULT_REGION: us-east-1
-      BBL_AWS_ACCESS_KEY_ID: {{bbl_integration_tests_s3_access_key_id}}
-      BBL_AWS_SECRET_ACCESS_KEY: {{bbl_integration_tests_s3_secret_access_key}}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: {{bbl_integration_tests_s3_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{bbl_integration_tests_s3_secret_access_key}}
