@@ -16,7 +16,7 @@ run:
   path: ci/scripts/bosh-bootloader/aws-integration/task
 
 params:
-  AWS_REGION:
-  AWS_ACCESS_KEY_ID:
-  AWS_SECRET_ACCESS_KEY:
+  BBL_AWS_REGION:
+  BBL_AWS_ACCESS_KEY_ID:
+  BBL_AWS_SECRET_ACCESS_KEY:
   BBL_TEST_ENV_ID_PREFIX:

@@ -8,12 +8,6 @@ function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
   mkdir -p "${STATE_DIR}"
 
-  set +x
-    echo "${GCP_SERVICE_ACCOUNT_KEY}" > service_account.key.json
-    local service_account_key_path
-    service_account_key_path="${PWD}/service_account.key.json"
-  set -x
-
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/bosh-bootloader"
 
@@ -22,7 +16,6 @@ function main() {
     export GARDEN_RELEASE_PATH="${ROOT}/garden-release/release.tgz"
     export STEMCELL_PATH="${ROOT}/stemcell/stemcell.tgz"
     export STEMCELL_VERSION="$(cat ${ROOT}/stemcell/version)"
-    export GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
     ./bosh-bootloader/scripts/concourse_integration_tests
   popd > /dev/null
 }

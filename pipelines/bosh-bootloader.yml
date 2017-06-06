@@ -185,9 +185,9 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/aws-integration/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      AWS_REGION: {{aws_region}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -212,10 +212,10 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/gcp-integration/task.yml
     params:
-      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      GCP_PROJECT_ID: {{gcp_project_id}}
-      GCP_REGION: {{gcp_region}}
-      GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -245,10 +245,10 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
     params:
-      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      GCP_PROJECT_ID: {{gcp_project_id}}
-      GCP_REGION: {{gcp_region}}
-      GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -278,9 +278,9 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      AWS_REGION: {{aws_region}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -310,9 +310,9 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
     params:
-      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      AWS_REGION: {{aws_region}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
       ENABLE_TERRAFORM_FLAG: true
     on_failure:
@@ -340,10 +340,10 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/test-with-latest-terraform/task.yml
     params:
-      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      GCP_PROJECT_ID: {{gcp_project_id}}
-      GCP_REGION: {{gcp_region}}
-      GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
     on_failure:
       do:
@@ -369,10 +369,10 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task.yml
     params:
-      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      GCP_PROJECT_ID: {{gcp_project_id}}
-      GCP_REGION: {{gcp_region}}
-      GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
     on_failure:
       do:
@@ -673,6 +673,6 @@ jobs:
   - task: cleanup
     file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml
     params:
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: {{bbl_integration_tests_s3_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{bbl_integration_tests_s3_secret_access_key}}
+      BBL_AWS_DEFAULT_REGION: us-east-1
+      BBL_AWS_ACCESS_KEY_ID: {{bbl_integration_tests_s3_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: {{bbl_integration_tests_s3_secret_access_key}}
