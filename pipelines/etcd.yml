@@ -400,7 +400,7 @@ jobs:
     params:
       BBL_STATE_DIR: eats
       ENABLE_TURBULENCE_TESTS: false
-      PARALLEL_NODES: 7
+      PARALLEL_NODES: 2
     on_failure:
       put: slack-alert
       params:
@@ -549,13 +549,13 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
     on_failure:
-    do:
-      - put: deployment-lock
-        params:
-          release: deployment-lock
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
+      do:
+        - put: deployment-lock
+          params:
+            release: deployment-lock
+        - put: slack-alert
+          params:
+            text: {{slack_failure_text}}
 
 - name: delete-cf-cats-early
   public: true
