@@ -2,11 +2,11 @@
 
 ROOT="${PWD}"
 CURRENT_TIME=$(date +%s)
-export STATE_DIR="${ROOT}/bbl-integration-s3/${CURRENT_TIME}"
+export BBL_STATE_DIR="${ROOT}/bbl-integration-s3/${CURRENT_TIME}"
 
 function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-  mkdir -p "${STATE_DIR}"
+  mkdir -p "${BBL_STATE_DIR}"
 
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/bosh-bootloader"
