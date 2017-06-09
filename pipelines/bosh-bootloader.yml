@@ -385,6 +385,7 @@ jobs:
 
 # CF Deployment Pipeline
 - name: setup-aws-terraform-infrastructure
+  serial_groups: [aws-terraform]
   public: true
   serial: true
   plan:
@@ -419,6 +420,7 @@ jobs:
         rebase: true
 
 - name: aws-terraform-cf-deploy
+  serial_groups: [aws-terraform]
   public: true
   serial: true
   plan:
@@ -463,6 +465,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: aws-terraform-cf-delete
+  serial_groups: [aws-terraform]
   public: true
   plan:
   - aggregate:
@@ -492,6 +495,7 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: teardown-aws-terraform-infrastructure
+  serial_groups: [aws-terraform]
   public: true
   plan:
   - aggregate:
