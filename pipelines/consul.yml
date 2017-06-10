@@ -183,7 +183,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: test-confab
   public: true
@@ -204,7 +204,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: test-confab-windows
   public: true
@@ -225,7 +225,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: setup-consats-linux-infrastructure
   public: true
@@ -256,7 +256,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -284,7 +284,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-consats-linux-infrastructure-early
   public: true
@@ -306,7 +306,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -346,7 +346,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-linux-turbulence
   public: true
@@ -381,7 +381,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -413,7 +413,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -448,7 +448,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: setup-consats-windows-infrastructure
   public: true
@@ -479,7 +479,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -507,7 +507,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-consats-windows-infrastructure-early
   public: true
@@ -529,7 +529,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -571,7 +571,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: consats-windows-turbulence
   public: true
@@ -607,7 +607,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -639,7 +639,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -683,7 +683,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: delete-cf-cats-early
   public: true
@@ -705,7 +705,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -716,7 +716,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: teardown-cf-cats-infrastructure-early
   public: true
@@ -753,7 +753,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: add-cf-cats-to-dns
   public: true
@@ -786,7 +786,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: deploy-cf-cats
   public: true
@@ -831,7 +831,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 
 - name: run-cats
   public: true
@@ -872,7 +872,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -903,7 +903,7 @@ jobs:
         text: |
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
-          https://p-concourse.wings.cf-app.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
