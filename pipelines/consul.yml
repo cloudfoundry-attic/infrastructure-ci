@@ -180,10 +180,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: test-confab
   public: true
@@ -201,10 +198,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: test-confab-windows
   public: true
@@ -222,10 +216,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: setup-consats-linux-infrastructure
   public: true
@@ -253,10 +244,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -281,10 +269,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: teardown-consats-linux-infrastructure-early
   public: true
@@ -303,10 +288,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -343,10 +325,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: consats-linux-turbulence
   public: true
@@ -378,10 +357,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -410,10 +386,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -445,10 +418,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: setup-consats-windows-infrastructure
   public: true
@@ -476,10 +446,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -504,10 +471,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: teardown-consats-windows-infrastructure-early
   public: true
@@ -526,10 +490,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -568,10 +529,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: consats-windows-turbulence
   public: true
@@ -604,10 +562,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -636,10 +591,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -680,10 +632,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: delete-cf-cats-early
   public: true
@@ -702,10 +651,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -713,10 +659,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: teardown-cf-cats-infrastructure-early
   public: true
@@ -750,10 +693,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: add-cf-cats-to-dns
   public: true
@@ -783,10 +723,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: deploy-cf-cats
   public: true
@@ -828,10 +765,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
 
 - name: run-cats
   public: true
@@ -869,10 +803,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - put: slack-alert
     params:
       icon_emoji: ":white_check_mark:"
@@ -900,10 +831,7 @@ jobs:
     on_failure:
       put: slack-alert
       params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+        text: {{slack_failure_text}}
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
