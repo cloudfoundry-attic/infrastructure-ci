@@ -276,6 +276,7 @@ jobs:
 
 - name: setup-eats-infrastructure
   public: true
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: etcd-release
@@ -343,6 +344,7 @@ jobs:
 
 - name: teardown-eats-infrastructure-early
   public: true
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: ci
@@ -450,6 +452,7 @@ jobs:
 
 - name: teardown-eats-infrastructure
   public: true
+  serial_groups: [eats]
   plan:
   - aggregate:
     - get: etcd-release
