@@ -82,11 +82,11 @@
 
 # 7
 - type: replace
-  path: /instance_groups/name=diego-bbs/jobs/name=bbs/properties/diego/bbs/etcd/require_ssl?
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/etcd/require_ssl?
   value: false
 
 - type: replace
-  path: /instance_groups/name=diego-bbs/jobs/name=bbs/properties/diego/bbs/etcd/machines
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/etcd/machines
   value:
   - 10.0.31.231
   - 10.0.47.247
