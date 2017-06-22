@@ -7,6 +7,13 @@ groups:
   - aws-concourse-integration-tests
   - gcp-concourse-integration-tests
   - aws-terraform-concourse-integration-tests
+  - bbl-downstream-docker-image
+  - bbl-downstream-setup-env
+  - bbl-downstream-destroy-env
+  - setup-aws-terraform-infrastructure
+  - aws-terraform-cf-deploy
+  - aws-terraform-cf-delete
+  - teardown-aws-terraform-infrastructure
   - merge-develop-to-master
 
 - name: cf-deployment
@@ -18,16 +25,19 @@ groups:
   - aws-terraform-cf-deploy
   - aws-terraform-cf-delete
   - teardown-aws-terraform-infrastructure
+
 - name: smoke-tests
   jobs:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
+
 - name: final-release
   jobs:
   - major
   - minor
   - patch
   - github-release
+
 - name: cleanup
   jobs:
   - cleanup-bbl-environments
@@ -44,23 +54,28 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+
 - name: gcp-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
+
 - name: garden-release
   type: bosh-io-release
   source:
     repository: cloudfoundry/garden-runc-release
+
 - name: concourse-release
   type: bosh-io-release
   source:
     repository: concourse/concourse
+
 - name: bosh-bootloader-develop
   type: git
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
+
 - name: bosh-bootloader-master
   type: git
   source:
@@ -73,12 +88,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
 - name: infrastructure-ci-bbl-states
   type: git
   source:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: {{cf_infra_bot_user_github_private_key}}
+
 - name: bbl-integration-s3
   type: s3
   source:
@@ -86,6 +103,7 @@ resources:
     regexp: (.*).tgz
     access_key_id: {{bbl_integration_tests_s3_access_key_id}}
     secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+
 - name: version
   type: semver
   source:
@@ -95,6 +113,7 @@ resources:
     key: bbl-version
     access_key_id: {{bbl_version_s3_access_key_id}}
     secret_access_key: {{bbl_version_s3_secret_access_key}}
+
 - name: bbl-release
   type: github-release
   source:
@@ -102,25 +121,30 @@ resources:
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: true
+
 - name: terraform
   type: github-release
   source:
     user: hashicorp
     repository: terraform
+
 - name: bosh-cli
   type: s3
   source:
     bucket: bosh-cli-artifacts
     regexp: bosh-cli-(.*)-linux-amd64
+
 - name: slack-alert
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+
 - name: cf-deployment
   type: git
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/cf-deployment.git
+
 - name: concourse-deployment
   type: git
   source:
