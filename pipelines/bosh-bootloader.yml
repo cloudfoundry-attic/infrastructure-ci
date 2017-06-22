@@ -7,6 +7,8 @@ groups:
   - aws-concourse-integration-tests
   - gcp-concourse-integration-tests
   - aws-terraform-concourse-integration-tests
+  - merge-develop-to-master
+
 - name: cf-deployment
   jobs:
   - bbl-downstream-docker-image
@@ -63,7 +65,9 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry/bosh-bootloader.git
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+
 - name: infrastructure-ci
   type: git
   source:
@@ -524,6 +528,15 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
 
+- name: merge-develop-to-master
+  public: true
+  plan:
+  - get: develop
+    resource: bosh-bootloader-develop
+    passed: [teardown-aws-terraform-infrastructure]
+    trigger: true
+  - put: bosh-bootloader-master
+    params: {repository: develop, rebase: true}
 
 - name: bbl-downstream-docker-image
   public: true
