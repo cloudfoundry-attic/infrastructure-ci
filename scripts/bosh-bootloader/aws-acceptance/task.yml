@@ -10,10 +10,10 @@ inputs:
   - name: bosh-bootloader
   - name: ci
 outputs:
-  - name: bbl-integration-s3
+  - name: bbl-acceptance-s3
 
 run:
-  path: ci/scripts/bosh-bootloader/aws-integration/task
+  path: ci/scripts/bosh-bootloader/aws-acceptance/task
 
 params:
   BBL_AWS_REGION:

@@ -14,7 +14,7 @@ function install_bbl_develop() {
 
 function download_failed_bbl_states() {
   mkdir -p "${BBL_STATES_DIR}"
-  aws s3 cp --recursive s3://bbl-integration-tests/ ${BBL_STATES_DIR}
+  aws s3 cp --recursive s3://bbl-acceptance-tests/ ${BBL_STATES_DIR}
 }
 
 function delete_failed_bbl_states() {
@@ -50,7 +50,7 @@ function delete_bbl_env() {
       set -e
 
       bbl destroy -n
-      aws s3 rm s3://bbl-integration-tests/${1}
+      aws s3 rm s3://bbl-acceptance-tests/${1}
     fi
   popd > /dev/null
 }

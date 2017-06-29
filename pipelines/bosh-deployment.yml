@@ -3,8 +3,8 @@ groups:
   jobs:
   - update-bosh-deployment-submodule
   - test-bosh-bootloader
-  - aws-integration-tests
-  - gcp-integration-tests
+  - aws-acceptance-tests
+  - gcp-acceptance-tests
   - commit-bosh-deployment-change
 
 resource_types:
@@ -37,13 +37,13 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-- name: bbl-integration-s3
+- name: bbl-acceptance-s3
   type: s3
   source:
-    bucket: bbl-integration-tests
+    bucket: bbl-acceptance-tests
     regexp: (.*).tgz
-    access_key_id: {{bbl_integration_tests_s3_access_key_id}}
-    secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
+    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
 - name: slack-alert
   type: slack-notification
   source:
@@ -58,7 +58,7 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader-bumped
       resource: bosh-bootloader-bump-bosh-deployment-ci
-      passed: [aws-integration-tests, gcp-integration-tests]
+      passed: [aws-acceptance-tests, gcp-acceptance-tests]
       trigger: true
   - task: commit-bosh-deployment-change
     file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
@@ -114,7 +114,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: aws-integration-tests
+- name: aws-acceptance-tests
   serial: true
   public: true
   plan:
@@ -126,7 +126,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/bosh-bootloader/aws-integration/task.yml
+    file: ci/scripts/bosh-bootloader/aws-acceptance/task.yml
     params:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -134,14 +134,14 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bosh-deployment
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
 
-- name: gcp-integration-tests
+- name: gcp-acceptance-tests
   serial: true
   public: true
   plan:
@@ -153,7 +153,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/bosh-bootloader/gcp-integration/task.yml
+    file: ci/scripts/bosh-bootloader/gcp-acceptance/task.yml
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
@@ -162,9 +162,9 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bosh-deployment
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}

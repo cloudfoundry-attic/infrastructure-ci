@@ -2,11 +2,11 @@ groups:
 - name: bosh-bootloader
   jobs:
   - test-bosh-bootloader
-  - aws-integration-tests
-  - gcp-integration-tests
-  - aws-concourse-integration-tests
-  - gcp-concourse-integration-tests
-  - aws-terraform-concourse-integration-tests
+  - aws-acceptance-tests
+  - gcp-acceptance-tests
+  - aws-concourse-acceptance-tests
+  - gcp-concourse-acceptance-tests
+  - aws-terraform-concourse-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-downstream-setup-env
   - bbl-downstream-destroy-env
@@ -96,13 +96,13 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: {{cf_infra_bot_user_github_private_key}}
 
-- name: bbl-integration-s3
+- name: bbl-acceptance-s3
   type: s3
   source:
-    bucket: bbl-integration-tests
+    bucket: bbl-acceptance-tests
     regexp: (.*).tgz
-    access_key_id: {{bbl_integration_tests_s3_access_key_id}}
-    secret_access_key: {{bbl_integration_tests_s3_secret_access_key}}
+    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
+    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
 
 - name: version
   type: semver
@@ -199,7 +199,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: aws-integration-tests
+- name: aws-acceptance-tests
   serial: true
   public: true
   plan:
@@ -211,7 +211,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/bosh-bootloader/aws-integration/task.yml
+    file: ci/scripts/bosh-bootloader/aws-acceptance/task.yml
     params:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -219,14 +219,14 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
 
-- name: gcp-integration-tests
+- name: gcp-acceptance-tests
   serial: true
   public: true
   plan:
@@ -238,7 +238,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/bosh-bootloader/gcp-integration/task.yml
+    file: ci/scripts/bosh-bootloader/gcp-acceptance/task.yml
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
@@ -247,14 +247,14 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
 
-- name: gcp-concourse-integration-tests
+- name: gcp-concourse-acceptance-tests
   serial: true
   public: true
   plan:
@@ -268,10 +268,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [gcp-integration-tests]
+      passed: [gcp-acceptance-tests]
       trigger: true
   - task: test
-    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
@@ -280,14 +280,14 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
 
-- name: aws-concourse-integration-tests
+- name: aws-concourse-acceptance-tests
   serial: true
   public: true
   plan:
@@ -301,10 +301,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-integration-tests]
+      passed: [aws-acceptance-tests]
       trigger: true
   - task: test
-    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -312,14 +312,14 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
 
-- name: aws-terraform-concourse-integration-tests
+- name: aws-terraform-concourse-acceptance-tests
   serial: true
   public: true
   plan:
@@ -333,10 +333,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-integration-tests]
+      passed: [aws-acceptance-tests]
       trigger: true
   - task: test
-    file: ci/scripts/bosh-bootloader/concourse-integration/task.yml
+    file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -345,9 +345,9 @@ jobs:
       ENABLE_TERRAFORM_FLAG: true
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -375,9 +375,9 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -404,9 +404,9 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
     on_failure:
       do:
-      - put: bbl-integration-s3
+      - put: bbl-acceptance-s3
         params:
-          file: bbl-integration-s3/*.tgz
+          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -569,7 +569,7 @@ jobs:
     - aggregate:
       - get: bosh-bootloader
         resource: bosh-bootloader-develop
-        passed: [aws-integration-tests, gcp-integration-tests]
+        passed: [aws-acceptance-tests, gcp-acceptance-tests]
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
         trigger: true
@@ -715,5 +715,5 @@ jobs:
     file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml
     params:
       AWS_DEFAULT_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: {{bbl_integration_tests_s3_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{bbl_integration_tests_s3_secret_access_key}}
+      AWS_ACCESS_KEY_ID: {{bbl_acceptance_tests_s3_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: {{bbl_acceptance_tests_s3_secret_access_key}}

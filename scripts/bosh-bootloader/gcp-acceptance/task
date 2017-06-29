@@ -2,7 +2,7 @@
 
 ROOT="${PWD}"
 CURRENT_TIME=$(date +%s)
-export BBL_STATE_DIR="${ROOT}/bbl-integration-s3/${CURRENT_TIME}"
+export BBL_STATE_DIR="${ROOT}/bbl-acceptance-s3/${CURRENT_TIME}"
 
 function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
@@ -11,12 +11,12 @@ function main() {
   pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
     ln -s "${ROOT}/bosh-bootloader"
 
-    ./bosh-bootloader/scripts/gcp_integration_tests
+    ./bosh-bootloader/scripts/acceptance_tests gcp
   popd > /dev/null
 }
 
 function finish() {
-  pushd "${ROOT}/bbl-integration-s3" > /dev/null
+  pushd "${ROOT}/bbl-acceptance-s3" > /dev/null
     tar -cvzf "${CURRENT_TIME}.tgz" "${CURRENT_TIME}"
   popd > /dev/null
 }
