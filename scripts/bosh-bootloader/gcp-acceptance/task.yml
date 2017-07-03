@@ -16,6 +16,7 @@ run:
   path: ci/scripts/bosh-bootloader/gcp-acceptance/task
 
 params:
+  BBL_IAAS:
   BBL_GCP_SERVICE_ACCOUNT_KEY:
   BBL_GCP_PROJECT_ID:
   BBL_GCP_REGION:
