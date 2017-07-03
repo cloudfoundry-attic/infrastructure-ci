@@ -20,6 +20,7 @@ run:
   path: ci/scripts/bosh-bootloader/concourse-acceptance/task
 
 params:
+  BBL_IAAS:
   BBL_AWS_REGION:
   BBL_AWS_ACCESS_KEY_ID:
   BBL_AWS_SECRET_ACCESS_KEY:

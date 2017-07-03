@@ -275,6 +275,7 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
+      BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       BBL_GCP_REGION: {{gcp_region}}
@@ -308,6 +309,7 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
+      BBL_IAAS: aws
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
