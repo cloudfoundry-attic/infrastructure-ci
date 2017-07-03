@@ -14,7 +14,7 @@ outputs:
   - name: bbl-states-repo-out
 
 run:
-  path: ci/scripts/common/bbl-up-aws-terraform/task
+  path: ci/scripts/common/bbl-up-aws/task
 
 params:
   BBL_AWS_SECRET_ACCESS_KEY:

@@ -125,7 +125,6 @@ function main() {
     --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
     up \
       --name ${BBL_NAME} \
-      --terraform \
       --ops-file "${ops_file_path}" > bbl_up.log
 
   if [ -n "${BBL_LB_DOMAIN}" ]; then

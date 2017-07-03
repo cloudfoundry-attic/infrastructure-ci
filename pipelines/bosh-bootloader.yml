@@ -9,10 +9,10 @@ groups:
   - bbl-downstream-docker-image
   - bbl-downstream-setup-env
   - bbl-downstream-destroy-env
-  - setup-aws-terraform-infrastructure
-  - aws-terraform-cf-deploy
-  - aws-terraform-cf-delete
-  - teardown-aws-terraform-infrastructure
+  - setup-aws-cf-infrastructure
+  - aws-cf-deploy
+  - aws-cf-delete
+  - teardown-aws-cf-infrastructure
   - merge-develop-to-master
 
 - name: cf-deployment
@@ -20,10 +20,10 @@ groups:
   - bbl-downstream-docker-image
   - bbl-downstream-setup-env
   - bbl-downstream-destroy-env
-  - setup-aws-terraform-infrastructure
-  - aws-terraform-cf-deploy
-  - aws-terraform-cf-delete
-  - teardown-aws-terraform-infrastructure
+  - setup-aws-cf-infrastructure
+  - aws-cf-deploy
+  - aws-cf-delete
+  - teardown-aws-cf-infrastructure
 
 - name: smoke-tests
   jobs:
@@ -382,8 +382,8 @@ jobs:
           text: {{slack_failure_text}}
 
 # CF Deployment Pipeline
-- name: setup-aws-terraform-infrastructure
-  serial_groups: [aws-terraform]
+- name: setup-aws-cf-infrastructure
+  serial_groups: [aws-cf]
   public: true
   serial: true
   plan:
@@ -397,16 +397,16 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
-    file: ci/scripts/common/bbl-up-aws-terraform/task.yml
+    file: ci/scripts/common/bbl-up-aws/task.yml
     params:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_REGION: us-west-2
-      BBL_STATE_DIR: bbl-aws-terraform
-      BBL_NAME: bbl-aws-terraform
-      BBL_LB_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
-      BBL_LB_CERT: {{bbl_aws_terraform_cf_lb_cert}}
-      BBL_LB_KEY: {{bbl_aws_terraform_cf_lb_key}}
+      BBL_STATE_DIR: bbl-aws-cf
+      BBL_NAME: bbl-aws-cf
+      BBL_LB_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
+      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
     on_failure:
       put: slack-alert
       params:
@@ -417,20 +417,20 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
 
-- name: aws-terraform-cf-deploy
-  serial_groups: [aws-terraform]
+- name: aws-cf-deploy
+  serial_groups: [aws-cf]
   public: true
   serial: true
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [setup-aws-terraform-infrastructure]
+      passed: [setup-aws-cf-infrastructure]
     - get: ci
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [setup-aws-terraform-infrastructure]
+      passed: [setup-aws-cf-infrastructure]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
@@ -443,14 +443,14 @@ jobs:
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-terraform
+      BBL_STATE_DIR: bbl-aws-cf
       INFRASTRUCTURE: aws
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-terraform
-      SYSTEM_DOMAIN: bbl-aws-terraform.infrastructure.cf-app.com
-      VARS_STORE_FILE: bbl-aws-terraform/deployment-vars.yml
+      BBL_STATE_DIR: bbl-aws-cf
+      SYSTEM_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
+      VARS_STORE_FILE: bbl-aws-cf/deployment-vars.yml
       OPS_FILES: "operations/aws.yml"
     ensure:
       put: infrastructure-ci-bbl-states
@@ -462,23 +462,23 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: aws-terraform-cf-delete
-  serial_groups: [aws-terraform]
+- name: aws-cf-delete
+  serial_groups: [aws-cf]
   public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-terraform-cf-deploy]
+      passed: [aws-cf-deploy]
     - get: cf-deployment-concourse-tasks
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [aws-terraform-cf-deploy]
+      passed: [aws-cf-deploy]
       trigger: true
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-terraform
+      BBL_STATE_DIR: bbl-aws-cf
     on_failure:
       put: slack-alert
       params:
@@ -486,32 +486,32 @@ jobs:
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-terraform
+      BBL_STATE_DIR: bbl-aws-cf
     on_failure:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
 
-- name: teardown-aws-terraform-infrastructure
-  serial_groups: [aws-terraform]
+- name: teardown-aws-cf-infrastructure
+  serial_groups: [aws-cf]
   public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-terraform-cf-delete]
+      passed: [aws-cf-delete]
     - get: ci
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
-      passed: [aws-terraform-cf-delete]
+      passed: [aws-cf-delete]
       trigger: true
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
-      BBL_STATE_DIR: bbl-aws-terraform
+      BBL_STATE_DIR: bbl-aws-cf
     on_failure:
       put: slack-alert
       params:
@@ -527,7 +527,7 @@ jobs:
   plan:
   - get: develop
     resource: bosh-bootloader-develop
-    passed: [teardown-aws-terraform-infrastructure]
+    passed: [teardown-aws-cf-infrastructure]
     trigger: true
   - put: bosh-bootloader-master
     params: {repository: develop, rebase: true}
