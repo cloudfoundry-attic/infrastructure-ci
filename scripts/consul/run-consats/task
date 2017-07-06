@@ -87,7 +87,7 @@ function generate_manifest() {
     ln -s "${ROOT}/ci" "infrastructure-ci"
 
     pushd "${GOPATH}/src/github.com/cloudfoundry/infrastructure-ci" > /dev/null
-      GO15VENDOREXPERIMENT=1 go run \
+      go run \
         "./scripts/consul/run-consats/generate_manifest.go" \
         "${ROOT}/consul-release/manifests/consats.yml" \
         > "${ROOT}/consats.yml"
