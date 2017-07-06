@@ -402,7 +402,7 @@ jobs:
     params:
       BBL_STATE_DIR: eats
       ENABLE_TURBULENCE_TESTS: false
-      PARALLEL_NODES: 7
+      PARALLEL_NODES: 5
     on_failure:
       put: slack-alert
       params:
