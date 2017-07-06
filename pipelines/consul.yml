@@ -220,6 +220,7 @@ jobs:
 
 - name: setup-consats-linux-infrastructure
   public: true
+  serial_groups: [consats-linux]
   plan:
   - aggregate:
     - get: consul-release
@@ -273,6 +274,7 @@ jobs:
 
 - name: teardown-consats-linux-infrastructure-early
   public: true
+  serial_groups: [consats-linux]
   plan:
   - aggregate:
     - get: ci
@@ -366,6 +368,7 @@ jobs:
 
 - name: teardown-consats-linux-infrastructure
   public: true
+  serial_groups: [consats-linux]
   plan:
   - aggregate:
     - get: release
