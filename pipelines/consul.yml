@@ -435,6 +435,8 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
+    - get: windows-stemcell
+      trigger: true
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
     params:
@@ -514,6 +516,8 @@ jobs:
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
+      passed:
+      - setup-consats-windows-infrastructure
     - get: turbulence-release
     - get: latest-consul-release
     - get: bbl-states-repo
