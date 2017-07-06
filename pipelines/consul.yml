@@ -422,6 +422,7 @@ jobs:
 
 - name: setup-consats-windows-infrastructure
   public: true
+  serial_groups: [consats-windows]
   plan:
   - aggregate:
     - get: consul-release
@@ -475,6 +476,7 @@ jobs:
 
 - name: teardown-consats-windows-infrastructure-early
   public: true
+  serial_groups: [consats-windows]
   plan:
   - aggregate:
     - get: ci
@@ -571,6 +573,7 @@ jobs:
 
 - name: teardown-consats-windows-infrastructure
   public: true
+  serial_groups: [consats-windows]
   plan:
   - aggregate:
     - get: release
