@@ -1,11 +1,11 @@
 groups:
 - name: bosh-deployment
   jobs:
-  - update-bosh-deployment-submodule
+  - bump-deployments
   - test-bosh-bootloader
   - aws-acceptance-tests
   - gcp-acceptance-tests
-  - commit-bosh-deployment-change
+  - commit-bump-deployments-change
 
 resource_types:
 - name: slack-notification
@@ -20,16 +20,21 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
+- name: jumpbox-deployment-master
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cppforlife/jumpbox-deployment.git
 - name: bosh-bootloader-develop
   type: git
   source:
     branch: develop
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
-- name: bosh-bootloader-bump-bosh-deployment-ci
+- name: bosh-bootloader-bump-deployments-ci
   type: git
   source:
-    branch: bump-bosh-deployment-ci
+    branch: bump-deployments-ci
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
 - name: infrastructure-ci
@@ -50,14 +55,14 @@ resources:
     url: https://hooks.slack.com/services/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
 
 jobs:
-- name: commit-bosh-deployment-change
+- name: commit-bump-deployments-change
   public: true
   plan:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader-bumped
-      resource: bosh-bootloader-bump-bosh-deployment-ci
+      resource: bosh-bootloader-bump-deployments-ci
       passed: [aws-acceptance-tests, gcp-acceptance-tests]
       trigger: true
   - task: commit-bosh-deployment-change
@@ -74,7 +79,7 @@ jobs:
     params:
       repository: bosh-bootloader-develop
 
-- name: update-bosh-deployment-submodule
+- name: bump-deployments
   public: true
   plan:
   - aggregate:
@@ -85,16 +90,19 @@ jobs:
     - get: bosh-deployment
       resource: bosh-deployment-master
       trigger: true
-  - task: update-bosh-deployment-submodule
-    file: ci/scripts/bosh-deployment/update-bosh-deployment-submodule/task.yml
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-master
+      trigger: true
+  - task: bump-deployments
+    file: ci/scripts/bosh-deployment/bump-deployments/task.yml
     on_failure:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
-  - put: bump-bosh-deployment-ci
-    resource: bosh-bootloader-bump-bosh-deployment-ci
+  - put: bump-deployments-ci
+    resource: bosh-bootloader-bump-deployments-ci
     params:
-      repository: bump-bosh-deployment-ci
+      repository: bump-deployments-ci
       force: true
 
 - name: test-bosh-bootloader
@@ -104,8 +112,8 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
-      resource: bosh-bootloader-bump-bosh-deployment-ci
-      passed: [update-bosh-deployment-submodule]
+      resource: bosh-bootloader-bump-deployments-ci
+      passed: [bump-deployments]
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
@@ -120,7 +128,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-bump-bosh-deployment-ci
+      resource: bosh-bootloader-bump-deployments-ci
       passed: [test-bosh-bootloader]
       trigger: true
     - get: ci
@@ -131,7 +139,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
-      BBL_TEST_ENV_ID_PREFIX: bosh-deployment
+      BBL_TEST_ENV_ID_PREFIX: bump-deployments
     on_failure:
       do:
       - put: bbl-acceptance-s3
@@ -147,7 +155,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-bump-bosh-deployment-ci
+      resource: bosh-bootloader-bump-deployments-ci
       passed: [test-bosh-bootloader]
       trigger: true
     - get: ci
@@ -159,7 +167,7 @@ jobs:
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       BBL_GCP_REGION: {{gcp_region}}
       BBL_GCP_ZONE: {{gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bosh-deployment
+      BBL_TEST_ENV_ID_PREFIX: bump-deployments
     on_failure:
       do:
       - put: bbl-acceptance-s3

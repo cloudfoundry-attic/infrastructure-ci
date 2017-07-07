@@ -10,9 +10,10 @@ inputs:
 - name: ci
 - name: bosh-bootloader
 - name: bosh-deployment
+- name: jumpbox-deployment
 
 outputs:
-- name: bump-bosh-deployment-ci
+- name: bump-deployments-ci
 
 run:
-  path: ci/scripts/bosh-deployment/update-bosh-deployment-submodule/task
+  path: ci/scripts/bosh-deployment/bump-deployments/task

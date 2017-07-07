@@ -10,7 +10,7 @@ function main() {
     git fetch http
 
     git checkout develop
-    git merge --no-edit bump-bosh-deployment-ci
+    git merge --no-edit bump-deployments-ci
 
     cp -r . ${ROOT}/bosh-bootloader-develop
   popd > /dev/null
