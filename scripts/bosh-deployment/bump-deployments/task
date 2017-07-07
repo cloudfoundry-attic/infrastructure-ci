@@ -6,6 +6,8 @@ BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoun
 
 function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+  mkdir -p ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
+  mkdir -p ${BOSH_DEPLOYMENT_VENDOR_PATH}
 
   cp -r ${ROOT}/jumpbox-deployment ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
   cp -r ${ROOT}/bosh-deployment  ${BOSH_DEPLOYMENT_VENDOR_PATH}
