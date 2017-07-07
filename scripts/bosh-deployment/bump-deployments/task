@@ -1,13 +1,18 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
+JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cppforlife/jumpbox-deployment"
+BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry/bosh-deployment"
 
 function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
+  cp -r ${ROOT}/jumpbox-deployment ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
+  cp -r ${ROOT}/bosh-deployment  ${BOSH_DEPLOYMENT_VENDOR_PATH}
+
   pushd "${ROOT}/bosh-bootloader" > /dev/null
     go get -u github.com/jteeuwen/go-bindata/...
-    go-bindata -o bosh/deployment_files.go ${ROOT}/jumpbox-deployment/... ${ROOT}/bosh-deployment/...
+    go-bindata -o bosh/deployment_files.go vendor/github.com/cppforlife/jumpbox-deployment/... vendor/github.com/cloudfoundry/bosh-deployment/...
 
     sed -i -- 's/^package main$/package bosh/g' bosh/deployment_files.go
 
