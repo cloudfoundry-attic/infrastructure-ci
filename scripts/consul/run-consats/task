@@ -17,7 +17,7 @@ function main() {
   upload_releases
   generate_manifest
 
-  if [[ !$WINDOWS_CLIENTS ]]; then
+  if [[ "$WINDOWS_CLIENTS" != "true" ]]; then
     force_compilation
   fi
 
