@@ -16,7 +16,10 @@ function main() {
 
   upload_releases
   generate_manifest
-  force_compilation
+
+  if [[ !$WINDOWS_CLIENTS]]; then
+    force_compilation
+  fi
 
   bosh -d consats -n deploy "${ROOT}/consats.yml"
   bosh -d consats run-errand acceptance-tests
