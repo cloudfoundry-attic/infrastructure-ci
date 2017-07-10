@@ -1,8 +1,8 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cppforlife/jumpbox-deployment"
-BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry/bosh-deployment"
+JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cppforlife"
+BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
 
 function main() {
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
