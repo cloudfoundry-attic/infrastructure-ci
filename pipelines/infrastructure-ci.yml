@@ -39,10 +39,16 @@ resources:
     uri: https://github.com/pivotal-cf-experimental/concourse-windows-release.git
     branch: master
 
-- name: windows-stemcell
+# - name: windows-stemcell
+#   type: s3
+#   source:
+#     bucket: bosh-windows-stemcells
+#     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
+
+- name: windows-stemcell-release-candidate
   type: s3
   source:
-    bucket: bosh-windows-stemcells
+    bucket: bosh-windows-stemcells-release-candidates
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 
 - name: slack-alert
@@ -108,6 +114,7 @@ jobs:
       passed: [setup-worker-infrastructure]
       trigger: true
     - get: windows-stemcell
+      resource: windows-stemcell-release-candidate
     - get: concourse-windows
       resource: concourse-windows-master
   - task: deploy-windows-worker
