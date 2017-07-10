@@ -120,6 +120,12 @@ resources:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 
+- name: windows-stemcell-release-candidate
+  type: s3
+  source:
+    bucket: bosh-windows-stemcells-release-candidates
+    regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
+
 - name: latest-consul-release
   type: bosh-io-release
   source:
@@ -439,6 +445,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
     - get: windows-stemcell
+      resource: windows-stemcell-release-candidate
       trigger: true
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
@@ -519,6 +526,7 @@ jobs:
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
+      resource: windows-stemcell-release-candidate
       passed:
       - setup-consats-windows-infrastructure
     - get: turbulence-release
