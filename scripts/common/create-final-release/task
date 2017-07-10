@@ -37,7 +37,7 @@ function create_and_commit() {
 
     local exit_status
     for i in {1..5}; do
-      bosh -n --sha2 create-release --final
+      bosh -n --sha2 create-release --final --tarball ./consul-release-VERSION.tgz
       exit_status="${PIPESTATUS[0]}"
 
       if [[ "${exit_status}" == "0" ]]; then
@@ -56,8 +56,15 @@ function create_and_commit() {
     git add .final_builds releases
     git commit -m "Final release ${new_release_version}"
 
+    set_tarball_version
+
     echo "${new_release_version}" > version_number
+    echo "v${new_release_version}" > release_name
   popd > /dev/null
+}
+
+function set_tarball_version() {
+    mv ./consul-release-{VERSION,${new_release_version}}.tgz
 }
 
 function copy_to_output() {

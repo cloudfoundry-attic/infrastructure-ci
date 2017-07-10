@@ -95,6 +95,14 @@ resources:
     private_key: {{consul-release-private-key}}
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
+- name: consul-release-gh
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: consul-release
+    access_token: {{consul-release-private-key}}
+    drafts: true
+
 - name: consul-release-merge-target
   type: git
   source:
@@ -923,11 +931,13 @@ jobs:
       put: slack-alert
       params:
         text: {{slack_failure_text}}
-  - put: consul-release-master
+  - put: consul-release-gh
     params:
-      repository: final-release-repo
+      name: final-release-repo/release_name
       tag: final-release-repo/version_number
       tag_prefix: v
+      globs:
+      - final-release-repo/consul-release-*.tgz
   - put: slack-alert
     params:
       icon_emoji: ":shipit:"
