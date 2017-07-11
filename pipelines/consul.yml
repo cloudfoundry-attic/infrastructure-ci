@@ -570,6 +570,9 @@ jobs:
     - get: stemcell
       resource: gcp-stemcell
     - get: windows-stemcell
+      resource: windows-stemcell-release-candidate
+      passed:
+      - consats-windows
     - get: turbulence-release
     - get: latest-consul-release
     - get: bbl-states-repo
