@@ -13,6 +13,10 @@ groups:
   - aws-cf-deploy
   - aws-cf-delete
   - teardown-aws-cf-infrastructure
+  - setup-gcp-cf-infrastructure
+  - gcp-cf-deploy
+  - gcp-cf-delete
+  - teardown-gcp-cf-infrastructure
   - merge-develop-to-master
 
 - name: cf-deployment
@@ -24,6 +28,10 @@ groups:
   - aws-cf-deploy
   - aws-cf-delete
   - teardown-aws-cf-infrastructure
+  - setup-gcp-cf-infrastructure
+  - gcp-cf-deploy
+  - gcp-cf-delete
+  - teardown-gcp-cf-infrastructure
 
 - name: smoke-tests
   jobs:
@@ -524,12 +532,152 @@ jobs:
         repository: bbl-states-repo-out
         rebase: true
 
+- name: setup-gcp-cf-infrastructure
+  serial_groups: [gcp-cf]
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/common/bbl-up/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_STATE_DIR: bbl-gcp-cf
+      BBL_NAME: bbl-gcp-cf
+      BBL_LB_DOMAIN: bbl-gcp-cf.infrastructure.cf-app.com
+      BBL_LB_CERT: {{bbl_gcp_cf_lb_cert}}
+      BBL_LB_KEY: {{bbl_gcp_cf_lb_key}}
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
+- name: gcp-cf-deploy
+  serial_groups: [gcp-cf]
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [setup-gcp-cf-infrastructure]
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [setup-gcp-cf-infrastructure]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+      INFRASTRUCTURE: gcp
+  - task: deploy
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+      SYSTEM_DOMAIN: bbl-gcp-cf.infrastructure.cf-app.com
+      VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
+      OPS_FILES: "operations/gcp.yml"
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: gcp-cf-delete
+  serial_groups: [gcp-cf]
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [gcp-cf-deploy]
+    - get: cf-deployment-concourse-tasks
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [gcp-cf-deploy]
+      trigger: true
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: teardown-gcp-cf-infrastructure
+  serial_groups: [gcp-cf]
+  public: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [gcp-cf-delete]
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed: [gcp-cf-delete]
+      trigger: true
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: bbl-states-repo-out
+        rebase: true
+
 - name: merge-develop-to-master
   public: true
   plan:
   - get: develop
     resource: bosh-bootloader-develop
-    passed: [teardown-aws-cf-infrastructure]
+    passed: [teardown-aws-cf-infrastructure, teardown-gcp-cf-infrastructure]
     trigger: true
   - put: bosh-bootloader-master
     params: {repository: develop, rebase: true}
