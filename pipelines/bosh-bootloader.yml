@@ -602,7 +602,6 @@ jobs:
       BBL_STATE_DIR: bbl-gcp-cf
       SYSTEM_DOMAIN: bbl-gcp-cf.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
-      OPS_FILES: "operations/gcp.yml"
     ensure:
       put: infrastructure-ci-bbl-states
       params:
