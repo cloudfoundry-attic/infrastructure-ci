@@ -595,7 +595,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-      INFRASTRUCTURE: gcp
+      INFRASTRUCTURE: google
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     params:
