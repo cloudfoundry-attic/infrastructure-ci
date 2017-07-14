@@ -18,6 +18,5 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 # go install latest bosh-bootloader develop
 RUN git clone https://github.com/cloudfoundry/bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader && \
   cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
-  git checkout develop && \
-  git submodule update --init --recursive && \
+  git checkout develop && git rev-parse HEAD && \
   go install github.com/cloudfoundry/bosh-bootloader/bbl
