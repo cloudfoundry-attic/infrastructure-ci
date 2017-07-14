@@ -71,22 +71,20 @@ function create_or_update_lbs() {
   echo "${BBL_LB_KEY}" > "${bbl_lb_key_path}"
 
   # gobosh_target to see bosh cloud-config
-  if [[ ! -f "${PWD}/bbl-state.json" ]]
-  then
-    echo "run ${0} from directory containing bbl-state.json"
-    return
-  fi
-  export BOSH_CLIENT=$(bbl director-username)
-  export BOSH_CLIENT_SECRET=$(bbl director-password)
-  export BOSH_ENVIRONMENT=$(bbl director-address)
-  export BOSH_GW_USER='jumpbox'
-  export BOSH_GW_HOST=$(bbl director-address | cut -d '/' -f 3 | cut -d ':' -f1)
-  export BOSH_GW_PRIVATE_KEY=/tmp/$(bbl env-id)-ssh-key
-  bbl ssh-key > $BOSH_GW_PRIVATE_KEY
-  chmod 600 $BOSH_GW_PRIVATE_KEY
-  export BOSH_CA_CERT=/tmp/$(bbl env-id)-ca-cert
-  bbl director-ca-cert > $BOSH_CA_CERT
-  chmod 600 $BOSH_CA_CERT
+  pushd "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    export BOSH_CLIENT=$(bbl director-username)
+    export BOSH_CLIENT_SECRET=$(bbl director-password)
+    export BOSH_ENVIRONMENT=$(bbl director-address)
+    export BOSH_GW_USER='jumpbox'
+    export BOSH_GW_HOST=$(bbl director-address | cut -d '/' -f 3 | cut -d ':' -f1)
+    export BOSH_GW_PRIVATE_KEY=/tmp/$(bbl env-id)-ssh-key
+    bbl ssh-key > $BOSH_GW_PRIVATE_KEY
+    chmod 600 $BOSH_GW_PRIVATE_KEY
+    export BOSH_CA_CERT=/tmp/$(bbl env-id)-ca-cert
+    bbl director-ca-cert > $BOSH_CA_CERT
+    chmod 600 $BOSH_CA_CERT
+  popd > /dev/null
+
   set -x
 
   bosh cloud-config
