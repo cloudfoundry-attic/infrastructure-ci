@@ -273,18 +273,20 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
       - setup-consats-linux-infrastructure
+    - get: cf-deployment-concourse-tasks
   - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
       BBL_STATE_DIR: consats-linux
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: consats-linux
+      CLEAN_ALL: true
 
 - name: teardown-consats-linux-infrastructure-early
   public: true
@@ -391,15 +393,18 @@ jobs:
       - consats-linux-turbulence
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
       - consats-linux-turbulence
       trigger: true
+    - get: cf-deployment-concourse-tasks
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: consats-linux
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     on_failure:
       put: slack-alert
       params:
@@ -407,7 +412,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: deploy-sample-manifest
@@ -479,20 +484,22 @@ jobs:
   serial_groups: [consats-windows]
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
       - setup-consats-windows-infrastructure
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks
   - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: consats-windows
+      CLEAN_ALL: true
 
 - name: teardown-consats-windows-infrastructure-early
   public: true
