@@ -18,6 +18,12 @@ resource_types:
     tag: latest
 
 resources:
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    branch: master
+
 - name: infrastructure-ci
   type: git
   source:
@@ -137,19 +143,21 @@ jobs:
   serial_groups: [infrastructure]
   plan:
   - aggregate:
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks
   - task: delete-windows-worker-deployment
-    file: ci/scripts/common/delete-deployments/task.yml
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
-      DEPLOYMENTS_WITH_WORD: wings-windows-worker
+      DEPLOYMENT_NAME: wings-windows-worker
       BBL_STATE_DIR: ci-workers
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: ci-workers
+      CLEAN_ALL: true
 
 - name: teardown-worker-infrastructure
   public: true
