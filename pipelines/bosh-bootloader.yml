@@ -404,8 +404,11 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -517,16 +520,19 @@ jobs:
       passed: [aws-cf-delete]
     - get: ci
       resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
       passed: [aws-cf-delete]
       trigger: true
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: bbl-aws-cf
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     on_failure:
       put: slack-alert
       params:
@@ -534,7 +540,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-gcp-cf-infrastructure
