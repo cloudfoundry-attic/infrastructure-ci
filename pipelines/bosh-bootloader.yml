@@ -407,16 +407,20 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
-    file: ci/scripts/common/bbl-up-aws/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
+      BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bbl-aws-cf
-      BBL_NAME: bbl-aws-cf
-      BBL_LB_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
+      BBL_ENV_NAME: bbl-aws-cf
+      LB_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
       BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
       BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     on_failure:
       put: slack-alert
       params:
@@ -424,7 +428,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: aws-cf-deploy
@@ -497,6 +501,7 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-cf
+      CLEAN_ALL: true
     on_failure:
       put: slack-alert
       params:
@@ -534,7 +539,7 @@ jobs:
 
 - name: setup-gcp-cf-infrastructure
   serial_groups: [gcp-cf]
-  public: true
+  public: false
   serial: true
   plan:
   - aggregate:
@@ -561,10 +566,8 @@ jobs:
       LB_DOMAIN: bbl-gcp-cf.infrastructure.cf-app.com
       BBL_LB_CERT: {{bbl_gcp_cf_lb_cert}}
       BBL_LB_KEY: {{bbl_gcp_cf_lb_key}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -573,7 +576,7 @@ jobs:
 
 - name: gcp-cf-deploy
   serial_groups: [gcp-cf]
-  public: true
+  public: false
   serial: true
   plan:
   - aggregate:
@@ -610,14 +613,10 @@ jobs:
       params:
         repository: updated-vars-store
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: gcp-cf-delete
   serial_groups: [gcp-cf]
-  public: true
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -632,22 +631,15 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+      CLEAN_ALL: true
 
 - name: teardown-gcp-cf-infrastructure
   serial_groups: [gcp-cf]
-  public: true
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -655,24 +647,23 @@ jobs:
       passed: [gcp-cf-delete]
     - get: ci
       resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
       passed: [gcp-cf-delete]
       trigger: true
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: merge-develop-to-master
@@ -683,7 +674,9 @@ jobs:
     passed: [teardown-aws-cf-infrastructure, teardown-gcp-cf-infrastructure]
     trigger: true
   - put: bosh-bootloader-master
-    params: {repository: develop, rebase: true}
+    params:
+      repository: develop
+      rebase: true
 
 - name: bbl-downstream-docker-image
   public: true
@@ -703,10 +696,6 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: bbl-downstream-setup-env
   serial_groups: [downstream]
@@ -736,6 +725,8 @@ jobs:
       LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-downstream-env
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
     ensure:
