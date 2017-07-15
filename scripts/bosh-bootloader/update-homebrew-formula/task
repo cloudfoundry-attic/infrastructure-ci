@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -e -x -u
+
+version=$(cat version-semver/number)
+
+sha=$(shasum -a 256 bbl-osx/bbl-*_osx | cut -d ' ' -f 1)
+
+pushd homebrew-tap
+  cat <<EOF > bbl.rb
+class BoshCli < Formula
+  desc "Command line utility for standing up a BOSH director on an IAAS of your choice."
+  homepage "https://github.com/cloudfoundry/bosh-bootloader"
+  version "${version}"
+  url "https://github.com/cloudfoundry/bosh-bootloader/releases/download/#{version}/bbl-#{version}_osx"
+  sha256 "${sha}"
+
+  depends_on :arch => :x86_64
+  depends_on "terraform" => "0.9.8"
+  depends_on "cloudfoundry/tap/bosh-cli"
+
+  def install
+    binary_name = "bbl"
+    bin.install "bbl-#{version}_osx" => binary_name
+  end
+
+  test do
+    system "#{bin}/#{binary_name} --help"
+  end
+end
+EOF
+
+  git add bbl.rb
+  if ! [ -z "$(git status --porcelain)" ];
+  then
+    git config --global user.email "cf-infrastructure@pivotal.io"
+    git config --global user.name "CF Infrastructure"
+    git commit -m "Release bbl ${version}"
+  else
+    echo "No new version to commit"
+  fi
+popd
+
+cp -R homebrew-tap update-brew-formula-output
