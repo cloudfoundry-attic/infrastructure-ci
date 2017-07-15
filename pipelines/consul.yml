@@ -615,15 +615,18 @@ jobs:
       - consats-windows-turbulence
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
       - consats-windows-turbulence
       trigger: true
+    - get: cf-deployment-concourse-tasks
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: consats-windows
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     on_failure:
       put: slack-alert
       params:
