@@ -521,7 +521,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed: [aws-cf-delete]
       trigger: true
