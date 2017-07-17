@@ -634,7 +634,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: setup-cf-cats-infrastructure
