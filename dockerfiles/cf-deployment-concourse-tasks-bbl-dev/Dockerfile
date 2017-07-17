@@ -20,3 +20,8 @@ RUN git clone https://github.com/cloudfoundry/bosh-bootloader /go/src/github.com
   cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
   git checkout develop && git rev-parse HEAD && \
   go install github.com/cloudfoundry/bosh-bootloader/bbl
+
+# Install bosh_cli v2.0.24
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.24-linux-amd64 && \
+  mv bosh-cli-2.0.24-linux-amd64 /usr/local/bin/bosh && \
+  chmod +x /usr/local/bin/bosh
