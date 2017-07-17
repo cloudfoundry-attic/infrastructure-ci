@@ -1,11 +1,6 @@
 FROM relintdockerhubpushbot/cf-deployment-concourse-tasks
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
-# Install go
-RUN wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz && \
-  tar -C /usr/local -xzf go1.7.3.linux-amd64.tar.gz && \
-  rm -rf go1.7.3.linux-amd64.tar.gz
-
 # Create directory for GOPATH
 RUN mkdir -p /go/bin
 
