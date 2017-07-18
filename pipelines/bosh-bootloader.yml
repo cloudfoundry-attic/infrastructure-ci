@@ -390,7 +390,7 @@ jobs:
 # CF Deployment Pipeline
 - name: setup-aws-cf-infrastructure
   serial_groups: [aws-cf]
-  public: true
+  public: false
   serial: true
   plan:
   - aggregate:
@@ -432,7 +432,7 @@ jobs:
 
 - name: aws-cf-deploy
   serial_groups: [aws-cf]
-  public: true
+  public: false
   serial: true
   plan:
   - aggregate:
@@ -477,7 +477,7 @@ jobs:
 
 - name: aws-cf-delete
   serial_groups: [aws-cf]
-  public: true
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -508,7 +508,7 @@ jobs:
 
 - name: teardown-aws-cf-infrastructure
   serial_groups: [aws-cf]
-  public: true
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -552,7 +552,7 @@ jobs:
       rebase: true
 
 - name: bbl-downstream-docker-image
-  public: true
+  public: false
   plan:
   - do:
     - aggregate:
@@ -572,7 +572,7 @@ jobs:
 
 - name: bbl-downstream-setup-env
   serial_groups: [downstream]
-  public: true
+  public: false
   build_logs_to_retain: 100
   plan:
   - aggregate:
@@ -614,6 +614,7 @@ jobs:
 
 - name: bbl-downstream-cf-deploy
   serial_groups: [downstream]
+  public: false
   serial: true
   plan:
   - aggregate:
@@ -657,6 +658,7 @@ jobs:
 
 - name: bbl-downstream-cf-delete
   serial_groups: [downstream]
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -683,7 +685,7 @@ jobs:
 
 - name: bbl-downstream-destroy-env
   serial_groups: [downstream]
-  public: true
+  public: false
   build_logs_to_retain: 100
   plan:
   - aggregate:
