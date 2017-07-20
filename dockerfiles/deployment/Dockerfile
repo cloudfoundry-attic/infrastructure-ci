@@ -37,9 +37,9 @@ RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.24-linux-amd64
   chmod +x /usr/local/bin/bosh
 
 # Install terraform
-RUN wget https://releases.hashicorp.com/terraform/0.9.8/terraform_0.9.8_linux_amd64.zip && \
-  unzip terraform_0.9.8_linux_amd64.zip && \
-  rm terraform_0.9.8_linux_amd64.zip && \
+RUN wget https://releases.hashicorp.com/terraform/0.9.11/terraform_0.9.11_linux_amd64.zip && \
+  unzip terraform_0.9.11_linux_amd64.zip && \
+  rm terraform_0.9.11_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
 
 # Install gcloud
