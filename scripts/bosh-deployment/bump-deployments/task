@@ -13,6 +13,9 @@ function main() {
   cp -R ${ROOT}/jumpbox-deployment/ ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
   cp -R ${ROOT}/bosh-deployment/  ${BOSH_DEPLOYMENT_VENDOR_PATH}
 
+  rm -rf ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}/.git
+  rm -rf ${BOSH_DEPLOYMENT_VENDOR_PATH}/.git
+
   pushd "${ROOT}/bosh-bootloader" > /dev/null
     go get -u github.com/jteeuwen/go-bindata/...
 
