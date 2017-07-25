@@ -10,11 +10,23 @@ function main() {
   mkdir -p "${JUMPBOX_DEPLOYMENT_VENDOR_PATH}"
   mkdir -p "${BOSH_DEPLOYMENT_VENDOR_PATH}"
 
-  cp -R ${ROOT}/jumpbox-deployment/ ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
-  cp -R ${ROOT}/bosh-deployment/  ${BOSH_DEPLOYMENT_VENDOR_PATH}
+  pushd ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
+    local commitish
+    commitish=$(git rev-parse HEAD)
 
-  rm -rf ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}/.git
-  rm -rf ${BOSH_DEPLOYMENT_VENDOR_PATH}/.git
+    cp -R ${ROOT}/jumpbox-deployment/ .
+    echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment/@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
+    rm -rf .git
+  popd
+
+  pushd ${BOSH_DEPLOYMENT_VENDOR_PATH}
+    local commitish
+    commitish=$(git rev-parse HEAD)
+
+    cp -R ${ROOT}/bosh-deployment/ .
+    echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment/@${commitish}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
+    rm -rf .git
+  popd
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
     go get -u github.com/jteeuwen/go-bindata/...
