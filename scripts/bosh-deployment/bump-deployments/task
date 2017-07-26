@@ -16,7 +16,7 @@ function main() {
 
     cp -R ${ROOT}/jumpbox-deployment/ .
     echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment/@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm -rf jumpbox-deplyoment/.git
+    rm -rf jumpbox-deployment/.git
   popd
 
   pushd ${BOSH_DEPLOYMENT_VENDOR_PATH}
@@ -25,7 +25,7 @@ function main() {
 
     cp -R ${ROOT}/bosh-deployment/ .
     echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment/@${commitish}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm -rf bosh-deplyoment/.git
+    rm -rf bosh-deployment/.git
   popd
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
@@ -37,8 +37,6 @@ function main() {
 
     git config user.email "cf-infrastructure@pivotal.io"
     git config user.name "cf-infra-bot"
-
-    git add -A
 
     git checkout -B "bump-deployments-ci"
     git commit -am 'Update deployments'
