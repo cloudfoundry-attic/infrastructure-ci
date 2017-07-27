@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: ci
+  - name: bbl-states-repo
+
+run:
+  path: ci/scripts/common/delete-deployments/task
+
+params:
+  BBL_STATE_DIR:
+  DEPLOYMENTS_WITH_WORD:

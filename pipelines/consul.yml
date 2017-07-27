@@ -286,7 +286,7 @@ jobs:
       - setup-consats-linux-infrastructure
     - get: cf-deployment-concourse-tasks
   - task: delete-deployments
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    file: scripts/commond/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-linux
   - task: cleanup-cf-deployment
@@ -506,7 +506,7 @@ jobs:
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks
   - task: delete-deployments
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    file: scripts/common/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: consats-windows
   - task: cleanup-cf-deployment
