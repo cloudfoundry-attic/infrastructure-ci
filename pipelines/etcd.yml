@@ -338,7 +338,7 @@ jobs:
       - setup-eats-infrastructure
     - get: cf-deployment-concourse-tasks
   - task: delete-deployments
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    file: ci/scripts/common/delete-deployments/task.yml
     params:
       BBL_STATE_DIR: eats
   - task: cleanup-cf-deployment
