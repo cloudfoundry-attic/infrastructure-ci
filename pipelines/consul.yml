@@ -472,20 +472,29 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
     - get: windows-stemcell
       resource: windows-stemcell-release-candidate
       trigger: true
   - task: bbl-up
-    file: ci/scripts/common/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
+      BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       BBL_GCP_REGION: {{gcp_region}}
       BBL_GCP_ZONE: {{gcp_zone}}
       BBL_STATE_DIR: consats-windows
-      BBL_NAME: consats-windows
+      BBL_ENV_NAME: consats-windows
+      LB_DOMAIN: consats-windows.infrastructure.cf-app.com
+      BBL_LB_CERT: {{consul_cf_deployment_lb_cert}}
+      BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     on_failure:
       put: slack-alert
       params:
@@ -493,7 +502,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
 
 - name: delete-consats-windows-deployments
