@@ -305,36 +305,32 @@ jobs:
     timeout: 3h
     params:
       claim: etcd-eats
-  - do:
-    - task: bbl-up
-      file: cf-deployment-concourse-tasks/bbl-up/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_STATE_DIR: eats
+      BBL_ENV_NAME: eats
+      LB_DOMAIN: eats.infrastructure.cf-app.com
+      BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
+      BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+    ensure:
+      put: infrastructure-ci-bbl-states
       params:
-        BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-        BBL_GCP_REGION: {{gcp_region}}
-        BBL_GCP_ZONE: {{gcp_zone}}
-        BBL_STATE_DIR: eats
-        BBL_ENV_NAME: eats
-        LB_DOMAIN: eats.infrastructure.cf-app.com
-        BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
-        BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
-        GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-        GIT_COMMIT_USERNAME: CI Infra Bot
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
-      ensure:
-        put: infrastructure-ci-bbl-states
-        params:
-          rebase: true
-          repository: updated-bbl-state
+        rebase: true
+        repository: updated-bbl-state
     on_failure:
-      put: deployment-lock
-      params:
-        release: deployment-lock
+      do:
+        - put: deployment-lock
+          params:
+            release: deployment-lock
 
 - name: delete-eats-deployments
   public: true
@@ -547,28 +543,34 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
   - put: deployment-lock
     timeout: 3h
     params:
       claim: etcd-cf-cats
   - task: bbl-up
-    file: ci/scripts/common/bbl-up/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
+      BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       BBL_GCP_REGION: {{gcp_region}}
       BBL_GCP_ZONE: {{gcp_zone}}
       BBL_STATE_DIR: etcd-cf-cats
-      BBL_NAME: etcd-cf-cats
-      BBL_LB_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
+      BBL_ENV_NAME: etcd-cf-cats
+      LB_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
       BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
       BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
     on_failure:
       do:
