@@ -14,9 +14,9 @@ function main() {
 }
 
 function setup_bosh_env_vars() {
-  if [ -r "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}/bbl-state.json" ]; then
+  if [ -r "${ROOT}/bbl-state/${BBL_STATE_DIR}/bbl-state.json" ]; then
     set +x
-    pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+    pushd "${ROOT}/bbl-state/${BBL_STATE_DIR}" > /dev/null
       export BOSH_ENVIRONMENT=$(bbl director-address)
       export BOSH_CA_CERT="$(bbl director-ca-cert)"
       export BOSH_CLIENT=$(bbl director-username)
