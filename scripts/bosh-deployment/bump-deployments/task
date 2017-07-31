@@ -11,19 +11,21 @@ function main() {
   mkdir -p "${BOSH_DEPLOYMENT_VENDOR_PATH}"
 
   pushd ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
-    local commitish
-    commitish=$(git rev-parse HEAD)
-
     cp -R ${ROOT}/jumpbox-deployment/ .
+
+    local commitish
+    commitish=$(git -C ./jumpbox-deployment rev-parse HEAD)
+
     echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment/@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
     rm -rf jumpbox-deployment/.git
   popd
 
   pushd ${BOSH_DEPLOYMENT_VENDOR_PATH}
-    local commitish
-    commitish=$(git rev-parse HEAD)
-
     cp -R ${ROOT}/bosh-deployment/ .
+
+    local commitish
+    commitish=$(git -C ./bosh-deployment rev-parse HEAD)
+
     echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment/@${commitish}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
     rm -rf bosh-deployment/.git
   popd
