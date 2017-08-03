@@ -49,7 +49,7 @@ function delete_bbl_env() {
       fi
       set -e
 
-      bbl destroy -n
+      bbl destroy --no-confirm --skip-if-missing
       aws s3 rm s3://bbl-acceptance-tests/${1}
     fi
   popd > /dev/null
@@ -62,6 +62,7 @@ function delete_bbl_deployments() {
   if [ $? -eq 0 ]; then
     for deployment in ${deployments}; do
       bosh -d ${deployment} delete-deployment -n
+      bosh -n clean-up --all
     done
   fi
 }
