@@ -17,4 +17,4 @@ params:
   AWS_SECRET_ACCESS_KEY:
 
 run:
-  path: ci/scripts/bosh-bootloader-get-aws-nat-amis/task
+  path: ci/scripts/bosh-bootloader/get-aws-nat-amis/task
