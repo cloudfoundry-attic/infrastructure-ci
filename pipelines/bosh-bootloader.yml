@@ -600,8 +600,6 @@ jobs:
       LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
       BBL_ENV_NAME: bbl-jumpbox
       BBL_STATE_DIR: bbl-jumpbox-env
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -622,7 +620,7 @@ jobs:
       resource: bosh-bootloader-develop
       passed: [bbl-setup-gcp-jumpbox-env]
       trigger: true
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed: [bbl-setup-gcp-jumpbox-env]
     - get: ci
