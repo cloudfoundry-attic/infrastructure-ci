@@ -676,10 +676,10 @@ jobs:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
       passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
-      trigger: true
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+      trigger: true
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
