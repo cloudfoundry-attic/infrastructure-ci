@@ -12,6 +12,7 @@ groups:
   - bbl-downstream-cf-delete
   - bbl-downstream-destroy-env
   - bbl-setup-gcp-jumpbox-env
+  - bbl-downstream-cf-gcp-jumpbox-deploy
   - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
@@ -27,6 +28,7 @@ groups:
   - bbl-downstream-cf-delete
   - bbl-downstream-destroy-env
   - bbl-setup-gcp-jumpbox-env
+  - bbl-downstream-cf-gcp-jumpbox-deploy
   - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
@@ -621,6 +623,50 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
+- name: bbl-downstream-cf-gcp-jumpbox-deploy
+  serial_groups: [downstream]
+  public: false
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-setup-gcp-jumpbox-env]
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [bbl-setup-gcp-jumpbox-env]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-setup-gcp-jumpbox-env]
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-jumpbox-env
+      INFRASTRUCTURE: google
+  - task: deploy
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-jumpbox-env
+      SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
+      VARS_STORE_FILE: bbl-jumpbox-env/deployment-vars.yml
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
+
 - name: bbl-destroy-gcp-jumpbox-env
   serial_groups: [jumpbox]
   public: false
@@ -629,14 +675,14 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [bbl-setup-gcp-jumpbox-env]
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
       trigger: true
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [bbl-setup-gcp-jumpbox-env]
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-setup-gcp-jumpbox-env]
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
