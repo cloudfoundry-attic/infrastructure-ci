@@ -20,7 +20,6 @@ var _ = Describe("get-aws-nat-amis", func() {
 		command := exec.Command(
 			natBinaryPath,
 			"--key", os.Getenv("AWS_ACCESS_KEY_ID"),
-			"--secret", os.Getenv("AWS_SECRET_ACCESS_KEY"),
 			"--region", "us-west-1",
 		)
 

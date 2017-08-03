@@ -14,8 +14,8 @@ import (
 )
 
 func main() {
-	key := flag.String("key", "", "AWS access key ID")
-	secret := flag.String("secret", "", "AWS secret access key")
+	key := flag.String("key", os.Getenv("AWS_ACCESS_KEY_ID"), "AWS access key ID")
+	secret := flag.String("secret", os.Getenv("AWS_SECRET_ACCESS_KEY"), "AWS secret access key")
 	region := flag.String("region", "us-west-1", "AWS region")
 
 	flag.Parse()
