@@ -13,6 +13,7 @@ groups:
   - bbl-downstream-destroy-env
   - bbl-setup-gcp-jumpbox-env
   - bbl-downstream-cf-gcp-jumpbox-deploy
+  - bbl-downstream-cf-gcp-jumpbox-delete
   - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
@@ -29,6 +30,7 @@ groups:
   - bbl-downstream-destroy-env
   - bbl-setup-gcp-jumpbox-env
   - bbl-downstream-cf-gcp-jumpbox-deploy
+  - bbl-downstream-cf-gcp-jumpbox-delete
   - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
@@ -667,6 +669,33 @@ jobs:
         repository: updated-vars-store
         rebase: true
 
+- name: bbl-downstream-cf-gcp-jumpbox-delete
+  serial_groups: [downstream]
+  public: false
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+    - get: cf-deployment-concourse-tasks
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+      trigger: true
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-jumpbox-env
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_STATE_DIR: bbl-jumpbox-env
+      CLEAN_ALL: true
+
 - name: bbl-destroy-gcp-jumpbox-env
   serial_groups: [jumpbox]
   public: false
@@ -675,14 +704,14 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
+      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
