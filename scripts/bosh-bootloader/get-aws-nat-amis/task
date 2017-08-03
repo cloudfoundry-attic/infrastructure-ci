@@ -1,0 +1,14 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+
+function main() {
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+    ln -s "${ROOT}/ci"
+    go run "./ci/scripts/bosh-bootloader/get-aws-nat-amis/main.go" > "${ROOT}/aws-nat-amis/ami-list.json"
+  popd > /dev/null
+}
+
+main
