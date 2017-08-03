@@ -2,7 +2,7 @@
 
 ROOT="${PWD}"
 BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
-BBL_NAT_AMIS=$(cat "${ROOT}/bbl-nat-amis/bbl-nat-amis-list/bbl-nat-amis/ami-list.json")
+BBL_NAT_AMIS=$(cat "${ROOT}/bbl-nat-amis/ami-list.json")
 
 function main() {
   local bosh_bootloader_commit_sha
