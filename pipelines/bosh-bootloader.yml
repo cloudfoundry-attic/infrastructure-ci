@@ -588,6 +588,8 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
   - task: setup-infrastructure
     file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
     params:
@@ -623,11 +625,12 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed: [bbl-setup-gcp-jumpbox-env]
-    - get: ci
-      resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-setup-gcp-jumpbox-env]
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: bbl-jumpbox-env
     ensure:
