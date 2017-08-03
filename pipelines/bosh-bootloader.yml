@@ -44,6 +44,7 @@ groups:
   - minor
   - patch
   - github-release
+  - bump-nat-amis
 
 - name: cleanup
   jobs:
@@ -108,6 +109,14 @@ resources:
   source:
     bucket: bbl-acceptance-tests
     regexp: (.*).tgz
+    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
+    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
+
+- name: bbl-nat-amis
+  type: s3
+  source:
+    bucket: bbl-nat-amis-list
+    versioned_file: bbl-nat-amis/ami-list.json
     access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
     secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
 
@@ -831,6 +840,20 @@ jobs:
       body: builds/body
       globs:
       - builds/bin/bbl-*
+
+- name: bump-nat-amis
+  public: true
+  plan:
+  - get: ci
+    resource: infrastructure-ci
+  - task: get-ami-json
+    file: ci/scripts/bosh-bootloader/get-aws-nat-amis/task.yml
+    params:
+      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+  - put: bbl-nat-amis
+    params:
+      file: aws-nat-amis/ami-list.json
 
 # Cleanup
 - name: cleanup-bbl-environments
