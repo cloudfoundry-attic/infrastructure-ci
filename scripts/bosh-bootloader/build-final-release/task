@@ -2,10 +2,18 @@
 
 ROOT="${PWD}"
 BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
+BBL_NAT_AMIS=$(cat "${ROOT}/bbl-nat-amis/bbl-nat-amis-list/bbl-nat-amis/ami-list.json")
 
 function main() {
   local bosh_bootloader_commit_sha
   local deployment_versions
+  local ldflags
+
+  if [[ -n "${BBL_NAT_AMIS}" ]]; then
+    ldflags="-X main.Version=${BBL_VERSION} -X github.com/cloudfoundry/bosh-bootloader/terraform/aws.AMIs='${BBL_NAT_AMIS}'"
+  else
+    ldflags="-X main.Version=${BBL_VERSION}"
+  fi
 
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry/"
   ln -s "${ROOT}/bosh-bootloader" "${GOPATH}/src/github.com/cloudfoundry/"
@@ -13,7 +21,7 @@ function main() {
   deployment_versions=$(cat "${ROOT}/bosh-bootloader/deployment-versions.txt")
 
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/bbl" > /dev/null
-    build_bbl
+    build_bbl $ldflags
   popd > /dev/null
 
   pushd "${ROOT}/builds" > /dev/null
@@ -27,13 +35,13 @@ function build_bbl() {
   echo "Building 64-bit Linux"
   CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
     go build -a -tags netgo -installsuffix netgo \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags $1 \
     -o "${ROOT}/builds/bin/bbl-v${BBL_VERSION}_linux_x86-64" .
 
   echo "Building 64-bit Darwin"
   GOARCH=amd64 GOOS=darwin \
     go build \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags $1 \
     -o "${ROOT}/builds/bin/bbl-v${BBL_VERSION}_osx" .
 }
 

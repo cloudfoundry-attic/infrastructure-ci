@@ -830,6 +830,7 @@ jobs:
       resource: version
     - get: bosh-bootloader
       resource: bosh-bootloader-master
+    - get: bbl-nat-amis
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bbl-release
