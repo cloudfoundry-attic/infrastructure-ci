@@ -1,0 +1,31 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+- name: ci
+- name: bbl-state
+
+outputs:
+- name: updated-bbl-state
+
+run:
+  path: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task
+
+params:
+  BBL_GCP_SERVICE_ACCOUNT_KEY:
+  BBL_GCP_PROJECT_ID:
+  BBL_GCP_ZONE:
+  BBL_GCP_REGION:
+  BBL_STATE_DIR:
+  BBL_IAAS: gcp
+  BBL_LB_CERT:
+  BBL_LB_KEY:
+  LB_DOMAIN:
+  BBL_ENV_NAME:
+  GIT_COMMIT_EMAIL:
+  GIT_COMMIT_USERNAME:

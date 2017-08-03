@@ -11,6 +11,8 @@ groups:
   - bbl-downstream-cf-deploy
   - bbl-downstream-cf-delete
   - bbl-downstream-destroy-env
+  - bbl-setup-gcp-jumpbox-env
+  - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
   - aws-cf-delete
@@ -24,6 +26,8 @@ groups:
   - bbl-downstream-cf-deploy
   - bbl-downstream-cf-delete
   - bbl-downstream-destroy-env
+  - bbl-setup-gcp-jumpbox-env
+  - bbl-destroy-gcp-jumpbox-env
   - setup-aws-cf-infrastructure
   - aws-cf-deploy
   - aws-cf-delete
@@ -569,6 +573,73 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
+
+- name: bbl-setup-gcp-jumpbox-env
+  serial_groups: [jumpbox]
+  public: false
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: infrastructure-ci-bbl-states
+  - task: setup-infrastructure
+    file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
+      BBL_ENV_NAME: bbl-jumpbox
+      BBL_STATE_DIR: bbl-jumpbox-env
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-bbl-state
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
+
+- name: bbl-destroy-gcp-jumpbox-env
+  serial_groups: [jumpbox]
+  public: false
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-setup-gcp-jumpbox-env]
+      trigger: true
+    - get: bbl-states-repo
+      resource: infrastructure-ci-bbl-states
+      passed: [bbl-setup-gcp-jumpbox-env]
+    - get: ci
+      resource: infrastructure-ci
+      passed: [bbl-setup-gcp-jumpbox-env]
+  - task: bbl-destroy
+    file: ci/scripts/common/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: bbl-jumpbox-env
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-bbl-state
+        rebase: true
+    on_failure:
+      put: slack-alert
+      params:
+        text: {{slack_failure_text}}
 
 - name: bbl-downstream-setup-env
   serial_groups: [downstream]
