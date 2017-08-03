@@ -586,7 +586,8 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-    - get: infrastructure-ci-bbl-states
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
   - task: setup-infrastructure
     file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
     params:

@@ -8,10 +8,10 @@ image_resource:
 
 inputs:
   - name: ci
-  - name: bbl-states-repo
+  - name: bbl-state
 
 outputs:
-  - name: bbl-states-repo-out
+  - name: updated-bbl-state
 
 run:
   path: ci/scripts/common/bbl-up/task
