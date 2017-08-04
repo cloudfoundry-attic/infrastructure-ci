@@ -17,6 +17,8 @@ func main() {
 	key := flag.String("key", os.Getenv("AWS_ACCESS_KEY_ID"), "AWS access key ID")
 	secret := flag.String("secret", os.Getenv("AWS_SECRET_ACCESS_KEY"), "AWS secret access key")
 	region := flag.String("region", "us-west-1", "AWS region")
+	govCloudKey := flag.String("govcloud-key", os.Getenv("GOVCLOUD_AWS_ACCESS_KEY_ID"), "AWS GovCloud access key ID")
+	govCloudSecret := flag.String("govcloud-secret", os.Getenv("GOVCLOUD_AWS_SECRET_ACCESS_KEY"), "AWS GovCloud secret access key")
 
 	flag.Parse()
 
@@ -44,6 +46,11 @@ func main() {
 		Values: []*string{aws.String("amzn-ami-vpc-nat-hvm*")},
 	}
 
+	describeImagesInput := ec2.DescribeImagesInput{
+		Filters: []*ec2.Filter{nameFilter},
+		Owners:  []*string{aws.String("amazon")},
+	}
+
 	AMIs := make(map[string]string)
 
 	for _, region := range awsRegionsOutput.Regions {
@@ -54,11 +61,6 @@ func main() {
 
 		ec2Client := ec2.New(awsSession)
 
-		describeImagesInput := ec2.DescribeImagesInput{
-			Filters: []*ec2.Filter{nameFilter},
-			Owners:  []*string{aws.String("amazon")},
-		}
-
 		imagesOutput, err := ec2Client.DescribeImages(&describeImagesInput)
 		if err != nil {
 			log.Fatalf("failed describing images: %s", err) //not tested
@@ -67,6 +69,33 @@ func main() {
 		sort.Sort(ImageSlice(imagesOutput.Images))
 
 		AMIs[*region.RegionName] = *imagesOutput.Images[0].ImageId
+	}
+
+	if *govCloudKey != "" && *govCloudSecret != "" {
+		govCloudCredentials := credentials.NewCredentials(&credentials.StaticProvider{
+			credentials.Value{
+				AccessKeyID:     *govCloudKey,
+				SecretAccessKey: *govCloudSecret,
+			},
+		})
+
+		govCloudRegion := aws.String("us-gov-west-1")
+
+		awsSession := session.Must(session.NewSession(&aws.Config{
+			Credentials: govCloudCredentials,
+			Region:      govCloudRegion,
+		}))
+
+		ec2Client := ec2.New(awsSession)
+
+		imagesOutput, err := ec2Client.DescribeImages(&describeImagesInput)
+		if err != nil {
+			log.Fatalf("failed describing images: %s", err) //not tested
+		}
+
+		sort.Sort(ImageSlice(imagesOutput.Images))
+
+		AMIs[*govCloudRegion] = *imagesOutput.Images[0].ImageId
 	}
 
 	err = json.NewEncoder(os.Stdout).Encode(AMIs)

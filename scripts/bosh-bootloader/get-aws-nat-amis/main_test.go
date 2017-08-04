@@ -20,6 +20,8 @@ var _ = Describe("get-aws-nat-amis", func() {
 		command := exec.Command(
 			natBinaryPath,
 			"--key", os.Getenv("AWS_ACCESS_KEY_ID"),
+			"--govcloud-key", "",
+			"--govcloud-secret", "",
 			"--region", "us-west-1",
 		)
 
@@ -43,5 +45,27 @@ var _ = Describe("get-aws-nat-amis", func() {
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-southeast-2", MatchRegexp("ami-[0-9a-f]+")))
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-northeast-1", MatchRegexp("ami-[0-9a-f]+")))
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-northeast-2", MatchRegexp("ami-[0-9a-f]+")))
+	})
+
+	Context("when GovCloud credentials are provided", func() {
+		It("returns a GovCloud AMI as well", func() {
+			command := exec.Command(
+				natBinaryPath,
+				"--govcloud-key", os.Getenv("GOVCLOUD_AWS_ACCESS_KEY_ID"),
+				"--govcloud-secret", os.Getenv("GOVCLOUD_AWS_SECRET_ACCESS_KEY"),
+			)
+
+			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(session, "120s").Should(gexec.Exit(0))
+
+			var natAMIMap map[string]string
+			err = json.Unmarshal(session.Out.Contents(), &natAMIMap)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(natAMIMap).To(HaveKeyWithValue("us-west-1", MatchRegexp("ami-[0-9a-f]+")))
+			Expect(natAMIMap).To(HaveKeyWithValue("us-gov-west-1", MatchRegexp("ami-[0-9a-f]+")))
+		})
 	})
 })

@@ -28,6 +28,16 @@ var _ = BeforeSuite(func() {
 		Fail("please set AWS_SECRET_ACCESS_KEY before running tests")
 	}
 
+	govCloudKey := os.Getenv("GOVCLOUD_AWS_ACCESS_KEY_ID")
+	if govCloudKey == "" {
+		Fail("please set GOVCLOUD_AWS_ACCESS_KEY_ID before running tests")
+	}
+
+	govCloudSecret := os.Getenv("GOVCLOUD_AWS_SECRET_ACCESS_KEY")
+	if govCloudSecret == "" {
+		Fail("please set GOVCLOUD_AWS_SECRET_ACCESS_KEY before running tests")
+	}
+
 	var err error
 	natBinaryPath, err = gexec.Build("github.com/cloudfoundry/infrastructure-ci/scripts/bosh-bootloader/get-aws-nat-amis")
 	Expect(err).NotTo(HaveOccurred())

@@ -927,6 +927,8 @@ jobs:
     params:
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      GOVCLOUD_AWS_SECRET_ACCESS_KEY: {{govcloud_images_secret_access_key}}
+      GOVCLOUD_AWS_ACCESS_KEY_ID: {{govcloud_images_access_key_id}}
   - put: bbl-nat-amis
     params:
       file: aws-nat-amis/ami-list.json
