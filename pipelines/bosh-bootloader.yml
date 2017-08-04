@@ -177,7 +177,6 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v1.*
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
