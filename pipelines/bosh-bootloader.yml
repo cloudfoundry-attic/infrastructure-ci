@@ -50,10 +50,6 @@ groups:
   - github-release
   - bump-nat-amis
 
-- name: cleanup
-  jobs:
-  - cleanup-bbl-environments
-
 resource_types:
 - name: slack-notification
   type: docker-image
@@ -107,14 +103,6 @@ resources:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: {{cf_infra_bot_user_github_private_key}}
-
-- name: bbl-acceptance-s3
-  type: s3
-  source:
-    bucket: bbl-acceptance-tests
-    regexp: (.*).tgz
-    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
-    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
 
 - name: bbl-nat-amis
   type: s3
@@ -239,9 +227,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -268,9 +253,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -302,9 +284,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -335,9 +314,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -366,9 +342,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -396,9 +369,6 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
     on_failure:
       do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
@@ -931,20 +901,3 @@ jobs:
   - put: bbl-nat-amis
     params:
       file: aws-nat-amis/ami-list.json
-
-# Cleanup
-- name: cleanup-bbl-environments
-  serial: true
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-  - task: cleanup
-    file: ci/scripts/bosh-bootloader/cleanup-bbl-environments/task.yml
-    params:
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: {{bbl_acceptance_tests_s3_access_key_id}}
-      AWS_SECRET_ACCESS_KEY: {{bbl_acceptance_tests_s3_secret_access_key}}
