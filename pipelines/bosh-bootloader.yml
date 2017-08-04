@@ -561,7 +561,7 @@ jobs:
   plan:
   - get: develop
     resource: bosh-bootloader-develop
-    passed: [teardown-aws-cf-infrastructure, bbl-downstream-destroy-env, bbl-destroy-gcp-jumpbox-env]
+    passed: [teardown-aws-cf-infrastructure, bbl-downstream-destroy-env]
     trigger: true
   - put: bosh-bootloader-master
     params:
