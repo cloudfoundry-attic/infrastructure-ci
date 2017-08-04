@@ -267,6 +267,7 @@ jobs:
     - get: concourse-deployment
     - get: stemcell
       resource: gcp-stemcell
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
