@@ -75,6 +75,8 @@ jobs:
       params:
         AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
         AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        GOVCLOUD_AWS_SECRET_ACCESS_KEY: {{govcloud_images_secret_access_key}}
+        GOVCLOUD_AWS_ACCESS_KEY_ID: {{govcloud_images_access_key_id}}
       on_failure:
         put: slack-alert
         params:
