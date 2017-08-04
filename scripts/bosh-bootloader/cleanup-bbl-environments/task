@@ -34,10 +34,6 @@ function delete_bbl_env() {
 
   pushd $(basename ${1} .tgz) > /dev/null
     if [ -f "bbl-state.json" ]; then
-      set +x
-      eval "$(bbl print-env)"
-      set -x
-
       set +e
       if [ -n "${BOSH_ENVIRONMENT}" ]; then
         curl -k --max-time 5 "${BOSH_ENVIRONMENT}/info"
@@ -49,7 +45,7 @@ function delete_bbl_env() {
       fi
       set -e
 
-      bbl destroy --no-confirm --skip-if-missing
+      bbl destroy --no-confirm --skip-if-missing || true
       aws s3 rm s3://bbl-acceptance-tests/${1}
     fi
   popd > /dev/null
