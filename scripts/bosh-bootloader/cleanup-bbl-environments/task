@@ -34,8 +34,8 @@ function delete_bbl_env() {
 
   pushd $(basename ${1} .tgz) > /dev/null
     if [ -f "bbl-state.json" ]; then
-      set +e
-      if [ -n "${BOSH_ENVIRONMENT}" ]; then
+      set +eu
+      if [ -z "${BOSH_ENVIRONMENT}" ]; then
         curl -k --max-time 5 "${BOSH_ENVIRONMENT}/info"
         if [ $? -eq 0 ]; then
           delete_bbl_deployments
@@ -43,7 +43,7 @@ function delete_bbl_env() {
       else
         echo "No director address found."
       fi
-      set -e
+      set -eu
 
       bbl destroy --no-confirm --skip-if-missing || true
       aws s3 rm s3://bbl-acceptance-tests/${1}
