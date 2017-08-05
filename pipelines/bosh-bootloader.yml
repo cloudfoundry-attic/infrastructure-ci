@@ -387,8 +387,7 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
+    - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -407,6 +406,9 @@ jobs:
       BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
     on_failure:
       put: slack-alert
       params:
@@ -729,6 +731,7 @@ jobs:
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
     ensure:
       put: infrastructure-ci-bbl-states
       params:
