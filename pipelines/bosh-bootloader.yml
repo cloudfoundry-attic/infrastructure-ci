@@ -246,10 +246,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/gcp-acceptance/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -278,10 +278,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
     on_failure:
       do:
@@ -336,10 +336,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/test-with-latest-terraform/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
     on_failure:
       do:
@@ -363,10 +363,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
     on_failure:
       do:
@@ -573,13 +573,13 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
-  - task: setup-infrastructure
+  - task: bbl-up
     file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
@@ -711,15 +711,15 @@ jobs:
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
-  - task: setup-infrastructure
+  - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
