@@ -1,0 +1,19 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+- name: bosh-bootloader
+- name: bbl-version
+- name: compiled-darwin
+- name: brew-tap
+
+outputs:
+- name: updated-brew-tap
+
+run:
+  path: ci/scripts/bosh-bootloader/bump-brew-tap/task

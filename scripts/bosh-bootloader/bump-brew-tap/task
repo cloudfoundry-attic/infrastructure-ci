@@ -2,13 +2,14 @@
 
 set -e -x -u
 
-version=$(cat version-semver/number)
+root="${PWD}"
+version=$(cat "${root}/bbl-version/number")
 
-sha=$(shasum -a 256 bbl-osx/bbl-*_osx | cut -d ' ' -f 1)
+sha=$(shasum -a 256 compiled-darwin/bbl-*_osx | cut -d ' ' -f 1)
 
-pushd homebrew-tap
+pushd brew-tap
   cat <<EOF > bbl.rb
-class BoshCli < Formula
+class Bbl < Formula
   desc "Command line utility for standing up a BOSH director on an IAAS of your choice."
   homepage "https://github.com/cloudfoundry/bosh-bootloader"
   version "${version}"
@@ -16,8 +17,8 @@ class BoshCli < Formula
   sha256 "${sha}"
 
   depends_on :arch => :x86_64
-  depends_on "terraform" => "0.9.8"
-  depends_on "cloudfoundry/tap/bosh-cli"
+  depends_on "terraform" => "0.10.0"
+  depends_on "cloudfoundry/tap/bosh-cli" => "2.0.29"
 
   def install
     binary_name = "bbl"
@@ -41,4 +42,4 @@ EOF
   fi
 popd
 
-cp -R homebrew-tap update-brew-formula-output
+cp -R brew-tap updated-brew-tap
