@@ -577,6 +577,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
