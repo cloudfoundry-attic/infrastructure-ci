@@ -263,6 +263,8 @@ jobs:
       BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      ops-files: bbl-state
     on_failure:
       put: slack-alert
       params:
@@ -483,6 +485,8 @@ jobs:
       BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      ops-files: bbl-state
     on_failure:
       put: slack-alert
       params:
