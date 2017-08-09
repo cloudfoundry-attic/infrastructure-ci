@@ -927,6 +927,7 @@ jobs:
           version: { tag: bbl-version/number }
           globs:
           - bbl-*_osx
+        trigger: true
       - get: ci
         resource: infrastructure-ci
     - task: update-brew-formula
