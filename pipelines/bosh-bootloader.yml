@@ -131,17 +131,10 @@ resources:
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: true
 
-- name: bbl-release-osx
-  type: github-release
-  source:
-    owner: cloudfoundry
-    repository: bosh-bootloader
-    access_token: {{cf_infra_bot_user_github_access_token}}
-
 - name: homebrew-tap
   type: git
   source:
-    uri: git@github.com:cloudfoundry/homebrew-tap
+    uri: git@github.com:cloudfoundry/homebrew-tap.git
     branch: master
     private_key: {{cf_infra_bot_user_github_private_key}}
 
@@ -929,9 +922,9 @@ jobs:
       - get: bbl-version
         resource: version
       - get: homebrew-tap
-      - get: bbl-release-osx
+      - get: bbl-release
         params:
-          version: bbl-version
+          version: { tag: bbl-version/number }
           globs:
           - bbl-*_osx
       - get: ci
@@ -940,4 +933,4 @@ jobs:
       file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
     - put: homebrew-tap
       params:
-        respository: updated-brew-tap/homebrew-tap
+        repository: updated-brew-tap/homebrew-tap
