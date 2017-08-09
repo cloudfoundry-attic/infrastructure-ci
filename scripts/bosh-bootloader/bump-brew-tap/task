@@ -31,6 +31,8 @@ class Bbl < Formula
 end
 EOF
 
+  cat bbl.rb
+
   git add bbl.rb
   if ! [ -z "$(git status --porcelain)" ];
   then

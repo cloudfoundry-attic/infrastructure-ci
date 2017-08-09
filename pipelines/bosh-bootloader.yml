@@ -925,18 +925,19 @@ jobs:
 - name: bump-brew-tap
   public: true
   plan:
-  - get: bbl-version
-    resource: version
-  - get: homebrew-tap
-  - get: bbl-release-osx
-    params:
-      version: bbl-version
-      globs:
-      - bbl-*_osx
-  - get: ci
-    resource: infrastructure-ci
-  - task: update-brew-formula
-    file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
-  - put: homebrew-tap
-    params:
-      respository: updated-brew-tap/homebrew-tap
+    - aggregate:
+      - get: bbl-version
+        resource: version
+      - get: homebrew-tap
+      - get: bbl-release-osx
+        params:
+          version: bbl-version
+          globs:
+          - bbl-*_osx
+      - get: ci
+        resource: infrastructure-ci
+    - task: update-brew-formula
+      file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
+    - put: homebrew-tap
+      params:
+        respository: updated-brew-tap/homebrew-tap
