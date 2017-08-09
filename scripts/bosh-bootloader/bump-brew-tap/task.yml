@@ -10,6 +10,7 @@ inputs:
 - name: bbl-version
 - name: bbl-release-osx
 - name: brew-tap
+- name: ci
 
 outputs:
 - name: updated-brew-tap
