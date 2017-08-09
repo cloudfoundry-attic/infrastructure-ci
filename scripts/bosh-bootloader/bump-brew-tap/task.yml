@@ -7,9 +7,8 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
-- name: bosh-bootloader
 - name: bbl-version
-- name: compiled-darwin
+- name: bbl-release-osx
 - name: brew-tap
 
 outputs:

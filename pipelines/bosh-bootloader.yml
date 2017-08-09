@@ -49,6 +49,7 @@ groups:
   - patch
   - github-release
   - bump-nat-amis
+  - bump-brew-tap
 
 resource_types:
 - name: slack-notification
@@ -129,6 +130,20 @@ resources:
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: true
+
+- name: bbl-release-osx
+  type: github-release
+  source:
+    owner: cloudfoundry
+    repository: bosh-bootloader
+    access_token: {{cf_infra_bot_user_github_access_token}}
+
+- name: brew-tap
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/homebrew-tap
+    branch: master
+    private_key: {{cf_infra_bot_user_github_private_key}}
 
 - name: terraform
   type: github-release
@@ -906,3 +921,20 @@ jobs:
   - put: bbl-nat-amis
     params:
       file: aws-nat-amis/ami-list.json
+
+- name: bump-brew-tap
+  public: true
+  plan:
+  - get: bbl-version
+    resource: version
+  - get: brew-tap
+  - get: bbl-release-osx
+    params:
+      version: bbl-version
+      globs:
+      - bbl-*_osx
+  - task: update-brew-formula
+    file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
+  - put: brew-tap
+    params:
+      respository: updated-brew-tap/brew-tap
