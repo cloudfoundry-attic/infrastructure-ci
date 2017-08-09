@@ -933,6 +933,8 @@ jobs:
       version: bbl-version
       globs:
       - bbl-*_osx
+  - get: ci
+    resource: infrastructure-ci
   - task: update-brew-formula
     file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
   - put: brew-tap
