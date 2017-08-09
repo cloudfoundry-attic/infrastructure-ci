@@ -5,7 +5,7 @@ set -e -x -u
 root="${PWD}"
 version=$(cat "${root}/bbl-version/number")
 
-sha=$(shasum -a 256 "${root}/bbl-release-osx/bbl-*_osx" | cut -d ' ' -f 1)
+sha=$(shasum -a 256 bbl-release/bbl-*_osx | cut -d ' ' -f 1)
 
 pushd homebrew-tap
   cat <<EOF > bbl.rb
