@@ -138,7 +138,7 @@ resources:
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
 
-- name: brew-tap
+- name: homebrew-tap
   type: git
   source:
     uri: git@github.com:cloudfoundry/homebrew-tap
@@ -927,7 +927,7 @@ jobs:
   plan:
   - get: bbl-version
     resource: version
-  - get: brew-tap
+  - get: homebrew-tap
   - get: bbl-release-osx
     params:
       version: bbl-version
@@ -937,6 +937,6 @@ jobs:
     resource: infrastructure-ci
   - task: update-brew-formula
     file: ci/scripts/bosh-bootloader/bump-brew-tap/task.yml
-  - put: brew-tap
+  - put: homebrew-tap
     params:
-      respository: updated-brew-tap/brew-tap
+      respository: updated-brew-tap/homebrew-tap

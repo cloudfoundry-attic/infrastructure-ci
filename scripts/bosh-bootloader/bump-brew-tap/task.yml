@@ -9,7 +9,7 @@ image_resource:
 inputs:
 - name: bbl-version
 - name: bbl-release-osx
-- name: brew-tap
+- name: homebrew-tap
 - name: ci
 
 outputs:

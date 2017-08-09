@@ -7,7 +7,7 @@ version=$(cat "${root}/bbl-version/number")
 
 sha=$(shasum -a 256 bbl-*_osx | cut -d ' ' -f 1)
 
-pushd brew-tap
+pushd homebrew-tap
   cat <<EOF > bbl.rb
 class Bbl < Formula
   desc "Command line utility for standing up a BOSH director on an IAAS of your choice."
@@ -42,4 +42,4 @@ EOF
   fi
 popd
 
-cp -R brew-tap updated-brew-tap
+cp -R homebrew-tap updated-brew-tap
