@@ -91,7 +91,7 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-states-repo
+    - get: bbl-state
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
     file: ci/scripts/common/bbl-up/task.yml
@@ -105,7 +105,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: bbl-states-repo-out
+        repository: updated-bbl-state
         rebase: true
     on_failure:
       put: slack-alert

@@ -72,7 +72,7 @@ function create_or_update_lbs() {
 
   bbl \
     --debug \
-    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    --state-dir "${root_dir}/bbl-state/${BBL_STATE_DIR}" \
     create-lbs \
       --type cf \
       --cert "${bbl_lb_cert_path}" \
@@ -82,7 +82,7 @@ function create_or_update_lbs() {
 
   bbl \
     --debug \
-    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    --state-dir "${root_dir}/bbl-state/${BBL_STATE_DIR}" \
     update-lbs \
       --cert "${bbl_lb_cert_path}" \
       --key "${bbl_lb_key_path}" \
@@ -93,7 +93,7 @@ function commit_bbl_state_file() {
   local root_dir
   root_dir="${1}"
 
-  pushd "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
+  pushd "${root_dir}/bbl-state/${BBL_STATE_DIR}" > /dev/null
     if [[ -n $(git status --porcelain) ]]; then
       git config user.name "CI Infra Bot"
       git config user.email "cf-infrastructure@pivotal.io"
@@ -104,7 +104,7 @@ function commit_bbl_state_file() {
 
   pushd "${root_dir}"
     shopt -s dotglob
-    cp -R bbl-states-repo/* bbl-states-repo-out/
+    cp -R bbl-state/* update-bbl-state/
   popd
 }
 
@@ -135,10 +135,10 @@ function main() {
   local ops_file_path
   ops_file_path=$(write_ops_file_to_bump_compilation_workers "${root_dir}")
 
-  mkdir -p "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}"
+  mkdir -p "${root_dir}/bbl-state/${BBL_STATE_DIR}"
   bbl \
     --debug \
-    --state-dir "${root_dir}/bbl-states-repo/${BBL_STATE_DIR}" \
+    --state-dir "${root_dir}/bbl-state/${BBL_STATE_DIR}" \
     up \
       --name ${BBL_NAME} \
       --ops-file "${ops_file_path}"  > bbl_up.log
