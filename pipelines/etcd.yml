@@ -880,6 +880,8 @@ jobs:
       BBL_LB_KEY: {{etcd_cf_tls_upgrade_lb_key}}
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      ops-files: bbl-state
     ensure:
       put: infrastructure-ci-bbl-states
       params:
