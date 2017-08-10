@@ -104,7 +104,7 @@ function commit_bbl_state_file() {
 
   pushd "${root_dir}"
     shopt -s dotglob
-    cp -R bbl-state/* update-bbl-state/
+    cp -R bbl-state/* updated-bbl-state/
   popd
 }
 
