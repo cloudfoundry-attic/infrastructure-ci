@@ -7,35 +7,17 @@ groups:
   - aws-concourse-acceptance-tests
   - gcp-concourse-acceptance-tests
   - bbl-downstream-docker-image
-  - bbl-downstream-setup-env
-  - bbl-downstream-cf-deploy
-  - bbl-downstream-cf-delete
-  - bbl-downstream-destroy-env
-  - bbl-setup-gcp-jumpbox-env
-  - bbl-downstream-cf-gcp-jumpbox-deploy
-  - bbl-downstream-cf-gcp-jumpbox-delete
-  - bbl-destroy-gcp-jumpbox-env
-  - setup-aws-cf-infrastructure
-  - aws-cf-deploy
-  - aws-cf-delete
-  - teardown-aws-cf-infrastructure
+  - bbl-aws-cf
+  - bbl-gcp-cf
+  - bbl-gcp-cf-jumpbox
   - merge-develop-to-master
 
 - name: cf-deployment
   jobs:
   - bbl-downstream-docker-image
-  - bbl-downstream-setup-env
-  - bbl-downstream-cf-deploy
-  - bbl-downstream-cf-delete
-  - bbl-downstream-destroy-env
-  - bbl-setup-gcp-jumpbox-env
-  - bbl-downstream-cf-gcp-jumpbox-deploy
-  - bbl-downstream-cf-gcp-jumpbox-delete
-  - bbl-destroy-gcp-jumpbox-env
-  - setup-aws-cf-infrastructure
-  - aws-cf-deploy
-  - aws-cf-delete
-  - teardown-aws-cf-infrastructure
+  - bbl-aws-cf
+  - bbl-gcp-cf
+  - bbl-gcp-cf-jumpbox
 
 - name: smoke-tests
   jobs:
@@ -158,11 +140,6 @@ resources:
     bucket: bosh-cli-artifacts
     regexp: bosh-cli-(.*)-linux-amd64
 
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
-
 - name: cf-deployment
   type: git
   source:
@@ -217,10 +194,6 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: aws-acceptance-tests
   serial: true
@@ -241,11 +214,6 @@ jobs:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: gcp-acceptance-tests
   serial: true
@@ -267,11 +235,6 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: gcp-concourse-acceptance-tests
   serial: true
@@ -288,7 +251,7 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [gcp-acceptance-tests]
+      passed: [test-bosh-bootloader]
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
@@ -299,11 +262,6 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: aws-concourse-acceptance-tests
   serial: true
@@ -319,7 +277,7 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
-      passed: [aws-acceptance-tests]
+      passed: [test-bosh-bootloader]
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
@@ -329,11 +287,6 @@ jobs:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 # Smoke-tests
 - name: test-with-latest-terraform
@@ -357,11 +310,6 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: test-with-latest-bosh-cli
   serial: true
@@ -384,29 +332,30 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
-    on_failure:
-      do:
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
-# CF Deployment Pipeline
-- name: setup-aws-cf-infrastructure
-  serial_groups: [aws-cf]
-  public: false
+# CF Deployment Pipelines
+- name: bbl-aws-cf
   serial: true
+  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-develop
       passed: [bbl-downstream-docker-image]
       trigger: true
-    - get: ci
-      resource: infrastructure-ci
-    - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -426,130 +375,60 @@ jobs:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: aws-cf-deploy
-  serial_groups: [aws-cf]
-  public: false
-  serial: true
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [setup-aws-cf-infrastructure]
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [setup-aws-cf-infrastructure]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: ops-files
-      resource: cf-deployment
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf
       INFRASTRUCTURE: aws
-  - task: deploy
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-aws-cf
+  - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf
       SYSTEM_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-aws-cf/deployment-vars.yml
-      OPS_FILES: "operations/aws.yml"
+      OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: aws-cf-delete
-  serial_groups: [aws-cf]
-  public: false
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [aws-cf-deploy]
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [aws-cf-deploy]
-      trigger: true
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: bbl-aws-cf
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: bbl-aws-cf
-      CLEAN_ALL: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: teardown-aws-cf-infrastructure
-  serial_groups: [aws-cf]
-  public: false
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [aws-cf-delete]
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [aws-cf-delete]
-      trigger: true
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-aws-cf
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-cf
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-cf
 
 - name: merge-develop-to-master
   public: true
   plan:
   - get: develop
     resource: bosh-bootloader-develop
-    passed: [teardown-aws-cf-infrastructure, bbl-downstream-destroy-env]
+    passed: [bbl-aws-cf, bbl-gcp-cf, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
     trigger: true
   - put: bosh-bootloader-master
     params:
@@ -563,7 +442,7 @@ jobs:
     - aggregate:
       - get: bosh-bootloader
         resource: bosh-bootloader-develop
-        passed: [aws-acceptance-tests, gcp-acceptance-tests]
+        passed: [test-bosh-bootloader]
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
         trigger: true
@@ -575,149 +454,8 @@ jobs:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
 
-- name: bbl-setup-gcp-jumpbox-env
-  serial_groups: [jumpbox]
-  public: false
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-docker-image]
-      trigger: true
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-docker-image]
-  - task: bbl-up
-    file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
-      BBL_ENV_NAME: bbl-jumpbox
-      BBL_STATE_DIR: bbl-jumpbox-env
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: bbl-downstream-cf-gcp-jumpbox-deploy
-  serial_groups: [downstream]
-  public: false
+- name: bbl-gcp-cf-jumpbox
   serial: true
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-setup-gcp-jumpbox-env]
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [bbl-setup-gcp-jumpbox-env]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: ops-files
-      resource: cf-deployment
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-setup-gcp-jumpbox-env]
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-jumpbox-env
-      INFRASTRUCTURE: google
-  - task: deploy
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-jumpbox-env
-      SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
-      VARS_STORE_FILE: bbl-jumpbox-env/deployment-vars.yml
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
-
-- name: bbl-downstream-cf-gcp-jumpbox-delete
-  serial_groups: [downstream]
-  public: false
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
-      trigger: true
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-cf-gcp-jumpbox-deploy]
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-jumpbox-env
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-jumpbox-env
-      CLEAN_ALL: true
-
-- name: bbl-destroy-gcp-jumpbox-env
-  serial_groups: [jumpbox]
-  public: false
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-cf-gcp-jumpbox-delete]
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-jumpbox-env
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: bbl-downstream-setup-env
-  serial_groups: [downstream]
   public: false
   build_logs_to_retain: 100
   plan:
@@ -730,6 +468,104 @@ jobs:
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
+      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
+      BBL_ENV_NAME: bbl-jumpbox
+      BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      INFRASTRUCTURE: google
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+  - task: deploy-cf
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
+      VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
+      OPS_FILES: operations/use-compiled-releases.yml
+    ensure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+
+- name: bbl-gcp-cf
+  serial: true
+  public: false
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-develop
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -743,124 +579,60 @@ jobs:
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
       BBL_ENV_NAME: bbl-downstream
-      BBL_STATE_DIR: bbl-downstream-env
+      BBL_STATE_DIR: bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: bbl-downstream-cf-deploy
-  serial_groups: [downstream]
-  public: false
-  serial: true
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-setup-env]
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-setup-env]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: ops-files
-      resource: cf-deployment
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-setup-env]
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
     params:
-      BBL_STATE_DIR: bbl-downstream-env
+      BBL_STATE_DIR: bbl-gcp-cf
       INFRASTRUCTURE: google
-  - task: deploy
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-gcp-cf
+  - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-downstream-env
-      SYSTEM_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
-      VARS_STORE_FILE: bbl-downstream-env/deployment-vars.yml
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
-
-- name: bbl-downstream-cf-delete
-  serial_groups: [downstream]
-  public: false
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-cf-deploy]
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-cf-deploy]
-      trigger: true
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-cf-deploy]
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-downstream-env
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-downstream-env
-      CLEAN_ALL: true
-
-- name: bbl-downstream-destroy-env
-  serial_groups: [downstream]
-  public: false
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-develop
-      passed: [bbl-downstream-cf-delete]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-    - get: infrastructure-ci-bbl-states
-      passed: [bbl-downstream-cf-delete]
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-cf-delete]
-  - task: destroy-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_STATE_DIR: bbl-downstream-env
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+      SYSTEM_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
+      VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
+      OPS_FILES: operations/use-compiled-releases.yml
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
 
 # Final Release Pipeline
 - name: major
