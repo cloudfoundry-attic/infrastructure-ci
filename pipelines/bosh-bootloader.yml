@@ -131,6 +131,14 @@ resources:
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: true
 
+- name: bbl-release-official
+  type: github-release
+  source:
+    user: cloudfoundry
+    repository: bosh-bootloader
+    access_token: {{cf_infra_bot_user_github_access_token}}
+    drafts: false
+
 - name: homebrew-tap
   type: git
   source:
@@ -923,6 +931,7 @@ jobs:
         resource: version
       - get: homebrew-tap
       - get: bbl-release
+        resource: bbl-release-official
         params:
           version: { tag: bbl-version/number }
           globs:
