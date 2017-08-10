@@ -120,6 +120,7 @@ resources:
   source:
     user: cppforlife
     repository: turbulence-release
+    access_token: {{github_oauth_token}}
 
 - name: consul-release
   type: bosh-io-release
