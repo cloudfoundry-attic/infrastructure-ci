@@ -118,7 +118,7 @@ resources:
 - name: turbulence-release
   type: github-release
   source:
-    user: christianang
+    user: cppforlife
     repository: turbulence-release
 
 - name: consul-release

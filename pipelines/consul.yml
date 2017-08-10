@@ -142,7 +142,7 @@ resources:
 - name: turbulence-release
   type: github-release
   source:
-    user: christianang
+    user: cppforlife
     repository: turbulence-release
 
 - name: oss-s3-buckets-stack
