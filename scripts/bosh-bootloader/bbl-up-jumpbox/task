@@ -91,7 +91,7 @@ function main() {
     write_service_account_key
     domain_flag="--domain=${LB_DOMAIN}"
 
-    bbl --debug up ${name_flag} --jumpbox > "${root_dir}"/bbl_up.txt
+    bbl --debug up ${name_flag} --credhub > "${root_dir}"/bbl_up.txt
 
     # The two commands below amount to "create or update"
     bbl \
