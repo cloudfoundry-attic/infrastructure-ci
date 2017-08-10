@@ -28,7 +28,7 @@ var _ = Describe("get-aws-nat-amis", func() {
 		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
 
-		Eventually(session, "120s").Should(gexec.Exit(0))
+		Eventually(session, "10m").Should(gexec.Exit(0))
 
 		var natAMIMap map[string]string
 		err = json.Unmarshal(session.Out.Contents(), &natAMIMap)
@@ -49,16 +49,22 @@ var _ = Describe("get-aws-nat-amis", func() {
 
 	Context("when GovCloud credentials are provided", func() {
 		It("returns a GovCloud AMI as well", func() {
+			govcloudAWSAccessKeyID := os.Getenv("GOVCLOUD_AWS_ACCESS_KEY_ID")
+			govcloudAWSSecretAccessKey := os.Getenv("GOVCLOUD_AWS_SECRET_ACCESS_KEY")
+			if govcloudAWSAccessKeyID == "" || govcloudAWSSecretAccessKey == "" {
+				Skip("GOVCLOUD_AWS_ACCESS_KEY_ID and GOVCLOUD_AWS_SECRET_ACCESS_KEY not set")
+			}
+
 			command := exec.Command(
 				natBinaryPath,
-				"--govcloud-key", os.Getenv("GOVCLOUD_AWS_ACCESS_KEY_ID"),
-				"--govcloud-secret", os.Getenv("GOVCLOUD_AWS_SECRET_ACCESS_KEY"),
+				"--govcloud-key", govcloudAWSAccessKeyID,
+				"--govcloud-secret", govcloudAWSSecretAccessKey,
 			)
 
 			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 			Expect(err).NotTo(HaveOccurred())
 
-			Eventually(session, "120s").Should(gexec.Exit(0))
+			Eventually(session, "10m").Should(gexec.Exit(0))
 
 			var natAMIMap map[string]string
 			err = json.Unmarshal(session.Out.Contents(), &natAMIMap)
