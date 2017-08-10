@@ -3,11 +3,11 @@ groups:
 - name: infrastructure-ci
   jobs:
   - unit-tests
-- name: ci-workers
+- name: windows-ci-worker
   jobs:
   - setup-worker-infrastructure
-  - deploy-windows-worker
-  - delete-windows-worker-deployment
+  - deploy-worker
+  - delete-worker-deployment
   - teardown-worker-infrastructure
 
 resource_types:
@@ -45,16 +45,10 @@ resources:
     uri: https://github.com/pivotal-cf-experimental/concourse-windows-release.git
     branch: master
 
-# - name: windows-stemcell
-#   type: s3
-#   source:
-#     bucket: bosh-windows-stemcells
-#     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
-
-- name: windows-stemcell-release-candidate
+- name: windows-stemcell
   type: s3
   source:
-    bucket: bosh-windows-stemcells-release-candidates
+    bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 
 - name: slack-alert
@@ -100,8 +94,8 @@ jobs:
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       BBL_GCP_REGION: {{gcp_region}}
       BBL_GCP_ZONE: {{gcp_zone}}
-      BBL_STATE_DIR: ci-workers
-      BBL_NAME: ci-workers
+      BBL_STATE_DIR: windows-ci-worker
+      BBL_NAME: windows-ci-worker
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -112,7 +106,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: deploy-windows-worker
+- name: deploy-worker
   public: true
   serial: true
   serial_groups: [infrastructure]
@@ -125,14 +119,14 @@ jobs:
       passed: [setup-worker-infrastructure]
       trigger: true
     - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
+      resource: windows-stemcell
     - get: concourse-windows
       resource: concourse-windows-master
   - task: deploy-windows-worker
     file: ci/scripts/infrastructure-ci/deploy-concourse-windows-worker/task.yml
     params:
       DEPLOYMENT_NAME: wings-windows-worker
-      BBL_STATE_DIR: ci-workers
+      BBL_STATE_DIR: windows-ci-worker
       CONCOURSE_TEAM: {{wings_concourse_team}}
       TSA_HOST: {{wings_tsa_host}}
       TSA_PUBLIC_KEY: {{wings_tsa_public_key}}
@@ -142,7 +136,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: delete-windows-worker-deployment
+- name: delete-worker-deployment
   public: true
   serial: true
   serial_groups: [infrastructure]
@@ -153,11 +147,11 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks
-  - task: delete-windows-worker-deployment
+  - task: delete-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     params:
       DEPLOYMENT_NAME: wings-windows-worker
-      BBL_STATE_DIR: ci-workers
+      BBL_STATE_DIR: windows-ci-worker
   - task: cleanup-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -177,7 +171,7 @@ jobs:
   - task: bbl-destroy
     file: ci/scripts/common/bbl-destroy/task.yml
     params:
-      BBL_STATE_DIR: ci-workers
+      BBL_STATE_DIR: windows-ci-worker
     ensure:
       put: infrastructure-ci-bbl-states
       params:
