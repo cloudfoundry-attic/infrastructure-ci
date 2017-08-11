@@ -378,6 +378,8 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_IAAS: aws
       input_mapping:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
@@ -498,6 +500,8 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_IAAS: gcp
       input_mapping:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
@@ -589,6 +593,8 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_IAAS: gcp
       input_mapping:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
