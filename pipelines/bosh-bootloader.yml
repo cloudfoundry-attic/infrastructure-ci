@@ -334,6 +334,37 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
 
 # CF Deployment Pipelines
+- name: merge-develop-to-master
+  public: true
+  plan:
+  - get: develop
+    resource: bosh-bootloader-develop
+    passed: [bbl-aws-cf, bbl-gcp-cf, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
+    trigger: true
+  - put: bosh-bootloader-master
+    params:
+      repository: develop
+      rebase: true
+
+- name: bbl-downstream-docker-image
+  public: false
+  plan:
+  - do:
+    - aggregate:
+      - get: bosh-bootloader
+        resource: bosh-bootloader-develop
+        passed: [test-bosh-bootloader]
+        trigger: true
+      - get: cf-deployment-concourse-tasks-docker-image
+        trigger: true
+      - get: infrastructure-ci
+        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
+        trigger: true
+    - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
+        cache: false
+
 - name: bbl-aws-cf
   serial: true
   public: false
@@ -417,6 +448,13 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-cf
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -424,37 +462,6 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
-
-- name: merge-develop-to-master
-  public: true
-  plan:
-  - get: develop
-    resource: bosh-bootloader-develop
-    passed: [bbl-aws-cf, bbl-gcp-cf, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
-    trigger: true
-  - put: bosh-bootloader-master
-    params:
-      repository: develop
-      rebase: true
-
-- name: bbl-downstream-docker-image
-  public: false
-  plan:
-  - do:
-    - aggregate:
-      - get: bosh-bootloader
-        resource: bosh-bootloader-develop
-        passed: [test-bosh-bootloader]
-        trigger: true
-      - get: cf-deployment-concourse-tasks-docker-image
-        trigger: true
-      - get: infrastructure-ci
-        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
-        trigger: true
-    - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      params:
-        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
-        cache: false
 
 - name: bbl-gcp-cf-jumpbox
   serial: true
@@ -534,6 +541,13 @@ jobs:
       do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
@@ -627,6 +641,13 @@ jobs:
       do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
