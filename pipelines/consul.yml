@@ -398,13 +398,13 @@ jobs:
     - get: release
       resource: consul-release-develop
       passed:
-      - consats-linux-turbulence
+      - consats-linux
     - get: ci
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
-      - consats-linux-turbulence
+      - consats-linux
       trigger: true
     - get: cf-deployment-concourse-tasks
   - task: bbl-destroy
@@ -629,13 +629,13 @@ jobs:
     - get: release
       resource: consul-release-develop
       passed:
-      - consats-windows-turbulence
+      - consats-windows
     - get: ci
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
       passed:
-      - consats-windows-turbulence
+      - consats-windows
       trigger: true
     - get: cf-deployment-concourse-tasks
   - task: bbl-destroy
