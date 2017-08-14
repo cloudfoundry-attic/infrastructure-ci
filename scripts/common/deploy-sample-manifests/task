@@ -4,7 +4,7 @@ ROOT=${PWD}
 
 function main() {
   deploy_boshlite
-  setup_bosh_env_vars
+  setup_bosh_lite_env_vars
   upload_stemcell
   upload_dependencies
   create_and_upload_release
@@ -28,7 +28,7 @@ function deploy_boshlite() {
     ${ROOT}/bosh-deployment/bosh.yml
 }
 
-function setup_bosh_env_vars() {
+function setup_bosh_lite_env_vars() {
   set +x
   export BOSH_ENVIRONMENT=$(bbl director-address)
   export BOSH_CA_CERT="$(bosh int bosh-vars.yml --path /default_ca/ca)"
