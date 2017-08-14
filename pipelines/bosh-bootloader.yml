@@ -570,6 +570,9 @@ jobs:
       SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
+      MANIFEST_FILE: cf-deployment.yml
+      VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
+      REGENERATE_VARS_STORE: false
     ensure:
       do:
       - task: delete-cf-deployment
@@ -590,6 +593,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+          DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         config:
