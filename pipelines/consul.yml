@@ -7,10 +7,7 @@ groups:
   - test-confab-windows
   - consats-linux
   - deploy-sample-manifest
-  - setup-consats-windows-infrastructure
   - consats-windows
-  - consats-windows-turbulence
-  - teardown-consats-windows-infrastructure
   - setup-cf-cats-infrastructure
   - add-cf-cats-to-dns
   - deploy-cf-cats
@@ -19,14 +16,6 @@ groups:
   - teardown-cf-cats-infrastructure
   - create-final-release
   - merge-master-into-develop
-- name: consats-windows
-  jobs:
-  - setup-consats-windows-infrastructure
-  - delete-consats-windows-deployments
-  - teardown-consats-windows-infrastructure-early
-  - consats-windows
-  - consats-windows-turbulence
-  - teardown-consats-windows-infrastructure
 - name: cats
   jobs:
   - setup-cf-cats-infrastructure
@@ -349,9 +338,8 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: setup-consats-windows-infrastructure
+- name: consats-windows
   public: true
-  serial_groups: [consats-windows]
   plan:
   - aggregate:
     - get: consul-release
@@ -368,6 +356,10 @@ jobs:
     - get: windows-stemcell
       resource: windows-stemcell-release-candidate
       trigger: true
+    - get: stemcell
+      resource: gcp-stemcell
+    - get: turbulence-release
+    - get: latest-consul-release
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -386,87 +378,12 @@ jobs:
     input_mapping:
       ops-files: bbl-state
     on_failure:
-      put: slack-alert
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: delete-consats-windows-deployments
-  public: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-consats-windows-infrastructure
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-      CLEAN_ALL: true
-
-- name: teardown-consats-windows-infrastructure-early
-  public: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-consats-windows-deployments
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-
-- name: consats-windows
-  public: true
-  serial: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: consul-release
-      resource: consul-release-develop
-      passed:
-      - setup-consats-windows-infrastructure
-    - get: ci
-      resource: infrastructure-ci
-    - get: stemcell
-      resource: gcp-stemcell
-    - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
-      passed:
-      - setup-consats-windows-infrastructure
-    - get: turbulence-release
-    - get: latest-consul-release
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-consats-windows-infrastructure
-      trigger: true
+        BBL_STATE_DIR: consats-windows
+      input_mapping:
+        bbl-state: updated-bbl-state
   - task: consats-windows
     file: ci/scripts/consul/run-consats/task.yml
     params:
@@ -474,84 +391,55 @@ jobs:
       PARALLEL_NODES: 5
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: consats-windows-turbulence
-  public: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: consul-release
-      resource: consul-release-develop
-      passed:
-      - consats-windows
-    - get: ci
-      resource: infrastructure-ci
-    - get: stemcell
-      resource: gcp-stemcell
-    - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
-      passed:
-      - consats-windows
-    - get: turbulence-release
-    - get: latest-consul-release
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - consats-windows
-      trigger: true
-  - task: consats-windows
+      do:
+      - task: delete-consats-windows-deployments
+        file: ci/scripts/common/delete-deployments/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: cleanup-consats-windows-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: destroy-consats-windows-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
+  - task: consats-windows-turbulence
     file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
       PARALLEL_NODES: 3
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-  - put: slack-alert
-    params:
-      icon_emoji: ":white_check_mark:"
-      text: |
-        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
-
-- name: teardown-consats-windows-infrastructure
-  public: true
-  serial_groups: [consats-windows]
-  plan:
-  - aggregate:
-    - get: release
-      resource: consul-release-develop
-      passed:
-      - consats-windows
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - consats-windows
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
+      do:
+      - task: delete-consats-windows-turbulence-deployments
+        file: ci/scripts/common/delete-deployments/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: cleanup-consats-windows-turbulence-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: destroy-consats-windows-turbulence-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: consats-windows
+        input_mapping:
+          bbl-state: updated-bbl-state
 
 - name: setup-cf-cats-infrastructure
   public: true
@@ -852,7 +740,7 @@ jobs:
       resource: consul-release-develop
       passed:
       - consats-linux
-      - teardown-consats-windows-infrastructure
+      - consats-windows
       - teardown-cf-cats-infrastructure
       trigger: true
     - get: release-repo-master
