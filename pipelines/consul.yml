@@ -289,6 +289,8 @@ jobs:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 3
       ENABLE_TURBULENCE_TESTS: true
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
     ensure:
       do:
       - task: delete-consats-linux-turbulence-deployments
@@ -420,6 +422,8 @@ jobs:
       PARALLEL_NODES: 3
       ENABLE_TURBULENCE_TESTS: true
       WINDOWS_CLIENTS: true
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
     ensure:
       do:
       - task: delete-consats-windows-turbulence-deployments
