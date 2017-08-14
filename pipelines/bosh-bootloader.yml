@@ -66,6 +66,9 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
+    ignore_paths:
+    - ./**/*.md
+    - docs
 
 - name: bosh-bootloader-master
   type: git
