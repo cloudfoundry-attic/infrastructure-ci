@@ -157,7 +157,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    uri: https://github.com/rowanjacobs/cf-deployment-concourse-tasks.git
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
@@ -339,7 +339,7 @@ jobs:
   plan:
   - get: develop
     resource: bosh-bootloader-develop
-    passed: [bbl-aws-cf, bbl-gcp-cf, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
+    passed: [bbl-aws-cf, bbl-gcp-cf, bbl-gcp-cf-jumpbox, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
     trigger: true
   - put: bosh-bootloader-master
     params:
@@ -487,7 +487,7 @@ jobs:
     - get: vars-store
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
-    file: ci/scripts/bosh-bootloader/bbl-up-jumpbox/task.yml
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_IAAS: gcp
@@ -500,6 +500,7 @@ jobs:
       LB_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
       BBL_ENV_NAME: bbl-jumpbox
       BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      BBL_EXTRA_FLAGS: --credhub
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
@@ -512,8 +513,20 @@ jobs:
       input_mapping:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      inputs:
+      - name: cf-deployment-concourse-tasks
+      - name: cf-deployment
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task
+          pkill ssh
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -528,8 +541,25 @@ jobs:
       params:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
   - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      - name: cf-deployment
+      - name: vars-store
+      - name: ops-files
+      - name: vars-files
+      - name: cf-deployment-concourse-tasks
+      outputs:
+      - name: updated-vars-store
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          cf-deployment-concourse-tasks/bosh-deploy/task
+          pkill ssh
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -540,18 +570,41 @@ jobs:
     ensure:
       do:
       - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        config:
+          platform: linux
+          inputs:
+          - name: cf-deployment-concourse-tasks
+          - name: bbl-state
+          run:
+            path: bash
+            args:
+            - -exc
+            - |
+              cf-deployment-concourse-tasks/bosh-delete-deployment/task
+              pkill ssh
         input_mapping:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
       - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        config:
+          platform: linux
+          inputs:
+          - name: cf-deployment-concourse-tasks
+          - name: bbl-state
+          run:
+            path: bash
+            args:
+            - -exc
+            - |
+              cf-deployment-concourse-tasks/bosh-cleanup/task
+              pkill ssh
         input_mapping:
           bbl-state: updated-bbl-state
         params:
+          CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
