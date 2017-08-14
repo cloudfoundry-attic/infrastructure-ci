@@ -6,10 +6,7 @@ groups:
   - test-etcd-consistency-checker
   - test-etcdfab
   - test-etcd-metrics-server
-  - setup-eats-infrastructure
   - eats
-  - eats-turbulence
-  - teardown-eats-infrastructure
   - deploy-sample-manifests
   - setup-cf-cats-infrastructure
   - add-cf-cats-to-dns
@@ -25,14 +22,6 @@ groups:
   - teardown-cf-tls-upgrade-infrastructure
   - create-final-release
   - merge-master-into-develop
-- name: eats
-  jobs:
-  - setup-eats-infrastructure
-  - delete-eats-deployments
-  - teardown-eats-infrastructure-early
-  - eats
-  - eats-turbulence
-  - teardown-eats-infrastructure
 - name: cats
   jobs:
   - setup-cf-cats-infrastructure
@@ -273,7 +262,7 @@ jobs:
       params:
         text: {{slack_failure_text}}
 
-- name: setup-eats-infrastructure
+- name: eats
   public: true
   serial_groups: [eats]
   plan:
@@ -291,10 +280,11 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
-  - put: deployment-lock
-    timeout: 3h
-    params:
-      claim: etcd-eats
+    - get: stemcell
+      resource: gcp-stemcell
+    - get: turbulence-release
+    - get: consul-release
+    - get: latest-etcd-release
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -312,185 +302,72 @@ jobs:
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       ops-files: bbl-state
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-bbl-state
     on_failure:
       do:
-        - put: deployment-lock
-          params:
-            release: deployment-lock
-
-- name: delete-eats-deployments
-  public: true
-  serial_groups: [eats]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-eats-infrastructure
-    - get: deployment-lock
-      passed:
-      - setup-eats-infrastructure
-    - get: cf-deployment-concourse-tasks
-  - task: delete-deployments
-    file: ci/scripts/common/delete-deployments/task.yml
-    params:
-      BBL_STATE_DIR: eats
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: eats
-      CLEAN_ALL: true
-
-- name: teardown-eats-infrastructure-early
-  public: true
-  serial_groups: [eats]
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-eats-deployments
-    - get: deployment-lock
-      passed:
-      - delete-eats-deployments
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: eats
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: bbl-states-repo-out
-  - put: deployment-lock
-    params:
-      release: deployment-lock
-
-- name: eats
-  public: true
-  serial_groups: [eats]
-  plan:
-  - aggregate:
-    - get: etcd-release
-      resource: etcd-release-develop
-      passed:
-      - setup-eats-infrastructure
-    - get: ci
-      resource: infrastructure-ci
-    - get: stemcell
-      resource: gcp-stemcell
-    - get: turbulence-release
-    - get: consul-release
-    - get: latest-etcd-release
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-eats-infrastructure
-      trigger: true
-    - get: deployment-lock
-      passed:
-      - setup-eats-infrastructure
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: eats
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: run-eats
     file: ci/scripts/etcd/run-eats/task.yml
     params:
       BBL_STATE_DIR: eats
       ENABLE_TURBULENCE_TESTS: false
       PARALLEL_NODES: 5
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: eats-turbulence
-  public: true
-  serial_groups: [eats]
-  plan:
-  - aggregate:
-    - get: etcd-release
-      resource: etcd-release-develop
-      passed:
-      - eats
-    - get: ci
-      resource: infrastructure-ci
-    - get: stemcell
-      resource: gcp-stemcell
-      passed:
-      - eats
-    - get: turbulence-release
-    - get: consul-release
-    - get: latest-etcd-release
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - eats
-      trigger: true
-    - get: deployment-lock
-      passed:
-      - eats
+      do:
+      - task: delete-deployments
+        file: ci/scripts/common/delete-deployments/task.yml
+        params:
+          BBL_STATE_DIR: eats
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: eats
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: eats
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: run-eats-turbulence
     file: ci/scripts/etcd/run-eats/task.yml
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
     params:
       BBL_STATE_DIR: eats
       ENABLE_TURBULENCE_TESTS: true
       PARALLEL_NODES: 3
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-  - put: slack-alert
-    params:
-      icon_emoji: ":white_check_mark:"
-      text: |
-        [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] passed.
-
-- name: teardown-eats-infrastructure
-  public: true
-  serial_groups: [eats]
-  plan:
-  - aggregate:
-    - get: etcd-release
-      resource: etcd-release-develop
-      passed:
-      - eats-turbulence
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - eats-turbulence
-      trigger: true
-    - get: deployment-lock
-      passed:
-      - eats-turbulence
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: eats
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: bbl-states-repo-out
-  - put: deployment-lock
-    params:
-      release: deployment-lock
+      do:
+      - task: delete-deployments
+        file: ci/scripts/common/delete-deployments/task.yml
+        params:
+          BBL_STATE_DIR: eats
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: eats
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: eats
+        input_mapping:
+          bbl-state: updated-bbl-state
 
 - name: deploy-sample-manifests
   public: true
@@ -499,7 +376,7 @@ jobs:
     - get: release
       resource: etcd-release-develop
       passed:
-      - teardown-eats-infrastructure
+      - eats
       trigger: true
     - get: ci
       resource: infrastructure-ci
@@ -515,10 +392,6 @@ jobs:
       CLOUD_CONFIG: manifests/cloud-config.yml
       MANIFESTS: manifests/3-node-with-ssl.yml manifests/3-node-no-ssl.yml manifests/3-node-with-proxy.yml
       DEPENDENCIES: cloudfoundry-incubator/consul-release
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: setup-cf-cats-infrastructure
   public: true
@@ -1169,7 +1042,7 @@ jobs:
     - get: release-repo
       resource: etcd-release-develop
       passed:
-      - teardown-eats-infrastructure
+      - eats
       - teardown-cf-cats-infrastructure
       - teardown-cf-tls-upgrade-infrastructure
       trigger: true
