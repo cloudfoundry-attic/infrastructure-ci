@@ -561,6 +561,9 @@ jobs:
         args:
         - -exc
         - |
+          export VARS_FILES=
+          export GIT_COMMIT_EMAIL=
+          export GIT_COMMIT_USERNAME=
           cf-deployment-concourse-tasks/bosh-deploy/task
           pkill ssh
     input_mapping:
@@ -571,8 +574,9 @@ jobs:
       VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
       MANIFEST_FILE: cf-deployment.yml
-      VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
       REGENERATE_VARS_STORE: false
+      FAIL_ON_DOWNTIME: false
+      DEPLOY_WITH_UPTIME_MEASUREMENTS: false
     ensure:
       do:
       - task: delete-cf-deployment
