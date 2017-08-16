@@ -6,6 +6,7 @@ groups:
   - aws-acceptance-tests
   - gcp-acceptance-tests
   - commit-bump-deployments-change
+  - github-release
 
 resource_types:
 - name: slack-notification
@@ -70,30 +71,15 @@ resources:
     access_key_id: {{bbl_version_s3_access_key_id}}
     secret_access_key: {{bbl_version_s3_secret_access_key}}
 
+- name: bbl-release
+  type: github-release
+  source:
+    user: cloudfoundry
+    repository: bosh-bootloader
+    access_token: {{cf_infra_bot_user_github_access_token}}
+    drafts: false
+
 jobs:
-- name: commit-bump-deployments-change
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader-bumped
-      resource: bosh-bootloader-bump-deployments-ci
-      passed: [aws-acceptance-tests, gcp-acceptance-tests]
-      trigger: true
-  - task: commit-bosh-deployment-change
-    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-  - put: bosh-bootloader
-    params:
-      repository: bosh-bootloader
-
 - name: bump-deployments
   public: true
   plan:
@@ -193,6 +179,29 @@ jobs:
         params:
           text: {{slack_failure_text}}
 
+- name: commit-bump-deployments-change
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader-bumped
+      resource: bosh-bootloader-bump-deployments-ci
+      passed: [aws-acceptance-tests, gcp-acceptance-tests]
+      trigger: true
+  - task: commit-bosh-deployment-change
+    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
+
+          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+  - put: bosh-bootloader
+    params:
+      repository: bosh-bootloader
+
 - name: github-release
   public: true
   plan:
@@ -203,8 +212,9 @@ jobs:
       resource: version
       params: {bump: patch}
     - get: bosh-bootloader
+      resource: bosh-bootloader-bump-deployments-ci
       trigger: true
-      passed: [gcp-acceptance-tests, aws-acceptance-tests]
+      passed: [commit-bump-deployments-change]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bbl-release
