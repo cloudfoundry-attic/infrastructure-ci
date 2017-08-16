@@ -10,6 +10,14 @@ groups:
   - bbl-aws-cf
   - bbl-gcp-cf
   - bbl-gcp-cf-jumpbox
+  - major
+  - minor
+  - patch
+  - github-release
+
+- name: homebrew-tap
+  jobs:
+  - bump-brew-tap
 
 - name: cf-deployment
   jobs:
@@ -22,15 +30,6 @@ groups:
   jobs:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
-
-- name: final-release
-  jobs:
-  - major
-  - minor
-  - patch
-  - github-release
-  - bump-nat-amis
-  - bump-brew-tap
 
 resource_types:
 - name: slack-notification
@@ -692,7 +691,36 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
 
-# Final Release Pipeline
+- name: github-release
+  public: true
+  disable_manual_trigger: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-version
+      trigger: true
+      resource: version
+    - get: bosh-bootloader
+      passed:
+      - aws-acceptance-tests
+      - gcp-acceptance-tests
+      - aws-concourse-acceptance-tests
+      - gcp-concourse-acceptance-tests
+      - bbl-aws-cf
+      - bbl-gcp-cf
+      - bbl-gcp-cf-jumpbox
+  - task: build-binaries
+    file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+  - put: bbl-release
+    params:
+      name: builds/name
+      tag: builds/name
+      commitish: builds/commitish
+      body: builds/body
+      globs:
+      - builds/bin/bbl-*
+
 - name: major
   public: true
   plan:
@@ -713,27 +741,6 @@ jobs:
   - get: version
   - put: version
     params: {bump: patch}
-
-- name: github-release
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-version
-      trigger: true
-      resource: version
-    - get: bosh-bootloader
-  - task: build-binaries
-    file: ci/scripts/bosh-bootloader/build-final-release/task.yml
-  - put: bbl-release
-    params:
-      name: builds/name
-      tag: builds/name
-      commitish: builds/commitish
-      body: builds/body
-      globs:
-      - builds/bin/bbl-*
 
 - name: bump-nat-amis
   public: true
