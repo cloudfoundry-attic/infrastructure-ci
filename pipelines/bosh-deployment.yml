@@ -25,10 +25,10 @@ resources:
   source:
     branch: master
     uri: https://github.com/cppforlife/jumpbox-deployment.git
-- name: bosh-bootloader-develop
+- name: bosh-bootloader
   type: git
   source:
-    branch: develop
+    branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
 - name: bosh-bootloader-bump-deployments-ci
@@ -74,10 +74,9 @@ jobs:
           [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
 
           https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-  - put: bosh-bootloader-develop
-    resource: bosh-bootloader-develop
+  - put: bosh-bootloader
     params:
-      repository: bosh-bootloader-develop
+      repository: bosh-bootloader
 
 - name: bump-deployments
   public: true
@@ -86,7 +85,6 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
     - get: bosh-deployment
       resource: bosh-deployment-master
       trigger: true

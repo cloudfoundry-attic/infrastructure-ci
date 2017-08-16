@@ -11,7 +11,7 @@ inputs:
 - name: bosh-bootloader-bumped
 
 outputs:
-- name: bosh-bootloader-develop
+- name: bosh-bootloader
 
 run:
   path: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task

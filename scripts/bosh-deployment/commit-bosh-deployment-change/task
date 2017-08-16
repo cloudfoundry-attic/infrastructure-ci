@@ -9,10 +9,10 @@ function main() {
     git remote add http https://github.com/cloudfoundry/bosh-bootloader.git
     git fetch http
 
-    git checkout develop
+    git checkout master
     git merge --no-edit bump-deployments-ci
 
-    cp -r . ${ROOT}/bosh-bootloader-develop
+    cp -r . ${ROOT}/bosh-bootloader
   popd > /dev/null
 }
 
