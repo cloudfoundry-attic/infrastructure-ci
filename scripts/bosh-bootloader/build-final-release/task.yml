@@ -8,7 +8,6 @@ image_resource:
 
 inputs:
   - name: bosh-bootloader
-  - name: bbl-nat-amis
   - name: bbl-version
   - name: ci
 

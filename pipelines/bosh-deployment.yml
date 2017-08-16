@@ -20,28 +20,33 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
+
 - name: jumpbox-deployment-master
   type: git
   source:
     branch: master
     uri: https://github.com/cppforlife/jumpbox-deployment.git
+
 - name: bosh-bootloader
   type: git
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
+
 - name: bosh-bootloader-bump-deployments-ci
   type: git
   source:
     branch: bump-deployments-ci
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
+
 - name: infrastructure-ci
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
 - name: bbl-acceptance-s3
   type: s3
   source:
@@ -49,10 +54,21 @@ resources:
     regexp: (.*).tgz
     access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
     secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
+
 - name: slack-alert
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+
+- name: version
+  type: semver
+  source:
+    initial_version: 0.0.1
+    driver: s3
+    bucket: bbl-version
+    key: bbl-version
+    access_key_id: {{bbl_version_s3_access_key_id}}
+    secret_access_key: {{bbl_version_s3_secret_access_key}}
 
 jobs:
 - name: commit-bump-deployments-change
@@ -176,3 +192,28 @@ jobs:
       - put: slack-alert
         params:
           text: {{slack_failure_text}}
+
+- name: github-release
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-version
+      resource: version
+      params: {bump: patch}
+    - get: bosh-bootloader
+      trigger: true
+      passed: [gcp-acceptance-tests, aws-acceptance-tests]
+  - task: build-binaries
+    file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+  - put: bbl-release
+    params:
+      name: builds/name
+      tag: builds/name
+      commitish: builds/commitish
+      body: builds/body
+      globs:
+      - builds/bin/bbl-*
+  - put: version
+    params: {file: bbl-version/version}

@@ -724,7 +724,6 @@ jobs:
       trigger: true
       resource: version
     - get: bosh-bootloader
-    - get: bbl-nat-amis
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bbl-release
