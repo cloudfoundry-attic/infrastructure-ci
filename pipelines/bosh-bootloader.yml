@@ -10,7 +10,6 @@ groups:
   - bbl-aws-cf
   - bbl-gcp-cf
   - bbl-gcp-cf-jumpbox
-  - merge-develop-to-master
 
 - name: cf-deployment
   jobs:
@@ -61,13 +60,7 @@ resources:
   source:
     repository: concourse/concourse
 
-- name: bosh-bootloader-develop
-  type: git
-  source:
-    branch: develop
-    uri: https://github.com/cloudfoundry/bosh-bootloader.git
-
-- name: bosh-bootloader-master
+- name: bosh-bootloader
   type: git
   source:
     branch: master
@@ -190,7 +183,6 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
@@ -201,7 +193,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
       trigger: true
     - get: ci
@@ -221,7 +212,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
       trigger: true
     - get: ci
@@ -250,7 +240,6 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
       trigger: true
   - task: test
@@ -276,7 +265,6 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
       trigger: true
   - task: test
@@ -295,7 +283,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
     - get: ci
       resource: infrastructure-ci
@@ -317,7 +304,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [test-bosh-bootloader]
     - get: ci
       resource: infrastructure-ci
@@ -334,25 +320,12 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
 
 # CF Deployment Pipelines
-- name: merge-develop-to-master
-  public: true
-  plan:
-  - get: develop
-    resource: bosh-bootloader-develop
-    passed: [bbl-aws-cf, bbl-gcp-cf, bbl-gcp-cf-jumpbox, aws-acceptance-tests, gcp-acceptance-tests, aws-concourse-acceptance-tests, gcp-concourse-acceptance-tests]
-    trigger: true
-  - put: bosh-bootloader-master
-    params:
-      repository: develop
-      rebase: true
-
 - name: bbl-downstream-docker-image
   public: false
   plan:
   - do:
     - aggregate:
       - get: bosh-bootloader
-        resource: bosh-bootloader-develop
         passed: [test-bosh-bootloader]
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
@@ -371,7 +344,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
@@ -470,7 +442,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
@@ -629,7 +600,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      resource: bosh-bootloader-develop
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
@@ -754,7 +724,6 @@ jobs:
       trigger: true
       resource: version
     - get: bosh-bootloader
-      resource: bosh-bootloader-master
     - get: bbl-nat-amis
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
