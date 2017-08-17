@@ -16,13 +16,13 @@ resource_types:
     tag: latest
 
 resources:
-- name: bosh-deployment-master
+- name: bosh-deployment
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
 
-- name: jumpbox-deployment-master
+- name: jumpbox-deployment
   type: git
   source:
     branch: master
@@ -69,7 +69,6 @@ resources:
     user: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
-    drafts: false
 
 jobs:
 - name: bump-deployments
@@ -80,17 +79,11 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
     - get: bosh-deployment
-      resource: bosh-deployment-master
       trigger: true
     - get: jumpbox-deployment
-      resource: jumpbox-deployment-master
       trigger: true
   - task: bump-deployments
     file: ci/scripts/bosh-deployment/bump-deployments/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
   - put: bump-deployments-ci
     resource: bosh-bootloader-bump-deployments-ci
     params:
@@ -109,10 +102,6 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: aws-acceptance-tests
   serial: true
