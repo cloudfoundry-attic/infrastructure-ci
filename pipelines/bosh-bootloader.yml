@@ -18,6 +18,7 @@ groups:
 - name: homebrew-tap
   jobs:
   - bump-brew-tap
+  - bump-nat-amis
 
 - name: cf-deployment
   jobs:

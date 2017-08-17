@@ -13,8 +13,7 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 # go install latest bosh-bootloader develop
 RUN git clone https://github.com/cloudfoundry/bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader && \
   cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
-  git checkout develop && git rev-parse HEAD && \
-  go install github.com/cloudfoundry/bosh-bootloader/bbl
+  git rev-parse HEAD && go install github.com/cloudfoundry/bosh-bootloader/bbl
 
 # Install bosh_cli v2.0.29
 RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.29-linux-amd64 && \
