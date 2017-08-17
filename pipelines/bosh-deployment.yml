@@ -48,14 +48,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
-- name: bbl-acceptance-s3
-  type: s3
-  source:
-    bucket: bbl-acceptance-tests
-    regexp: (.*).tgz
-    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
-    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
-
 - name: slack-alert
   type: slack-notification
   source:
@@ -141,14 +133,6 @@ jobs:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
-    on_failure:
-      do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: gcp-acceptance-tests
   serial: true
@@ -170,14 +154,6 @@ jobs:
       BBL_GCP_REGION: {{gcp_region}}
       BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
-    on_failure:
-      do:
-      - put: bbl-acceptance-s3
-        params:
-          file: bbl-acceptance-s3/*.tgz
-      - put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: commit-bump-deployments-change
   public: true
