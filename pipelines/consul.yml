@@ -64,7 +64,6 @@ resources:
     owner: cloudfoundry-incubator
     repository: consul-release
     access_token: {{cf_infra_bot_user_github_access_token}}
-    drafts: true
 
 - name: consul-release-merge-target
   type: git
@@ -696,10 +695,11 @@ jobs:
     file: ci/scripts/common/create-final-release/task.yml
     params:
       RELEASE_NAME: consul
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
+  - put: consul-release-master
+    params:
+      repository: final-release-repo
+      tag: final-release-repo/version_number
+      tag_prefix: v
   - put: consul-release-gh
     params:
       name: final-release-repo/release_name
@@ -727,14 +727,6 @@ jobs:
       resource: consul-release-merge-target
   - task: merge-master-into-develop
     file: ci/scripts/common/merge-master-into-develop/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
   - put: consul-release-merge-target
     params:
       repository: final-release-repo
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
