@@ -13,6 +13,7 @@ groups:
   - major
   - minor
   - patch
+  - releasable
   - github-release
 
 - name: homebrew-tap
@@ -692,6 +693,20 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
 
+- name: releasable
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      trigger: true
+      passed:
+      - aws-acceptance-tests
+      - gcp-acceptance-tests
+      - aws-concourse-acceptance-tests
+      - gcp-concourse-acceptance-tests
+      - bbl-aws-cf
+      - bbl-gcp-cf
+      - bbl-gcp-cf-jumpbox
+
 - name: github-release
   public: true
   disable_manual_trigger: true
@@ -703,14 +718,7 @@ jobs:
       trigger: true
       resource: version
     - get: bosh-bootloader
-      passed:
-      - aws-acceptance-tests
-      - gcp-acceptance-tests
-      - aws-concourse-acceptance-tests
-      - gcp-concourse-acceptance-tests
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-gcp-cf-jumpbox
+      passed: [releasable]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bbl-release
