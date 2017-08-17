@@ -1,7 +1,6 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-CURRENT_TIME=$(date +%s)
 
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 

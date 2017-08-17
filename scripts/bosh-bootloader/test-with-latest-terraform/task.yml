@@ -11,9 +11,6 @@ inputs:
   - name: ci
   - name: terraform
 
-outputs:
-  - name: bbl-acceptance-s3
-
 run:
   path: ci/scripts/bosh-bootloader/test-with-latest-terraform/task
 

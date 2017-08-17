@@ -9,8 +9,6 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: ci
-outputs:
-  - name: bbl-acceptance-s3
 
 run:
   path: ci/scripts/bosh-bootloader/gcp-acceptance/task

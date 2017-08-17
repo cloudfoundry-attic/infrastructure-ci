@@ -1,30 +1,16 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-CURRENT_TIME=$(date +%s)
-export BBL_STATE_DIR="${ROOT}/bbl-acceptance-s3/${CURRENT_TIME}"
 
-function main() {
-  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-  mkdir -p "${BBL_STATE_DIR}"
+mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
-  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-    ln -s "${ROOT}/bosh-bootloader"
+pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+  ln -s "${ROOT}/bosh-bootloader"
 
-    export CONCOURSE_DEPLOYMENT_PATH="${ROOT}/concourse-deployment"
-    export CONCOURSE_RELEASE_PATH="${ROOT}/concourse-release/release.tgz"
-    export GARDEN_RELEASE_PATH="${ROOT}/garden-release/release.tgz"
-    export STEMCELL_PATH="${ROOT}/stemcell/stemcell.tgz"
-    export STEMCELL_VERSION="$(cat ${ROOT}/stemcell/version)"
-    ./bosh-bootloader/scripts/concourse_acceptance_tests
-  popd > /dev/null
-}
-
-function finish() {
-  pushd "${ROOT}/bbl-acceptance-s3" > /dev/null
-    tar -cvzf "${CURRENT_TIME}.tgz" "${CURRENT_TIME}"
-  popd > /dev/null
-}
-trap finish EXIT
-
-main
+  export CONCOURSE_DEPLOYMENT_PATH="${ROOT}/concourse-deployment"
+  export CONCOURSE_RELEASE_PATH="${ROOT}/concourse-release/release.tgz"
+  export GARDEN_RELEASE_PATH="${ROOT}/garden-release/release.tgz"
+  export STEMCELL_PATH="${ROOT}/stemcell/stemcell.tgz"
+  export STEMCELL_VERSION="$(cat ${ROOT}/stemcell/version)"
+  ./bosh-bootloader/scripts/concourse_acceptance_tests
+popd > /dev/null

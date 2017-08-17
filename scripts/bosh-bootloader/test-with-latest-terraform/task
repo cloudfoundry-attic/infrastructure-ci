@@ -1,42 +1,24 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-CURRENT_TIME=$(date +%s)
-export BBL_STATE_DIR="${ROOT}/bbl-acceptance-s3/${CURRENT_TIME}"
 
-function install_terraform() {
-  local terraform_version
-  terraform_version="$(cat terraform/version)"
+local terraform_version
+terraform_version="$(cat terraform/version)"
 
-  local terraform_url
-  terraform_url="https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
+local terraform_url
+terraform_url="https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
 
-  wget "${terraform_url}"
-  unzip "$(basename ${terraform_url})" -d /tmp
-  chmod +x /tmp/terraform
-  mv /tmp/terraform /usr/local/bin/terraform
+wget "${terraform_url}"
+unzip "$(basename ${terraform_url})" -d /tmp
+chmod +x /tmp/terraform
+mv /tmp/terraform /usr/local/bin/terraform
 
-  terraform version
-}
+terraform version
 
-function main() {
-  install_terraform
+mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
-  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-  mkdir -p "${BBL_STATE_DIR}"
+pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+  ln -s "${ROOT}/bosh-bootloader"
 
-  pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-    ln -s "${ROOT}/bosh-bootloader"
-
-    ./bosh-bootloader/scripts/acceptance_tests gcp
-  popd > /dev/null
-}
-
-function finish() {
-  pushd "${ROOT}/bbl-acceptance-s3" > /dev/null
-    tar -cvzf "${CURRENT_TIME}.tgz" "${CURRENT_TIME}"
-  popd > /dev/null
-}
-trap finish EXIT
-
-main
+  ./bosh-bootloader/scripts/acceptance_tests gcp
+popd > /dev/null
