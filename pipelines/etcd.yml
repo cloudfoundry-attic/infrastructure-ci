@@ -644,6 +644,7 @@ jobs:
     - get: deployment-lock
       passed:
       - delete-cf-cats
+    - get: cf-deployment-concourse-tasks
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -655,7 +656,7 @@ jobs:
       GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
       ACTION: remove
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
     on_failure:
@@ -958,6 +959,7 @@ jobs:
     - get: deployment-lock
       passed:
       - delete-cf-tls-upgrade
+    - get: cf-deployment-concourse-tasks
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -969,7 +971,7 @@ jobs:
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       ACTION: remove
   - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
     on_failure:
