@@ -318,50 +318,8 @@ jobs:
       PARALLEL_NODES: 5
     input_mapping:
       bbl-states-repo: updated-bbl-state
-    on_failure:
-      do:
-      - task: delete-deployments
-        file: ci/scripts/common/delete-deployments/task.yml
-        params:
-          BBL_STATE_DIR: eats
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: eats
-          CLEAN_ALL: true
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        params:
-          BBL_STATE_DIR: eats
-        input_mapping:
-          bbl-state: updated-bbl-state
-  - task: run-eats-turbulence
-    file: ci/scripts/etcd/run-eats/task.yml
-    input_mapping:
-      bbl-states-repo: updated-bbl-state
-    params:
-      BBL_STATE_DIR: eats
-      ENABLE_TURBULENCE_TESTS: true
-      PARALLEL_NODES: 3
     ensure:
       do:
-      - task: delete-deployments
-        file: ci/scripts/common/delete-deployments/task.yml
-        params:
-          BBL_STATE_DIR: eats
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: eats
-          CLEAN_ALL: true
-        input_mapping:
-          bbl-state: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
@@ -432,11 +390,6 @@ jobs:
     input_mapping:
       ops-files: bbl-state
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-    on_failure:
       do:
         - put: deployment-lock
           params:
