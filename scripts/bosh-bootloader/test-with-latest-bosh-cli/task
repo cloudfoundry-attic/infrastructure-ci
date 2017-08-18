@@ -9,7 +9,6 @@ mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
 set +x
   echo "${GCP_SERVICE_ACCOUNT_KEY}" > service_account.key.json
-  local service_account_key_path
   service_account_key_path="${PWD}/service_account.key.json"
 set -x
 

@@ -2,10 +2,7 @@
 
 ROOT="${PWD}"
 
-local terraform_version
 terraform_version="$(cat terraform/version)"
-
-local terraform_url
 terraform_url="https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
 
 wget "${terraform_url}"
