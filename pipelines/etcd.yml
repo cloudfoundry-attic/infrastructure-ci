@@ -414,14 +414,6 @@ jobs:
       ops-files: bbl-state
     on_failure:
       do:
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        params:
-          BBL_STATE_DIR: etcd-cf-tls-upgrade
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: etcd-cf-tls-upgrade
       - task: bbl-destroy
         file: ci/scripts/common/bbl-destroy/task.yml
         params:
@@ -457,7 +449,7 @@ jobs:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       CF_DOMAIN: {{etcd_cf_domain}}
     ensure:
-      do: 
+      do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         params:
@@ -481,7 +473,7 @@ jobs:
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
-          bbl-states-repo: bbl-states-repo
+          bbl-states-repo: updated-bbl-state
 
 - name: create-final-release
   public: true
