@@ -8,47 +8,10 @@ groups:
   - test-etcd-metrics-server
   - eats
   - deploy-sample-manifests
-  - setup-cf-cats-infrastructure
-  - add-cf-cats-to-dns
-  - deploy-cf-cats
-  - run-cats
-  - delete-cf-cats
-  - teardown-cf-cats-infrastructure
-  - setup-cf-tls-upgrade-infrastructure
-  - add-cf-tls-upgrade-to-dns
-  - deploy-cf-tls-upgrade
-  - run-cf-tls-upgrade
-  - delete-cf-tls-upgrade
-  - teardown-cf-tls-upgrade-infrastructure
+  - cats
+  - cf-tls-upgrade
   - create-final-release
   - merge-master-into-develop
-- name: cats
-  jobs:
-  - setup-cf-cats-infrastructure
-  - delete-cf-cats-early
-  - teardown-cf-cats-infrastructure-early
-  - add-cf-cats-to-dns
-  - deploy-cf-cats
-  - run-cats
-  - delete-cf-cats
-  - teardown-cf-cats-infrastructure
-- name: tls-upgrade
-  jobs:
-  - setup-cf-tls-upgrade-infrastructure
-  - delete-cf-tls-upgrade-early
-  - teardown-cf-tls-upgrade-infrastructure-early
-  - add-cf-tls-upgrade-to-dns
-  - deploy-cf-tls-upgrade
-  - run-cf-tls-upgrade
-  - delete-cf-tls-upgrade
-  - teardown-cf-tls-upgrade-infrastructure
-
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
 
 resources:
 - name: infrastructure-ci
@@ -137,15 +100,6 @@ resources:
     branch: master
     private_key: {{oss-s3-buckets-stack-private-key}}
 
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
-
-- name: empty-ops-files
-  type: time
-  source: {interval: 5m}
-
 - name: cats-concourse-task
   type: git
   source:
@@ -171,10 +125,6 @@ jobs:
       resource: infrastructure-ci
   - task: check-git-submodules
     file: ci/scripts/common/check-git-submodules/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-etcd-proxy
   public: true
@@ -191,10 +141,6 @@ jobs:
     file: ci/scripts/etcd/run-unit-test-suite/task.yml
     params:
       TEST_SUITE: etcd-proxy
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-etcd-consistency-checker
   public: true
@@ -211,10 +157,6 @@ jobs:
     file: ci/scripts/etcd/run-unit-test-suite/task.yml
     params:
       TEST_SUITE: etcd-consistency-checker
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-etcdfab
   public: true
@@ -231,10 +173,6 @@ jobs:
     file: ci/scripts/etcd/run-unit-test-suite/task.yml
     params:
       TEST_SUITE: etcdfab
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-etcd-metrics-server
   public: true
@@ -249,14 +187,9 @@ jobs:
       resource: infrastructure-ci
   - task: test-etcd-metrics-server
     file: ci/scripts/etcd/test-etcd-metrics-server/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: eats
   public: true
-  serial_groups: [eats]
   plan:
   - aggregate:
     - get: etcd-release
@@ -343,7 +276,7 @@ jobs:
       MANIFESTS: manifests/3-node-with-ssl.yml manifests/3-node-no-ssl.yml manifests/3-node-with-proxy.yml
       DEPENDENCIES: cloudfoundry-incubator/consul-release
 
-- name: setup-cf-cats-infrastructure
+- name: cats
   public: true
   plan:
   - aggregate:
@@ -360,6 +293,8 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+    - get: cf-acceptance-tests
+    - get: cats-concourse-task
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -373,88 +308,17 @@ jobs:
       LB_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
       BBL_LB_CERT: {{etcd_cf_deployment_lb_cert}}
       BBL_LB_KEY: {{etcd_cf_deployment_lb_key}}
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       ops-files: bbl-state
-
-- name: delete-cf-cats-early
-  public: true
-  serial_groups: [cf-cats]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-cats-infrastructure
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
     on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: teardown-cf-cats-infrastructure-early
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-cf-cats-early
+      do:
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: cats
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: remove-from-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
-      ACTION: remove
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-
-- name: add-cf-cats-to-dns
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - setup-cf-cats-infrastructure
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-cats-infrastructure
-      trigger: true
-  - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
@@ -464,147 +328,58 @@ jobs:
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
       ACTION: add
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: deploy-cf-cats
-  public: true
-  serial_groups: [cf-cats]
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - add-cf-cats-to-dns
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: ops-files
-      resource: empty-ops-files
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - add-cf-cats-to-dns
-      trigger: true
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
+    input_mapping:
+      bbl-state: updated-bbl-state
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-cats
       SYSTEM_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
-
-- name: run-cats
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - deploy-cf-cats
-    - get: cf-deployment-concourse-tasks
-    - get: cats-concourse-task
-    - get: integration-configs
-      resource: infrastructure-ci
-    - get: cf-acceptance-tests
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - deploy-cf-cats
-      trigger: true
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - deploy-cf-cats
-  - task: update-integration-config
-    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
-    params:
-      CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
-      VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
-      SYSTEM_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
+    input_mapping:
+      bbl-state: updated-bbl-state
   - task: run-cats
     file: cats-concourse-task/task.yml
-    input_mapping: {integration-config: updated-integration-configs }
     params:
       CONFIG_FILE_PATH: artifacts/cats_config.json
-
-- name: delete-cf-cats
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - run-cats
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - run-cats
-      trigger: true
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-
-- name: teardown-cf-cats-infrastructure
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - delete-cf-cats
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-cf-cats
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-  - task: remove-from-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
-      ACTION: remove
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-cats
+    input_mapping:
+      integration-config: updated-integration-configs
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-cats
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-cats
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-cats
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+          ACTION: remove
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: cats
+        input_mapping:
+          bbl-state: updated-bbl-state
 
-- name: setup-cf-tls-upgrade-infrastructure
+- name: cf-tls-upgrade
   public: true
   plan:
   - aggregate:
@@ -621,6 +396,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+    - get: cf-deployment
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -634,82 +410,24 @@ jobs:
       LB_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       BBL_LB_CERT: {{etcd_cf_tls_upgrade_lb_cert}}
       BBL_LB_KEY: {{etcd_cf_tls_upgrade_lb_key}}
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       ops-files: bbl-state
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
-        rebase: true
-
-- name: delete-cf-tls-upgrade-early
-  public: true
-  serial_groups: [cf-tls-upgrade]
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-tls-upgrade-infrastructure
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-
-- name: teardown-cf-tls-upgrade-infrastructure-early
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-cf-tls-upgrade-early
-  - task: remove-from-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
-      ACTION: remove
-  - task: bbl-destroy
-    file: ci/scripts/common/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-    input_mapping:
-      bbl-state: bbl-states-repo
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
-
-- name: add-cf-tls-upgrade-to-dns
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - setup-cf-tls-upgrade-infrastructure
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - setup-cf-tls-upgrade-infrastructure
-      trigger: true
+    on_failure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+      - task: bbl-destroy
+        file: ci/scripts/common/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -720,29 +438,6 @@ jobs:
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       ACTION: add
-
-- name: deploy-cf-tls-upgrade
-  public: true
-  serial_groups: [cf-tls-upgrade]
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - add-cf-tls-upgrade-to-dns
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment
-    - get: ops-files
-      resource: infrastructure-ci
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - add-cf-tls-upgrade-to-dns
-      trigger: true
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
@@ -754,94 +449,39 @@ jobs:
       OPS_FILES: scripts/etcd/test-cf-tls-upgrade/opsfiles/non-tls-cf-deployment.yml
       SYSTEM_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
-
-- name: run-cf-tls-upgrade
-  public: true
-  plan:
-  - aggregate:
-    - get: etcd-release
-      trigger: true
-      resource: etcd-release-develop
-      passed:
-      - deploy-cf-tls-upgrade
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - deploy-cf-tls-upgrade
-      trigger: true
+    input_mapping:
+      bbl-state: updated-bbl-state
   - task: run-cf-tls-upgrade
     file: ci/scripts/etcd/test-cf-tls-upgrade/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       CF_DOMAIN: {{etcd_cf_domain}}
-
-- name: delete-cf-tls-upgrade
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - run-cf-tls-upgrade
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - run-cf-tls-upgrade
-      trigger: true
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-  - task: cleanup-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-
-- name: teardown-cf-tls-upgrade-infrastructure
-  public: true
-  plan:
-  - aggregate:
-    - get: release
-      resource: etcd-release-develop
-      passed:
-      - delete-cf-tls-upgrade
-    - get: ci
-      resource: infrastructure-ci
-    - get: bbl-states-repo
-      resource: infrastructure-ci-bbl-states
-      passed:
-      - delete-cf-tls-upgrade
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-  - task: remove-from-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
-      ACTION: remove
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: etcd-cf-tls-upgrade
-    input_mapping:
-      bbl-state: bbl-states-repo
     ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: bbl-states-repo-out
-        rebase: true
+      do: 
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+          ACTION: remove
+      - task: bbl-destroy
+        file: ci/scripts/common/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-states-repo: bbl-states-repo
 
 - name: create-final-release
   public: true
@@ -854,8 +494,8 @@ jobs:
       resource: etcd-release-develop
       passed:
       - eats
-      - teardown-cf-cats-infrastructure
-      - teardown-cf-tls-upgrade-infrastructure
+      - cats
+      - cf-tls-upgrade
       trigger: true
     - get: release-repo-master
       resource: etcd-release-master
