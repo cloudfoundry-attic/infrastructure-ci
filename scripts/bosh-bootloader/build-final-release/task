@@ -22,7 +22,7 @@ function main() {
 
     if ! [ -z "${BUMP_DEPLOYMENTS}" ];
     then
-      echo -n "This release only includes changes to deployment manifests." > body
+      echo "This release only includes changes to deployment manifests." > body
     fi
     echo -n "${deployment_versions}" >> body
   popd > /dev/null
