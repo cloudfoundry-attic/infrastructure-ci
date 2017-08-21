@@ -7,7 +7,7 @@ function write_service_account_key_to_file() {
   service_account_path="$1"
 
   set +x
-  echo "${GCP_DNS_SERVICE_ACCOUNT_KEY}" > "${service_account_path}"
+    echo "${GCP_DNS_SERVICE_ACCOUNT_KEY}" > "${service_account_path}"
   set -x
 }
 
