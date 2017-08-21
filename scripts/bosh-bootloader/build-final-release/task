@@ -19,7 +19,12 @@ function main() {
   pushd "${ROOT}/builds" > /dev/null
     echo -n "v${BBL_VERSION}" > name
     echo -n "${bosh_bootloader_commit_sha}" > commitish
-    echo -n "${deployment_versions}" > body
+
+    if ! [ -z "${BUMP_DEPLOYMENTS}" ];
+    then
+      echo -n "This release only includes changes to deployment manifests." > body
+    fi
+    echo -n "${deployment_versions}" >> body
   popd > /dev/null
 }
 

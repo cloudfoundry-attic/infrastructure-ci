@@ -8,13 +8,6 @@ groups:
   - commit-bump-deployments-change
   - github-release
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
 - name: bosh-deployment
   type: git
@@ -47,11 +40,6 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
 
 - name: version
   type: semver
@@ -156,13 +144,6 @@ jobs:
       trigger: true
   - task: commit-bosh-deployment-change
     file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          [$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME] failed:
-
-          https://wings.concourse.ci/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
   - put: bosh-bootloader
     params:
       repository: bosh-bootloader
@@ -182,6 +163,8 @@ jobs:
       passed: [commit-bump-deployments-change]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+    params:
+      BUMP_DEPLOYMENTS: true
   - put: bbl-release
     params:
       name: builds/name

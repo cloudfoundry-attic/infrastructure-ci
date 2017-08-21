@@ -14,5 +14,8 @@ inputs:
 outputs:
   - name: builds
 
+params:
+  BUMP_DEPLOYMENTS: false
+
 run:
   path: ci/scripts/bosh-bootloader/build-final-release/task
