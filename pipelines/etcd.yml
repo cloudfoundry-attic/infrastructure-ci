@@ -420,10 +420,14 @@ jobs:
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       ACTION: add
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
+    input_mapping:
+      bbl-state: updated-bbl-state
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
