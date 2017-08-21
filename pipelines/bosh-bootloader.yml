@@ -544,7 +544,7 @@ jobs:
       BBL_STATE_DIR: bbl-aws-cf-jumpbox
       SYSTEM_DOMAIN: bbl-aws-cf-jumpbox.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-cf-jumpbox/deployment-vars.yml
-      OPS_FILES: operations/use-compiled-releases.yml
+      OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
       MANIFEST_FILE: cf-deployment.yml
       REGENERATE_VARS_STORE: false
       FAIL_ON_DOWNTIME: false
