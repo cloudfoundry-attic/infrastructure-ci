@@ -47,7 +47,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: develop
+    branch: master
 
 - name: cf-deployment-concourse-tasks
   type: git
