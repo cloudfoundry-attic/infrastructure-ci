@@ -295,6 +295,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: cf-acceptance-tests
     - get: cats-concourse-task
+    - get: cf-deployment
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:

@@ -137,7 +137,7 @@ resources:
 - name: cf-deployment
   type: git
   source:
-    branch: develop
+    branch: master
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: concourse-deployment
