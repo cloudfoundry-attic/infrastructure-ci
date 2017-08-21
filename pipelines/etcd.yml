@@ -391,6 +391,8 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
+    - get: ops-files
+      resource: infrastructure-ci
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
