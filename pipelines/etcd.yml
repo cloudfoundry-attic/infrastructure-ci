@@ -333,6 +333,9 @@ jobs:
       VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
     input_mapping:
       bbl-state: updated-bbl-state
+      ops-files: updated-bbl-state
+      vars-store: updated-bbl-state
+      vars-files: updated-bbl-state
   - task: run-cats
     file: cats-concourse-task/task.yml
     params:
