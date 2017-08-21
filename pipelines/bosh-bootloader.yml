@@ -10,6 +10,7 @@ groups:
   - bbl-aws-cf
   - bbl-gcp-cf
   - bbl-gcp-cf-jumpbox
+  - bbl-aws-cf-jumpbox
   - major
   - minor
   - patch
@@ -27,6 +28,7 @@ groups:
   - bbl-aws-cf
   - bbl-gcp-cf
   - bbl-gcp-cf-jumpbox
+  - bbl-aws-cf-jumpbox
 
 - name: smoke-tests
   jobs:
@@ -435,6 +437,165 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
+
+- name: bbl-aws-cf-jumpbox
+  serial: true
+  public: false
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: aws
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_REGION: us-west-2
+      BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      BBL_ENV_NAME: bbl-aws-cf-jumpbox
+      LB_DOMAIN: bbl-aws-cf-jumpbox.infrastructure.cf-app.com
+      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+      BBL_EXTRA_FLAGS: --credhub
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      input_mapping:
+        bbl-state: updated-bbl-state
+  - task: upload-stemcell
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      inputs:
+      - name: cf-deployment-concourse-tasks
+      - name: cf-deployment
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task
+          pkill ssh
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      INFRASTRUCTURE: aws
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-aws-cf-jumpbox
+  - task: deploy-cf
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      - name: cf-deployment
+      - name: vars-store
+      - name: ops-files
+      - name: vars-files
+      - name: cf-deployment-concourse-tasks
+      outputs:
+      - name: updated-vars-store
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          export VARS_FILES=
+          export GIT_COMMIT_EMAIL=
+          export GIT_COMMIT_USERNAME=
+          cf-deployment-concourse-tasks/bosh-deploy/task
+          pkill ssh
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      SYSTEM_DOMAIN: bbl-aws-cf-jumpbox.bbl-test.ci.cf-app.com
+      VARS_STORE_FILE: bbl-aws-cf-jumpbox/deployment-vars.yml
+      OPS_FILES: operations/use-compiled-releases.yml
+      MANIFEST_FILE: cf-deployment.yml
+      REGENERATE_VARS_STORE: false
+      FAIL_ON_DOWNTIME: false
+      DEPLOY_WITH_UPTIME_MEASUREMENTS: false
+    ensure:
+      do:
+      - task: delete-cf-deployment
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        config:
+          platform: linux
+          inputs:
+          - name: cf-deployment-concourse-tasks
+          - name: bbl-state
+          run:
+            path: bash
+            args:
+            - -exc
+            - |
+              cf-deployment-concourse-tasks/bosh-delete-deployment/task
+              pkill ssh
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-cf-jumpbox
+          DEPLOYMENT_NAME: cf
+      - task: bosh-cleanup
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        config:
+          platform: linux
+          inputs:
+          - name: cf-deployment-concourse-tasks
+          - name: bbl-state
+          run:
+            path: bash
+            args:
+            - -exc
+            - |
+              cf-deployment-concourse-tasks/bosh-cleanup/task
+              pkill ssh
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-cf-jumpbox
 
 - name: bbl-gcp-cf-jumpbox
   serial: true
