@@ -441,6 +441,9 @@ jobs:
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
     input_mapping:
       bbl-state: updated-bbl-state
+      ops-files: updated-bbl-state
+      vars-store: updated-bbl-state
+      vars-files: updated-bbl-state
   - task: run-cf-tls-upgrade
     file: ci/scripts/etcd/test-cf-tls-upgrade/task.yml
     params:
