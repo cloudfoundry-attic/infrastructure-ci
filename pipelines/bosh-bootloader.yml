@@ -870,13 +870,11 @@ jobs:
 
 - name: github-release
   public: true
-  disable_manual_trigger: true
   plan:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
-      trigger: true
       resource: version
     - get: bosh-bootloader
       passed: [releasable]
