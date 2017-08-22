@@ -321,6 +321,18 @@ jobs:
           BBL_STATE_DIR: cats
         input_mapping:
           bbl-state: updated-bbl-state
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
+    params:
+      BBL_STATE_DIR: etcd-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
+      ACTION: add
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
@@ -345,11 +357,13 @@ jobs:
       VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
       SYSTEM_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
     input_mapping:
-      bbl-state: updated-bbl-state
+      vars-store: updated-vars-store
   - task: run-cats
     file: cats-concourse-task/task.yml
     params:
       CONFIG_FILE_PATH: artifacts/cats_config.json
+    input_mapping:
+      integration-config: updated-integration-configs
     ensure:
       do:
       - task: delete-cats
@@ -401,8 +415,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment
-    - get: ops-files
-      resource: infrastructure-ci
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -453,6 +465,7 @@ jobs:
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
     input_mapping:
       bbl-state: updated-bbl-state
+      ops-files: ci
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
   - task: run-cf-tls-upgrade
