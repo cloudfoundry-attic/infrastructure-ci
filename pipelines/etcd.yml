@@ -296,6 +296,8 @@ jobs:
     - get: cf-acceptance-tests
     - get: cats-concourse-task
     - get: cf-deployment
+    - get: integration-configs
+      resource: infrastructure-ci
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -336,6 +338,14 @@ jobs:
       ops-files: updated-bbl-state
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
+  - task: update-integration-config
+    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    params:
+      CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
+      VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
+      SYSTEM_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
+    input_mapping:
+      bbl-state: updated-bbl-state
   - task: run-cats
     file: cats-concourse-task/task.yml
     params:
@@ -344,13 +354,13 @@ jobs:
       integration-config: updated-integration-configs
     ensure:
       do:
-      - task: delete-cf-deployment
+      - task: delete-cats
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
-      - task: cleanup-cf-deployment
+      - task: cleanup-cats
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-cats
@@ -366,6 +376,8 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
           ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
@@ -443,7 +455,6 @@ jobs:
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
     input_mapping:
       bbl-state: updated-bbl-state
-      ops-files: updated-bbl-state
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
   - task: run-cf-tls-upgrade
