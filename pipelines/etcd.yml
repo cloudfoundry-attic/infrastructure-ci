@@ -350,8 +350,6 @@ jobs:
     file: cats-concourse-task/task.yml
     params:
       CONFIG_FILE_PATH: artifacts/cats_config.json
-    input_mapping:
-      integration-config: updated-integration-configs
     ensure:
       do:
       - task: delete-cats
@@ -368,6 +366,8 @@ jobs:
           bbl-state: updated-bbl-state
       - task: remove-from-gcp-dns
         file: ci/scripts/common/manage-gcp-dns/task.yml
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
         params:
           BBL_STATE_DIR: etcd-cf-cats
           GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
@@ -376,8 +376,6 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: etcd-cf-cats.infrastructure.cf-app.com
           ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
