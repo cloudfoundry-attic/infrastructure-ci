@@ -192,7 +192,6 @@ jobs:
 
 - name: aws-acceptance-tests
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -211,7 +210,6 @@ jobs:
 
 - name: gcp-acceptance-tests
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -231,7 +229,6 @@ jobs:
 
 - name: gcp-concourse-acceptance-tests
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: concourse-release
@@ -257,7 +254,6 @@ jobs:
 
 - name: aws-concourse-acceptance-tests
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: concourse-release
@@ -282,7 +278,6 @@ jobs:
 # Smoke-tests
 - name: test-with-latest-terraform
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -303,7 +298,6 @@ jobs:
 
 - name: test-with-latest-bosh-cli
   serial: true
-  public: true
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -324,7 +318,6 @@ jobs:
 
 # CF Deployment Pipelines
 - name: bbl-downstream-docker-image
-  public: false
   plan:
   - do:
     - aggregate:
@@ -343,7 +336,6 @@ jobs:
 
 - name: bbl-aws-cf
   serial: true
-  public: false
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -440,7 +432,6 @@ jobs:
 
 - name: bbl-aws-cf-jumpbox
   serial: true
-  public: false
   build_logs_to_retain: 100
   plan:
   - aggregate:
@@ -599,7 +590,6 @@ jobs:
 
 - name: bbl-gcp-cf-jumpbox
   serial: true
-  public: false
   build_logs_to_retain: 100
   plan:
   - aggregate:
@@ -757,7 +747,6 @@ jobs:
 
 - name: bbl-gcp-cf
   serial: true
-  public: false
   build_logs_to_retain: 100
   plan:
   - aggregate:
@@ -869,7 +858,6 @@ jobs:
       - bbl-gcp-cf-jumpbox
 
 - name: github-release
-  public: true
   plan:
   - aggregate:
     - get: ci
@@ -890,28 +878,24 @@ jobs:
       - builds/bin/bbl-*
 
 - name: major
-  public: true
   plan:
   - get: version
   - put: version
     params: {bump: major}
 
 - name: minor
-  public: true
   plan:
   - get: version
   - put: version
     params: {bump: minor}
 
 - name: patch
-  public: true
   plan:
   - get: version
   - put: version
     params: {bump: patch}
 
 - name: bump-nat-amis
-  public: true
   plan:
   - get: ci
     resource: infrastructure-ci
@@ -927,7 +911,6 @@ jobs:
       file: aws-nat-amis/ami-list.json
 
 - name: bump-brew-tap
-  public: true
   plan:
     - aggregate:
       - get: bbl-version
