@@ -433,7 +433,7 @@ jobs:
     on_failure:
       do:
       - task: bbl-destroy
-        file: ci/scripts/common/bbl-destroy/task.yml
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
@@ -497,7 +497,7 @@ jobs:
           GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
           ACTION: remove
       - task: bbl-destroy
-        file: ci/scripts/common/bbl-destroy/task.yml
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
