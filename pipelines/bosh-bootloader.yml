@@ -153,7 +153,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    uri: https://github.com/rowanjacobs/cf-deployment-concourse-tasks.git
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
@@ -480,19 +480,7 @@ jobs:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    config:
-      platform: linux
-      inputs:
-      - name: cf-deployment-concourse-tasks
-      - name: cf-deployment
-      - name: bbl-state
-      run:
-        path: bash
-        args:
-        - -exc
-        - |
-          cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task
-          pkill ssh
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -508,27 +496,7 @@ jobs:
         BBL_STATE_DIR: bbl-aws-cf-jumpbox
   - task: deploy-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      - name: cf-deployment
-      - name: vars-store
-      - name: ops-files
-      - name: vars-files
-      - name: cf-deployment-concourse-tasks
-      outputs:
-      - name: updated-vars-store
-      run:
-        path: bash
-        args:
-        - -exc
-        - |
-          export VARS_FILES=
-          export GIT_COMMIT_EMAIL=
-          export GIT_COMMIT_USERNAME=
-          cf-deployment-concourse-tasks/bosh-deploy/task
-          pkill ssh
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -544,18 +512,7 @@ jobs:
       do:
       - task: delete-cf-deployment
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        config:
-          platform: linux
-          inputs:
-          - name: cf-deployment-concourse-tasks
-          - name: bbl-state
-          run:
-            path: bash
-            args:
-            - -exc
-            - |
-              cf-deployment-concourse-tasks/bosh-delete-deployment/task
-              pkill ssh
+        file: cf-deployment-concourse-tasks/bbl-delete-deployment/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -563,18 +520,7 @@ jobs:
           DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        config:
-          platform: linux
-          inputs:
-          - name: cf-deployment-concourse-tasks
-          - name: bbl-state
-          run:
-            path: bash
-            args:
-            - -exc
-            - |
-              cf-deployment-concourse-tasks/bosh-cleanup/task
-              pkill ssh
+        file: cf-deployment-concourse-tasks/bbl-cleanup/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -637,19 +583,7 @@ jobs:
         bbl-state: updated-bbl-state
   - task: upload-stemcell
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    config:
-      platform: linux
-      inputs:
-      - name: cf-deployment-concourse-tasks
-      - name: cf-deployment
-      - name: bbl-state
-      run:
-        path: bash
-        args:
-        - -exc
-        - |
-          cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task
-          pkill ssh
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -665,27 +599,7 @@ jobs:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
   - task: deploy-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      - name: cf-deployment
-      - name: vars-store
-      - name: ops-files
-      - name: vars-files
-      - name: cf-deployment-concourse-tasks
-      outputs:
-      - name: updated-vars-store
-      run:
-        path: bash
-        args:
-        - -exc
-        - |
-          export VARS_FILES=
-          export GIT_COMMIT_EMAIL=
-          export GIT_COMMIT_USERNAME=
-          cf-deployment-concourse-tasks/bosh-deploy/task
-          pkill ssh
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     input_mapping:
       bbl-state: updated-bbl-state
     params:
@@ -693,26 +607,11 @@ jobs:
       SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
-      MANIFEST_FILE: cf-deployment.yml
-      REGENERATE_VARS_STORE: false
-      FAIL_ON_DOWNTIME: false
-      DEPLOY_WITH_UPTIME_MEASUREMENTS: false
     ensure:
       do:
       - task: delete-cf-deployment
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        config:
-          platform: linux
-          inputs:
-          - name: cf-deployment-concourse-tasks
-          - name: bbl-state
-          run:
-            path: bash
-            args:
-            - -exc
-            - |
-              cf-deployment-concourse-tasks/bosh-delete-deployment/task
-              pkill ssh
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -720,18 +619,7 @@ jobs:
           DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        config:
-          platform: linux
-          inputs:
-          - name: cf-deployment-concourse-tasks
-          - name: bbl-state
-          run:
-            path: bash
-            args:
-            - -exc
-            - |
-              cf-deployment-concourse-tasks/bosh-cleanup/task
-              pkill ssh
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
