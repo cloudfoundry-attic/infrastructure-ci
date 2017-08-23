@@ -318,7 +318,7 @@ jobs:
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
-          BBL_STATE_DIR: cats
+          BBL_STATE_DIR: etcd-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
   - task: add-to-gcp-dns
@@ -393,7 +393,7 @@ jobs:
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
-          BBL_STATE_DIR: cats
+          BBL_STATE_DIR: etcd-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
 
