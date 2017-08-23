@@ -512,7 +512,7 @@ jobs:
       do:
       - task: delete-cf-deployment
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        file: cf-deployment-concourse-tasks/bbl-delete-deployment/task.yml
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
