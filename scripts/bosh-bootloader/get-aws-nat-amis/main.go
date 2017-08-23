@@ -41,6 +41,20 @@ func main() {
 		log.Fatalf("failed describing regions: %s", err) //not tested
 	}
 
+	apSouth := -1
+
+	for index, region := range awsRegionsOutput.Regions {
+		if *region.RegionName == "ap-south-1" {
+			apSouth = index
+		}
+	}
+
+	awsRegions := awsRegionsOutput.Regions
+
+	if apSouth >= 0 {
+		awsRegions = append(awsRegionsOutput.Regions[:apSouth], awsRegionsOutput.Regions[apSouth+1:]...)
+	}
+
 	nameFilter := &ec2.Filter{
 		Name:   aws.String("name"),
 		Values: []*string{aws.String("amzn-ami-vpc-nat-hvm*")},
@@ -53,7 +67,7 @@ func main() {
 
 	AMIs := make(map[string]string)
 
-	for _, region := range awsRegionsOutput.Regions {
+	for _, region := range awsRegions {
 		awsSession := session.Must(session.NewSession(&aws.Config{
 			Credentials: awsCredentials,
 			Region:      region.RegionName,

@@ -45,6 +45,8 @@ var _ = Describe("get-aws-nat-amis", func() {
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-southeast-2", MatchRegexp("ami-[0-9a-f]+")))
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-northeast-1", MatchRegexp("ami-[0-9a-f]+")))
 		Expect(natAMIMap).To(HaveKeyWithValue("ap-northeast-2", MatchRegexp("ami-[0-9a-f]+")))
+
+		Expect(natAMIMap).NotTo(HaveKey("ap-south-1"))
 	})
 
 	Context("when GovCloud credentials are provided", func() {
