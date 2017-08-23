@@ -473,6 +473,9 @@ jobs:
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
       CF_DOMAIN: {{etcd_cf_domain}}
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
+      etcd-release: release
     ensure:
       do:
       - task: delete-cf-deployment
