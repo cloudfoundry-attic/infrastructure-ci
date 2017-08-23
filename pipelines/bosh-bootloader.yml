@@ -807,7 +807,7 @@ jobs:
       - get: bbl-release
         resource: bbl-release-official
         params:
-          version: { tag: bbl-version/number }
+          version: { tag: bbl-release/number }
           globs:
           - bbl-*_osx
         trigger: true
