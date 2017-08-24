@@ -520,7 +520,7 @@ jobs:
           DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        file: cf-deployment-concourse-tasks/bbl-cleanup/task.yml
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         input_mapping:
           bbl-state: updated-bbl-state
         params:
