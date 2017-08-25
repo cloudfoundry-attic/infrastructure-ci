@@ -394,6 +394,10 @@ jobs:
         BBL_STATE_DIR: bbl-aws-cf
       input_mapping:
         bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -410,6 +414,10 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-aws-cf
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -443,6 +451,10 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
 
 - name: bbl-aws-cf-jumpbox
   serial: true
@@ -492,6 +504,10 @@ jobs:
         BBL_STATE_DIR: bbl-aws-cf-jumpbox
       input_mapping:
         bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: upload-stemcell
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -508,6 +524,10 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: deploy-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -547,6 +567,10 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf-jumpbox
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
 
 - name: bbl-gcp-cf-jumpbox
   serial: true
@@ -595,6 +619,10 @@ jobs:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
       input_mapping:
         bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: upload-stemcell
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -611,6 +639,10 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: deploy-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -646,6 +678,10 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
 
 - name: bbl-gcp-cf
   serial: true
@@ -695,6 +731,10 @@ jobs:
         BBL_STATE_DIR: bbl-gcp-cf
       input_mapping:
         bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -711,6 +751,10 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-gcp-cf
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -744,6 +788,10 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
 
 - name: gcp-cf-jumpbox-with-cats
   serial: true
