@@ -488,6 +488,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
         BBL_STATE_DIR: bbl-aws-cf-jumpbox
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
         bbl-state: updated-bbl-state
       on_failure:
@@ -501,6 +503,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       INFRASTRUCTURE: aws
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -510,6 +514,8 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-aws-cf-jumpbox
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
@@ -521,6 +527,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf-jumpbox
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-cf-jumpbox.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-cf-jumpbox/deployment-vars.yml
       OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
@@ -537,6 +545,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf-jumpbox
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
           DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -546,6 +556,8 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-aws-cf-jumpbox
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -553,6 +565,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf-jumpbox
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -603,6 +617,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       input_mapping:
         bbl-state: updated-bbl-state
       on_failure:
@@ -616,6 +632,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       INFRASTRUCTURE: google
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -625,6 +643,8 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
@@ -636,6 +656,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       SYSTEM_DOMAIN: bbl-jumpbox.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-jumpbox/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
@@ -648,6 +670,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
           DEPLOYMENT_NAME: cf
       - task: bosh-cleanup
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -657,6 +681,8 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -664,6 +690,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf-jumpbox
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
