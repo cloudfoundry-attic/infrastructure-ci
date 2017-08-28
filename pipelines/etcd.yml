@@ -437,7 +437,7 @@ jobs:
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
-          bbl-states-repo: updated-bbl-state
+          bbl-state: updated-bbl-state
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
@@ -450,12 +450,59 @@ jobs:
       ACTION: add
     input_mapping:
       bbl-states-repo: updated-bbl-state
+    on_failure:
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
     input_mapping:
       bbl-state: updated-bbl-state
+    on_failure:
+      do:
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
@@ -468,6 +515,39 @@ jobs:
       ops-files: ci
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
+    on_failure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: run-cf-tls-upgrade
     file: ci/scripts/etcd/test-cf-tls-upgrade/task.yml
     params:
@@ -482,10 +562,15 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
       - task: cleanup-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
       - task: remove-from-gcp-dns
         file: ci/scripts/common/manage-gcp-dns/task.yml
         params:
@@ -496,12 +581,14 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
           ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
-          bbl-states-repo: updated-bbl-state
+          bbl-state: updated-bbl-state
 
 - name: create-final-release
   public: true
