@@ -423,10 +423,10 @@ jobs:
       BBL_STATE_DIR: etcd-cf-cats
       SYSTEM_DOMAIN: etcd-cf-cats.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-cats/deployment-vars.yml
-      OPS_FILES: scripts/etcd/opsfiles/use-compiled-releases.yml
+      OPS_FILES: operations/use-compiled-releases.yml
     input_mapping:
       bbl-state: updated-bbl-state
-      ops-files: updated-bbl-state
+      ops-files: cf-deployment
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
     on_success:
@@ -654,16 +654,50 @@ jobs:
           BBL_STATE_DIR: etcd-cf-tls-upgrade
         input_mapping:
           bbl-state: updated-bbl-state
+  - task: collect-ops-files
+    file: cf-deployment-concourse-tasks/collect-ops-files/task.yml
+    input_mapping:
+      base-ops-files: ci
+      new-ops-files: cf-deployment
+    params:
+      BASE_OPS_FILE_DIR: scripts/etcd/test-cf-tls-upgrade/opsfiles
+      NEW_OPS_FILES: operations/use-compiled-releases.yml
+    on_failure:
+      do:
+      - task: cleanup-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          CLEAN_ALL: true
+        input_mapping:
+          bbl-state: updated-bbl-state
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: etcd-cf-tls-upgrade.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: bbl-destroy
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        params:
+          BBL_STATE_DIR: etcd-cf-tls-upgrade
+        input_mapping:
+          bbl-state: updated-bbl-state
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
       BBL_STATE_DIR: etcd-cf-tls-upgrade
-      OPS_FILES: "scripts/etcd/opsfiles/use-compiled-releases.yml scripts/etcd/test-cf-tls-upgrade/opsfiles/non-tls-cf-deployment.yml"
       SYSTEM_DOMAIN: etcd-cf-tls-upgrade.infrastructure.cf-app.com
       VARS_STORE_FILE: etcd-cf-tls-upgrade/deployment-vars.yml
     input_mapping:
       bbl-state: updated-bbl-state
-      ops-files: ci
+      ops-files: collected-ops-files
       vars-store: updated-bbl-state
       vars-files: updated-bbl-state
     on_failure:
