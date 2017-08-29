@@ -212,7 +212,6 @@ jobs:
       trigger: true
 
 - name: eats
-  public: true
   plan:
   - aggregate:
     - get: etcd-release
@@ -273,7 +272,6 @@ jobs:
           bbl-state: updated-bbl-state
 
 - name: deploy-sample-manifests
-  public: true
   plan:
   - aggregate:
     - get: release
@@ -472,7 +470,6 @@ jobs:
             repository: updated-bbl-state
 
 - name: run-cats
-  public: true
   serial: true
   serial_groups: [cats]
   plan:
@@ -552,7 +549,6 @@ jobs:
 
 
 - name: cf-tls-upgrade
-  public: true
   plan:
   - aggregate:
     - get: release
