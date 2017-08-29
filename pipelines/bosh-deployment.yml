@@ -66,6 +66,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-bootloader
+    - get: bbl-release
     - get: bosh-deployment
       trigger: true
     - get: jumpbox-deployment

@@ -5,10 +5,17 @@ JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cppfor
 BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
 
 function main() {
+  local latest_release_tag
+  latest_release_tag=$(cat "${ROOT}/bbl-release/version")
+
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
   mkdir -p "${JUMPBOX_DEPLOYMENT_VENDOR_PATH}"
   mkdir -p "${BOSH_DEPLOYMENT_VENDOR_PATH}"
+
+  pushd "${ROOT}/bosh-bootloader" > /dev/null
+    git checkout -B "bump-deployments-ci" "v${latest_release_tag}"
+  popd
 
   pushd ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
     cp -R ${ROOT}/jumpbox-deployment/ .
@@ -40,7 +47,6 @@ function main() {
     git config user.email "cf-infrastructure@pivotal.io"
     git config user.name "cf-infra-bot"
 
-    git checkout -B "bump-deployments-ci"
     git commit -am 'Update deployments'
 
     cp -r . ${ROOT}/bump-deployments-ci
