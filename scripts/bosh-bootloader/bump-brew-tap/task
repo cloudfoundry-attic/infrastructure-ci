@@ -3,7 +3,7 @@
 set -e -x -u
 
 root="${PWD}"
-version=$(cat "${root}/bbl-version/number")
+version=$(cat "${root}/bbl-release/version")
 
 sha=$(shasum -a 256 bbl-release/bbl-*_osx | cut -d ' ' -f 1)
 
