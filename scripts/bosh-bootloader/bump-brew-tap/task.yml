@@ -7,7 +7,6 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
-- name: bbl-version
 - name: bbl-release
 - name: homebrew-tap
 - name: ci

@@ -877,8 +877,6 @@ jobs:
 - name: bump-brew-tap
   plan:
     - aggregate:
-      - get: bbl-version
-        resource: version
       - get: homebrew-tap
       - get: bbl-release
         resource: bbl-release-official
