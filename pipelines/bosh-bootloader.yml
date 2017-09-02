@@ -14,6 +14,7 @@ groups:
   - major
   - minor
   - patch
+  - passed-acceptance-tests
   - releasable
   - github-release
 
@@ -199,14 +200,97 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-  - task: test
-    file: ci/scripts/bosh-bootloader/aws-acceptance/task.yml
-    params:
-      BBL_IAAS: aws
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_REGION: {{aws_region}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
+  - aggregate:
+    - task: bbl-up-credhub
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: bbl-up-credhub
+    - task: latest-error
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: latest-error
+    - task: no-director
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: no-director
+    - task: bbl-up
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: bbl-up
+    - task: bosh-deployment-vars
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: bosh-deployment-vars
+    - task: load-balancers
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: load-balancers
+    - task: stack-migration-up
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: stack-migration-up
+    - task: stack-migration-create-lbs
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: stack-migration-create-lbs
+    - task: stack-migration-delete-lbs
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: stack-migration-delete-lbs
 
 - name: gcp-acceptance-tests
   serial: true
@@ -217,15 +301,27 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-  - task: test
-    file: ci/scripts/bosh-bootloader/gcp-acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
+  - aggregate:
+    - task: bbl-tests
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_ZONE: {{bbl_gcp_zone}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+    - task: gcp-tests
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_ZONE: {{bbl_gcp_zone}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: gcp
 
 - name: gcp-concourse-acceptance-tests
   serial: true
@@ -334,12 +430,24 @@ jobs:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
 
+- name: passed-acceptance-tests
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      trigger: true
+      passed:
+      - aws-acceptance-tests
+      - gcp-acceptance-tests
+      - aws-concourse-acceptance-tests
+      - gcp-concourse-acceptance-tests
+      - bbl-downstream-docker-image
+
 - name: bbl-aws-cf
   serial: true
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [bbl-downstream-docker-image]
+      passed: [passed-acceptance-tests]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -448,7 +556,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [bbl-downstream-docker-image]
+      passed: [passed-acceptance-tests]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -578,7 +686,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [bbl-downstream-docker-image]
+      passed: [passed-acceptance-tests]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -703,7 +811,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [bbl-downstream-docker-image]
+      passed: [passed-acceptance-tests]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -813,11 +921,8 @@ jobs:
     - get: bosh-bootloader
       trigger: true
       passed:
-      - aws-acceptance-tests
-      - gcp-acceptance-tests
-      - aws-concourse-acceptance-tests
-      - gcp-concourse-acceptance-tests
       - bbl-aws-cf
+      - bbl-aws-cf-jumpbox
       - bbl-gcp-cf
       - bbl-gcp-cf-jumpbox
 
