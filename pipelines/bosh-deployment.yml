@@ -5,8 +5,8 @@ groups:
   - test-bosh-bootloader
   - aws-acceptance-tests
   - gcp-acceptance-tests
-  - commit-bump-deployments-change
   - github-release
+  - merge-bump-deployments-change
 
 resources:
 - name: bosh-deployment
@@ -136,24 +136,6 @@ jobs:
       BBL_GCP_ZONE: {{gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
 
-- name: commit-bump-deployments-change
-  serial: true
-  serial_groups: [aws,gcp]
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader-bumped
-      resource: bosh-bootloader-bump-deployments-ci
-      passed: [aws-acceptance-tests, gcp-acceptance-tests]
-      trigger: true
-  - task: commit-bosh-deployment-change
-    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
-  - put: bosh-bootloader
-    params:
-      repository: bosh-bootloader
-
 - name: github-release
   serial: true
   serial_groups: [aws,gcp]
@@ -167,8 +149,8 @@ jobs:
       params: {bump: patch}
     - get: bosh-bootloader
       resource: bosh-bootloader-bump-deployments-ci
+      passed: [aws-acceptance-tests, gcp-acceptance-tests]
       trigger: true
-      passed: [commit-bump-deployments-change]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
     params:
@@ -183,3 +165,21 @@ jobs:
       - builds/bin/bbl-*
   - put: version
     params: {file: bbl-version/version}
+
+- name: merge-bump-deployments-change
+  serial: true
+  serial_groups: [aws,gcp]
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader-bumped
+      resource: bosh-bootloader-bump-deployments-ci
+      passed: [github-release]
+      trigger: true
+  - task: merge-bosh-deployment-change
+    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
+  - put: bosh-bootloader
+    params:
+      repository: bosh-bootloader
