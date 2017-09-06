@@ -25,6 +25,9 @@ instance_groups:
   - 50GB_ephemeral_disk
   properties:
     concourse_windows:
+      tags:
+      - cf-infrastructure
+      - consul
       team: ((concourse_team))
       tsa_host: ((tsa_host))
       tsa_public_key: ((tsa_public_key))
