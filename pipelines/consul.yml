@@ -326,6 +326,7 @@ jobs:
 
 - name: consats-windows
   public: true
+  serial: true
   plan:
   - aggregate:
     - get: consul-release
