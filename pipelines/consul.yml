@@ -512,8 +512,9 @@ jobs:
       BBL_LB_KEY: {{consul_cf_deployment_lb_key}}
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
+      OPS_FILES: operations/set_bosh_workers.yml
     input_mapping:
-      ops-files: bbl-state
+      ops-files: ci
     on_success:
       put: infrastructure-ci-bbl-states
       params:
@@ -552,7 +553,7 @@ jobs:
     file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-      PARALLEL_NODES: 5
+      PARALLEL_NODES: 8
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
     ensure:
