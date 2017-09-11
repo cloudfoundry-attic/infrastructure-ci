@@ -553,7 +553,7 @@ jobs:
     file: ci/scripts/consul/run-consats/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-      PARALLEL_NODES: 8
+      PARALLEL_NODES: 7
       ENABLE_TURBULENCE_TESTS: false
       WINDOWS_CLIENTS: true
     ensure:
