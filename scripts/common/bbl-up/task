@@ -77,7 +77,6 @@ function create_or_update_lbs() {
       --type cf \
       --cert "${bbl_lb_cert_path}" \
       --key "${bbl_lb_key_path}" \
-      --skip-if-exists \
       --domain "${BBL_LB_DOMAIN}" > bbl_create_lbs.log
 
   bbl \
