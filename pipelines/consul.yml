@@ -110,12 +110,6 @@ resources:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 
-- name: windows-stemcell-release-candidate
-  type: s3
-  source:
-    bucket: bosh-windows-stemcells-release-candidates
-    regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
-
 - name: latest-consul-release
   type: bosh-io-release
   source:
@@ -279,7 +273,7 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [setup-consats-linux-turbulence]
     - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
+      resource: windows-stemcell
     - get: stemcell
       resource: gcp-stemcell
     - get: latest-consul-release
@@ -394,7 +388,7 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [setup-consats-linux]
     - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
+      resource: windows-stemcell
     - get: stemcell
       resource: gcp-stemcell
     - get: latest-consul-release
@@ -535,7 +529,7 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [setup-consats-windows]
     - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
+      resource: windows-stemcell
     - get: stemcell
       resource: gcp-stemcell
     - get: turbulence-release
@@ -646,7 +640,7 @@ jobs:
       resource: infrastructure-ci-bbl-states
       passed: [setup-consats-windows-turbulence]
     - get: windows-stemcell
-      resource: windows-stemcell-release-candidate
+      resource: windows-stemcell
       trigger: true
     - get: stemcell
       resource: gcp-stemcell
