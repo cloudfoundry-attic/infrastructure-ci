@@ -137,16 +137,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: no-director
-    - task: bbl-up
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: bbl
-        RUN_TEST: bbl-up
     - task: bosh-deployment-vars
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -177,26 +167,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: aws
         RUN_TEST: stack-migration-up
-    - task: stack-migration-create-lbs
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: stack-migration-create-lbs
-    - task: stack-migration-delete-lbs
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: stack-migration-delete-lbs
 
 - name: gcp-acceptance-tests
   serial: true
