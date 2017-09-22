@@ -197,7 +197,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - aggregate:
-    - task: upgrade-skip-for-now
+    - task: upgrade
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
@@ -206,7 +206,7 @@ jobs:
         BBL_AWS_REGION: {{aws_region}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
-        RUN_TEST: upgrade-skip-for-now
+        RUN_TEST: upgrade
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
