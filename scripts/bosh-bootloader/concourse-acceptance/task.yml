@@ -9,8 +9,6 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: ci
-  - name: concourse-release
-  - name: garden-release
   - name: concourse-deployment
   - name: stemcell
 

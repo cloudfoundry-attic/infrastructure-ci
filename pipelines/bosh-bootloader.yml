@@ -50,16 +50,6 @@ resources:
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
 
-- name: garden-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry/garden-runc-release
-
-- name: concourse-release
-  type: bosh-io-release
-  source:
-    repository: concourse/concourse
-
 - name: bosh-bootloader
   type: git
   source:
@@ -303,8 +293,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: concourse-release
-    - get: garden-release
     - get: concourse-deployment
     - get: stemcell
       resource: gcp-stemcell
@@ -328,8 +316,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: concourse-release
-    - get: garden-release
     - get: concourse-deployment
     - get: stemcell
       resource: aws-stemcell
