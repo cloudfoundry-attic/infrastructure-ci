@@ -247,16 +247,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: aws
         RUN_TEST: load-balancers
-    - task: stack-migration-up
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: stack-migration-up
 
 - name: gcp-acceptance-tests
   serial: true
