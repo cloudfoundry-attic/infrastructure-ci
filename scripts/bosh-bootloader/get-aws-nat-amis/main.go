@@ -41,19 +41,7 @@ func main() {
 		log.Fatalf("failed describing regions: %s", err) //not tested
 	}
 
-	apSouth := -1
-
-	for index, region := range awsRegionsOutput.Regions {
-		if *region.RegionName == "ap-south-1" {
-			apSouth = index
-		}
-	}
-
 	awsRegions := awsRegionsOutput.Regions
-
-	if apSouth >= 0 {
-		awsRegions = append(awsRegionsOutput.Regions[:apSouth], awsRegionsOutput.Regions[apSouth+1:]...)
-	}
 
 	nameFilter := &ec2.Filter{
 		Name:   aws.String("name"),
