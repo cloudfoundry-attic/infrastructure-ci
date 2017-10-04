@@ -893,6 +893,7 @@ jobs:
       - consats-linux
       - consats-windows
       - cats
+      - deploy-sample-manifest
       trigger: true
     - get: release-repo-master
       resource: consul-release-master
