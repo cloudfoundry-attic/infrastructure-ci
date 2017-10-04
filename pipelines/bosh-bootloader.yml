@@ -33,13 +33,6 @@ groups:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
 - name: aws-stemcell
   type: bosh-io-stemcell
@@ -165,8 +158,6 @@ resources:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev
 
 jobs:
-
-# Main Pipeline
 - name: test-bosh-bootloader
   public: true
   plan:
