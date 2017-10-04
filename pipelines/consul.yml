@@ -151,7 +151,6 @@ resources:
 
 jobs:
 - name: check-git-submodules
-  public: true
   serial: true
   plan:
   - aggregate:
@@ -168,7 +167,6 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: test-confab
-  public: true
   serial: true
   plan:
   - aggregate:
@@ -186,7 +184,6 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: test-confab-windows
-  public: true
   serial: true
   plan:
   - aggregate:
@@ -204,7 +201,6 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: setup-consats-linux-turbulence
-  public: true
   serial: true
   serial_groups: [consats-linux-turbulence]
   plan:
@@ -254,7 +250,6 @@ jobs:
         bbl-state: updated-bbl-state
 
 - name: consats-linux-turbulence
-  public: true
   serial: true
   serial_groups: [consats-linux-turbulence]
   plan:
@@ -289,7 +284,6 @@ jobs:
         bbl-state: bbl-states-repo
 
 - name: teardown-consats-linux-turbulence
-  public: true
   serial: true
   serial_groups: [consats-linux-turbulence]
   plan:
@@ -318,7 +312,6 @@ jobs:
         repository: updated-bbl-state
 
 - name: setup-consats-linux
-  public: true
   serial: true
   serial_groups: [consats-linux]
   plan:
@@ -369,7 +362,6 @@ jobs:
         bbl-state: updated-bbl-state
 
 - name: consats-linux
-  public: true
   serial: true
   serial_groups: [consats-linux]
   plan:
@@ -404,7 +396,6 @@ jobs:
         bbl-state: bbl-states-repo
 
 - name: teardown-consats-linux
-  public: true
   serial: true
   serial_groups: [consats-linux]
   plan:
@@ -433,7 +424,6 @@ jobs:
         repository: updated-bbl-state
 
 - name: deploy-sample-manifest
-  public: true
   plan:
   - aggregate:
     - get: release
@@ -460,7 +450,6 @@ jobs:
         text: {{slack_failure_text}}
 
 - name: setup-consats-windows
-  public: true
   serial: true
   serial_groups: [consats-windows]
   plan:
@@ -510,7 +499,6 @@ jobs:
         bbl-state: updated-bbl-state
 
 - name: consats-windows
-  public: true
   serial: true
   serial_groups: [consats-windows]
   plan:
@@ -546,7 +534,6 @@ jobs:
         bbl-state: bbl-states-repo
 
 - name: teardown-consats-windows
-  public: true
   serial: true
   serial_groups: [consats-windows]
   plan:
@@ -574,7 +561,6 @@ jobs:
         repository: updated-bbl-state
 
 - name: setup-consats-windows-turbulence
-  public: true
   serial: true
   serial_groups: [consats-windows-turbulence]
   plan:
@@ -621,7 +607,6 @@ jobs:
         bbl-state: updated-bbl-state
 
 - name: consats-windows-turbulence
-  public: true
   serial: true
   serial_groups: [consats-windows-turbulence]
   plan:
@@ -658,7 +643,6 @@ jobs:
         bbl-state: bbl-states-repo
 
 - name: teardown-consats-windows-turbulence
-  public: true
   serial: true
   serial_groups: [consats-windows-turbulence]
   plan:
@@ -686,7 +670,6 @@ jobs:
         repository: updated-bbl-state
 
 - name: cats
-  public: true
   serial_groups: [cf-cats]
   plan:
   - aggregate:
@@ -931,7 +914,6 @@ jobs:
           rebase: true
 
 - name: create-final-release
-  public: true
   serial: true
   plan:
   - aggregate:
@@ -970,7 +952,6 @@ jobs:
         Final release of consul released.
 
 - name: merge-master-into-develop
-  public: true
   serial: true
   plan:
   - aggregate:
