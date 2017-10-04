@@ -9,11 +9,19 @@ resources:
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-aws.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
 jobs:
 - name: terraforming-aws
   plan:
   - get: terraforming-aws
     trigger: true
+  - get: ci
+    resource: infrastructure-ci
   - task: check-syntax
     file: ci/scripts/terraforming-aws/check-syntax/task.yml
