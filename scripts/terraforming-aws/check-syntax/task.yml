@@ -13,3 +13,6 @@ inputs:
 run:
   path: ci/scripts/terraforming-aws/check-syntax/task
 
+params:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
