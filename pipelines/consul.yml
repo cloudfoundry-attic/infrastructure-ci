@@ -28,13 +28,6 @@ groups:
   - consats-windows-turbulence
   - teardown-consats-windows-turbulence
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
 - name: infrastructure-ci
   type: git
@@ -128,11 +121,6 @@ resources:
   source:
     name: bosh-warden-boshlite-ubuntu-trusty-go_agent
 
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
-
 - name: empty-ops-files
   type: time
   source: {interval: 5m}
@@ -161,10 +149,6 @@ jobs:
       trigger: true
   - task: check-git-submodules
     file: ci/scripts/common/check-git-submodules/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-confab
   serial: true
@@ -178,10 +162,6 @@ jobs:
       trigger: true
   - task: test-confab
     file: ci/scripts/consul/test-confab/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: test-confab-windows
   serial: true
@@ -195,10 +175,6 @@ jobs:
       trigger: true
   - task: test-confab-windows
     file: ci/scripts/consul/test-confab-windows/task.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: setup-consats-linux-turbulence
   serial: true
@@ -444,10 +420,6 @@ jobs:
       BBL_GCP_ZONE: {{gcp_zone}}
       CLOUD_CONFIG: manifests/cloud_config.yml
       MANIFESTS: manifests/multi-az-with-ssl.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: setup-consats-windows
   serial: true
@@ -945,11 +917,6 @@ jobs:
       tag_prefix: v
       globs:
       - final-release-repo/consul-release-*.tgz
-  - put: slack-alert
-    params:
-      icon_emoji: ":shipit:"
-      text: |
-        Final release of consul released.
 
 - name: merge-master-into-develop
   serial: true
