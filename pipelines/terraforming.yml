@@ -15,3 +15,5 @@ jobs:
   plan:
   - get: terraforming-aws
     trigger: true
+  - task: check-syntax
+    file: ci/scripts/terraforming-aws/check-syntax/task.yml

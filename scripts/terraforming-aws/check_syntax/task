@@ -1,0 +1,6 @@
+#!/bin/bash -exu
+
+pushd terraforming-aws > /dev/null
+  terraform init
+  terraform plan
+popd > /dev/null
