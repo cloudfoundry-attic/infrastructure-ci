@@ -2,5 +2,13 @@
 
 pushd terraforming-aws > /dev/null
   terraform init
+  echo 'env_name = "terraforming-aws-env"' > terraform.tfvars
+  echo 'access_key = "some-access-key"' >> terraform.tfvars
+  echo 'secret_key = "some-secret-key"' >> terraform.tfvars
+  echo 'region = "us-west-1"' >> terraform.tfvars
+  echo 'availability_zones = ["us-west-1a"]' >> terraform.tfvars
+  echo 'ops_manager_ami = "some-ami"' >> terraform.tfvars
+  echo 'rds_instance_count = 1' >> terraform.tfvars
+  echo 'dns_suffix = "terraforming-aws-env.example.com"' >> terraform.tfvars
   terraform plan
 popd > /dev/null
