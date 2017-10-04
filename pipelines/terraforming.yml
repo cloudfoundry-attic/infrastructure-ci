@@ -18,6 +18,7 @@ resources:
 
 jobs:
 - name: terraforming-aws
+  public: true
   plan:
   - get: terraforming-aws
     trigger: true
