@@ -1,0 +1,17 @@
+groups:
+- name: terraforming
+  jobs:
+  - terraforming-aws
+
+resources:
+- name: terraforming-aws
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:pivotal-cf/terraforming-aws.git
+
+jobs:
+- name: terraforming-aws
+  plan:
+  - get: terraforming-aws
+    trigger: true
