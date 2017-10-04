@@ -11,5 +11,5 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/terraforming-aws/check_syntax/task
+  path: ci/scripts/terraforming-aws/check-syntax/task
 
