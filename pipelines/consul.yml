@@ -7,23 +7,19 @@ groups:
   - test-confab-windows
   - setup-consats-linux
   - consats-linux
+  - teardown-consats-linux
   - setup-consats-windows
   - consats-windows
+  - teardown-consats-windows
   - cats
   - deploy-sample-manifest
   - create-final-release
   - merge-master-into-develop
-- name: consats
+- name: turbulence
   jobs:
-  - setup-consats-linux
-  - consats-linux
-  - teardown-consats-linux
   - setup-consats-linux-turbulence
   - consats-linux-turbulence
   - teardown-consats-linux-turbulence
-  - setup-consats-windows
-  - consats-windows
-  - teardown-consats-windows
   - setup-consats-windows-turbulence
   - consats-windows-turbulence
   - teardown-consats-windows-turbulence
