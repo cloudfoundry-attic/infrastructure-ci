@@ -15,7 +15,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: git@github.com:pivotal-cf/terraforming-aws.git
+    uri: git@github.com:pivotal-cf/terraforming-gcp.git
     private_key: {{cf_infra_bot_user_github_private_key}}
 - name: infrastructure-ci
   type: git
