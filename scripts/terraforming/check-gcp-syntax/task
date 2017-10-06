@@ -6,9 +6,11 @@ pushd terraforming-gcp > /dev/null
 
   export TF_VAR_env_name=terraforming-gcp-env
   export TF_VAR_project=${GCP_PROJECT_ID}
-  export TF_VAR_service_account_key=${GCP_SERVICE_ACCOUNT_KEY}
-  export TF_VAR_ssl_cert=${GCP_SSL_CERT}
-  export TF_VAR_ssl_cert_private_key=${GCP_SSL_CERT_PRIVATE_KEY}
+  set +x
+    export TF_VAR_service_account_key=${GCP_SERVICE_ACCOUNT_KEY}
+    export TF_VAR_ssl_cert=${GCP_SSL_CERT}
+    export TF_VAR_ssl_cert_private_key=${GCP_SSL_CERT_PRIVATE_KEY}
+  set -x
   export TF_VAR_region=us-central1
   export TF_VAR_zones='["us-central1-a", "us-central1-b", "us-central1-c"]'
   export TF_VAR_opsman_image_url=https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz

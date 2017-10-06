@@ -1,16 +1,20 @@
 #!/bin/bash -exu
 
 pushd terraforming-aws > /dev/null
+
   terraform init
-  echo 'env_name = "terraforming-aws-env"' > terraform.tfvars
+
+  export TF_VAR_env_name=terraforming-aws-env
   set +x
-    echo "access_key = \"${AWS_ACCESS_KEY_ID}\"" >> terraform.tfvars
-    echo "secret_key = \"${AWS_SECRET_ACCESS_KEY}\"" >> terraform.tfvars
+    export TF_VAR_access_key=${AWS_ACCESS_KEY_ID}
+    export TF_VAR_secret_key=${AWS_SECRET_ACCESS_KEY}
   set -x
-  echo 'region = "us-west-1"' >> terraform.tfvars
-  echo 'availability_zones = ["us-west-1a"]' >> terraform.tfvars
-  echo 'ops_manager_ami = "some-ami"' >> terraform.tfvars
-  echo 'rds_instance_count = 1' >> terraform.tfvars
-  echo 'dns_suffix = "terraforming-aws-env.example.com"' >> terraform.tfvars
+  export TF_VAR_region=us-west-1
+  export TF_VAR_availability_zones='["us-west-1a"]'
+  export TF_VAR_ops_manager_ami=some-ami
+  export TF_VAR_rds_instance_count=1
+  export TF_VAR_dns_suffix=terraforming-aws-env.example.com
+
   terraform plan
+
 popd > /dev/null
