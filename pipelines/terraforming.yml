@@ -2,9 +2,16 @@ groups:
 - name: terraforming
   jobs:
   - terraforming-aws
+  - terraforming-gcp
 
 resources:
 - name: terraforming-aws
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:pivotal-cf/terraforming-aws.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+- name: terraforming-gcp
   type: git
   source:
     branch: master
@@ -18,7 +25,6 @@ resources:
 
 jobs:
 - name: terraforming-aws
-  public: true
   plan:
   - get: terraforming-aws
     trigger: true
@@ -29,3 +35,14 @@ jobs:
     params:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+
+- name: terraforming-gcp
+  plan:
+  - get: terraforming-gcp
+    trigger: true
+  - get: ci
+    resource: infrastructure-ci
+  - task: check-syntax
+    file: ci/scripts/terraforming/check-gcp-syntax/task.yml
+    params:
+      GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
