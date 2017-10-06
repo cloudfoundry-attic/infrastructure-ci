@@ -7,11 +7,11 @@ image_resource:
     repository: cfinfrastructure/terraform
 
 inputs:
-- name: terraforming-aws
+- name: terraforming-gcp
 - name: ci
 
 run:
-  path: ci/scripts/terraforming/check-aws-syntax/task
+  path: ci/scripts/terraforming/check-gcp-syntax/task
 
 params:
   GCP_SERVICE_ACCOUNT_KEY:
