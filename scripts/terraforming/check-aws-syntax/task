@@ -15,10 +15,10 @@ pushd terraforming-aws > /dev/null
   export TF_VAR_rds_instance_count=1
   export TF_VAR_dns_suffix=terraforming-aws-env.example.com
 
-  terraform plan
+  terraform plan -out=plan
 
   terraform apply
 
-  terraform destroy
+  terraform destroy -force
 
 popd > /dev/null
