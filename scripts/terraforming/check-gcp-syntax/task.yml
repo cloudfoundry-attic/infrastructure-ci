@@ -14,4 +14,7 @@ run:
   path: ci/scripts/terraforming/check-gcp-syntax/task
 
 params:
+  GCP_PROJECT_ID:
   GCP_SERVICE_ACCOUNT_KEY:
+  GCP_SSL_CERT:
+  GCP_SSL_CERT_PRIVATE_KEY:
