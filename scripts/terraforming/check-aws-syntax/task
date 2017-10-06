@@ -17,4 +17,8 @@ pushd terraforming-aws > /dev/null
 
   terraform plan
 
+  terraform apply
+
+  terraform destroy
+
 popd > /dev/null

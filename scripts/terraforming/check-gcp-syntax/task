@@ -18,4 +18,8 @@ pushd terraforming-gcp > /dev/null
 
   terraform plan
 
+  terraform apply
+
+  terraform destroy
+
 popd > /dev/null
