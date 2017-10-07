@@ -273,15 +273,16 @@ jobs:
     params:
       BBL_STATE_DIR: consats-linux-turbulence
       CLEAN_ALL: true
-  - task: destroy-consats-linux-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-linux-turbulence
     ensure:
-      put: infrastructure-ci-bbl-states
+      task: destroy-consats-linux-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
-        rebase: true
-        repository: updated-bbl-state
+        BBL_STATE_DIR: consats-linux-turbulence
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
 
 - name: setup-consats-linux
   serial: true
@@ -385,15 +386,16 @@ jobs:
     params:
       BBL_STATE_DIR: consats-linux
       CLEAN_ALL: true
-  - task: destroy-consats-linux-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-linux
     ensure:
-      put: infrastructure-ci-bbl-states
+      task: destroy-consats-linux-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
-        rebase: true
-        repository: updated-bbl-state
+        BBL_STATE_DIR: consats-linux
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
 
 - name: deploy-sample-manifest
   plan:
@@ -518,15 +520,16 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: consats-windows
-  - task: destroy-consats-windows-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows
     ensure:
-      put: infrastructure-ci-bbl-states
+      task: destroy-consats-windows-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
-        rebase: true
-        repository: updated-bbl-state
+        BBL_STATE_DIR: consats-windows
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
 
 - name: setup-consats-windows-turbulence
   serial: true
