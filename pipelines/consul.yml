@@ -235,6 +235,7 @@ jobs:
     - get: bbl-states-repo
       resource: infrastructure-ci-bbl-states
       passed: [setup-consats-linux-turbulence]
+      trigger: true
     - get: windows-stemcell
       resource: windows-stemcell
     - get: stemcell
