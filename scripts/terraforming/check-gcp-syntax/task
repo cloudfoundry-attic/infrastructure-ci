@@ -5,20 +5,19 @@ pushd terraforming-gcp > /dev/null
   terraform init
 
   echo 'env_name = "terraforming-gcp-env"' > terraform.tfvars
-  echo "project = ${GCP_PROJECT_ID}" >> terraform.tfvars
+  echo "project = \"${GCP_PROJECT_ID}\"" >> terraform.tfvars
   echo 'region = "us-central1"' >> terraform.tfvars
-  echo 'availability_zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> terraform.tfvars
-  echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz "' >> terraform.tfvars
+  echo 'zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> terraform.tfvars
+  echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz"' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
 
-  service_account="$(echo "${GCP_SERVICE_ACCOUNT_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
-  echo -e "service_account_key = <<SERVICE_ACCOUNT_KEY\n${service_account}\nSERVICE_ACCOUNT_KEY" >> terraform.tfvars
+  echo -e "service_account_key = <<SERVICE_ACCOUNT_KEY\n${GCP_SERVICE_ACCOUNT_KEY}SERVICE_ACCOUNT_KEY" >> terraform.tfvars
 
   cert="$(echo "${GCP_SSL_CERT}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
-  echo -e "ssl_cert = <<SSL_CERT\n${cert}\nSSL_CERT" >> terraform.tfvars
+  echo -e "ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
 
   key="$(echo "${GCP_SSL_CERT_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
-  echo -e "ssl_cert_private_key = <<SSL_KEY\n${key}\nSSL_KEY" >> terraform.tfvars
+  echo -e "ssl_cert_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
 
   terraform plan
 
