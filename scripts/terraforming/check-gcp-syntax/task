@@ -10,11 +10,9 @@ pushd terraforming-gcp > /dev/null
   echo 'availability_zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> terraform.tfvars
   echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz "' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
-  set +x
-    echo "service_account_key = \"${GCP_SERVICE_ACCOUNT_KEY}\"" >> terraform.tfvars
-    echo "ssl_cert = \"${GCP_SSL_CERT}\"" >> terraform.tfvars
-    echo "ssl_cert_private_key = \"${GCP_SSL_CERT_PRIVATE_KEY}\"" >> terraform.tfvars
-  set -x
+  echo "service_account_key = \"${GCP_SERVICE_ACCOUNT_KEY}\"" >> terraform.tfvars
+  echo "ssl_cert = \"${GCP_SSL_CERT}\"" >> terraform.tfvars
+  echo "ssl_cert_private_key = \"${GCP_SSL_CERT_PRIVATE_KEY}\"" >> terraform.tfvars
 
   terraform plan
 
