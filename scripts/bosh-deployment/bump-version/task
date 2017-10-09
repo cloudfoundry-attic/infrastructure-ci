@@ -10,7 +10,7 @@ function main() {
   patch=$(($patch + 1))
 
   version=$major.$minor.$patch
-  echo $version >> "${ROOT}/bbl-version/version"
+  echo $version >> "${ROOT}/bbl-version/number"
 }
 
 main
