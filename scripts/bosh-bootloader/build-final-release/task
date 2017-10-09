@@ -31,8 +31,8 @@ function main() {
     linux_sha=$(shasum -a 256 "${BBL_LINUX_BUILD_PATH}" | cut -d ' ' -f 1)
     osx_sha=$(shasum -a 256 "${BBL_OSX_BUILD_PATH}" | cut -d ' ' -f 1)
 
-    echo "- Linux SHA256: ${linux_sha}" >> body
-    echo -n "- OSX SHA256: ${osx_sha}" >> body
+    echo "- *Linux sha256: \`${linux_sha}\`*" >> body
+    echo -n "- *OSX sha256: \`${osx_sha}\`*" >> body
   popd > /dev/null
 }
 
