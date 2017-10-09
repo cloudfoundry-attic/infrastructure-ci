@@ -48,4 +48,4 @@ jobs:
       GCP_PROJECT_ID: {{gcp_project_id}}
       GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       GCP_SSL_CERT: {{ssl_cert}}
-      GCP_SSL_PRIVATE_KEY: {{ssl_cert_private_key}}
+      GCP_SSL_CERT_PRIVATE_KEY: {{ssl_cert_private_key}}
