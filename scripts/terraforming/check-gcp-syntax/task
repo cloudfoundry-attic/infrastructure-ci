@@ -11,7 +11,9 @@ pushd terraforming-gcp > /dev/null
   echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz"' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
 
-  echo -e "service_account_key = <<SERVICE_ACCOUNT_KEY\n${GCP_SERVICE_ACCOUNT_KEY}SERVICE_ACCOUNT_KEY" >> terraform.tfvars
+  echo "service_account_key = <<SERVICE_ACCOUNT_KEY" >> terraform.tfvars
+  echo "${GCP_SERVICE_ACCOUNT_KEY}" >> terraform.tfvars
+  echo "SERVICE_ACCOUNT_KEY" >> terraform.tfvars
 
   cert="$(echo "${GCP_SSL_CERT}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
   echo -e "ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
