@@ -41,16 +41,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
-- name: version
-  type: semver
-  source:
-    initial_version: 0.0.1
-    driver: s3
-    bucket: bbl-version
-    key: bbl-version
-    access_key_id: {{bbl_version_s3_access_key_id}}
-    secret_access_key: {{bbl_version_s3_secret_access_key}}
-
 - name: bbl-release
   type: github-release
   source:
@@ -215,6 +205,7 @@ jobs:
       passed: [aws-acceptance-tests, gcp-acceptance-tests]
       trigger: true
   - task: bump-version
+    file: ci/scripts/bosh-deployment/bump-version/task.yml
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
     params:
