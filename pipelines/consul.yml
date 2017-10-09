@@ -15,6 +15,8 @@ groups:
   - deploy-sample-manifest
   - create-final-release
   - merge-master-into-develop
+- name: turbulence
+  jobs:
   - setup-consats-linux-turbulence
   - consats-linux-turbulence
   - teardown-consats-linux-turbulence
