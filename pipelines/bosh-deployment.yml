@@ -209,13 +209,12 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: version
-      params: {bump: patch}
+    - get: bbl-release
     - get: bosh-bootloader
       resource: bosh-bootloader-bump-deployments-ci
       passed: [aws-acceptance-tests, gcp-acceptance-tests]
       trigger: true
+  - task: bump-version
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
     params:
@@ -228,8 +227,6 @@ jobs:
       body: builds/body
       globs:
       - builds/bin/bbl-*
-  - put: version
-    params: {file: bbl-version/version}
 
 - name: merge-bump-deployments-change
   serial: true

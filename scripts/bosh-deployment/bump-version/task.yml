@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/golang
+
+inputs:
+- name: bbl-release
+
+outputs:
+- name: bbl-version
+
+run:
+  path: ci/scripts/bosh-deployment/bump-version/task

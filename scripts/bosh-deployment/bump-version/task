@@ -1,0 +1,16 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+
+function main() {
+  major=$(cat "${ROOT}/bbl-release/version" | cut -d 'v' -f 2 | cut -d '.' -f 1)
+  minor=$(cat "${ROOT}/bbl-release/version" | cut -d '.' -f 2)
+  patch=$(cat "${ROOT}/bbl-release/version" | cut -d '.' -f 3)
+
+  patch=$(($patch + 1))
+
+  version=$major.$minor.$patch
+  echo $version >> "${ROOT}/bbl-version/version"
+}
+
+main
