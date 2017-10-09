@@ -4,17 +4,17 @@ pushd terraforming-gcp > /dev/null
 
   terraform init
 
-  export TF_VAR_env_name=terraforming-gcp-env
-  export TF_VAR_project=${GCP_PROJECT_ID}
+  echo 'env_name = "terraforming-gcp-env"' > terraform.tfvars
+  echo 'project = "cf-infrastructure-ci"' >> terraform.tfvars
+  echo 'region = "us-central1"' >> terraform.tfvars
+  echo 'availability_zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> terraform.tfvars
+  echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz "' >> terraform.tfvars
+  echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
   set +x
-    export TF_VAR_service_account_key=${GCP_SERVICE_ACCOUNT_KEY}
-    export TF_VAR_ssl_cert=${GCP_SSL_CERT}
-    export TF_VAR_ssl_cert_private_key=${GCP_SSL_CERT_PRIVATE_KEY}
+    echo "service_account_key = \"${GCP_SERVICE_ACCOUNT_KEY}\"" >> terraform.tfvars
+    echo "ssl_cert = \"${GCP_SSL_CERT}\"" >> terraform.tfvars
+    echo "ssl_cert_private_key = \"${GCP_SSL_CERT_PRIVATE_KEY}\"" >> terraform.tfvars
   set -x
-  export TF_VAR_region=us-central1
-  export TF_VAR_zones='["us-central1-a", "us-central1-b", "us-central1-c"]'
-  export TF_VAR_opsman_image_url=https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz
-  export TF_VAR_dns_suffix=terraforming-gcp-env.cf-app.com
 
   terraform plan
 
