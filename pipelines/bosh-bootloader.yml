@@ -12,7 +12,6 @@ groups:
   - bbl-gcp-cf
   - major
   - minor
-  - patch
   - passed-acceptance-tests
   - releasable
   - github-release
@@ -724,12 +723,6 @@ jobs:
   - get: version
   - put: version
     params: {bump: minor}
-
-- name: patch
-  plan:
-  - get: version
-  - put: version
-    params: {bump: patch}
 
 - name: bump-nat-amis
   plan:
