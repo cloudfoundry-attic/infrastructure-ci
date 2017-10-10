@@ -631,15 +631,16 @@ jobs:
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
       BBL_STATE_DIR: consats-windows-turbulence
-  - task: destroy-consats-windows-infrastructure
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_STATE_DIR: consats-windows-turbulence
     ensure:
-      put: infrastructure-ci-bbl-states
+      task: destroy-consats-windows-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
-        rebase: true
-        repository: updated-bbl-state
+        BBL_STATE_DIR: consats-windows-turbulence
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
 
 - name: cats
   serial_groups: [cf-cats]
