@@ -25,6 +25,6 @@ pushd terraforming-gcp > /dev/null
 
   terraform apply
 
-  terraform destroy
+  terraform destroy -force
 
 popd > /dev/null
