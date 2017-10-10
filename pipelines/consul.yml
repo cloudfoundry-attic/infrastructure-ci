@@ -769,8 +769,10 @@ jobs:
       BBL_STATE_DIR: consul-cf-cats
       SYSTEM_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
       VARS_STORE_FILE: consul-cf-cats/deployment-vars.yml
+      OPS_FILES: operations/use-compiled-releases.yml
     input_mapping:
       bbl-state: updated-bbl-state
+      ops-files: cf-deployment
     on_failure:
       do:
       - task: delete-cf-deployment
