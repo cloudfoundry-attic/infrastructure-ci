@@ -268,8 +268,6 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [consats-linux-turbulence]
-      trigger: true
     - get: cf-deployment-concourse-tasks
   - task: cleanup-consats-linux-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -383,8 +381,6 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [consats-linux]
-      trigger: true
     - get: cf-deployment-concourse-tasks
   - task: cleanup-consats-linux-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -520,8 +516,6 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [consats-windows]
-      trigger: true
     - get: cf-deployment-concourse-tasks
   - task: cleanup-consats-windows-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
@@ -632,8 +626,6 @@ jobs:
       resource: infrastructure-ci
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
-      passed: [consats-windows-turbulence]
-      trigger: true
     - get: cf-deployment-concourse-tasks
   - task: cleanup-consats-windows-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
