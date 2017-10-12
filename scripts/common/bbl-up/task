@@ -9,11 +9,6 @@ function check_fast_fails() {
     exit 1
   fi
 
-  if [ -z "${BBL_GCP_PROJECT_ID}" ]; then
-    echo "\$BBL_GCP_PROJECT_ID is a required parameter for GCP."
-    exit 1
-  fi
-
   if [ -z "${BBL_GCP_REGION}" ]; then
     echo "\$BBL_GCP_REGION is a required parameter for GCP."
     exit 1

@@ -303,7 +303,6 @@ jobs:
       params:
         BBL_IAAS: gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
         BBL_GCP_REGION: {{bbl_gcp_region}}
         BBL_GCP_ZONE: {{bbl_gcp_zone}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
@@ -313,7 +312,6 @@ jobs:
       params:
         BBL_IAAS: gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
         BBL_GCP_REGION: {{bbl_gcp_region}}
         BBL_GCP_ZONE: {{bbl_gcp_zone}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
@@ -337,7 +335,6 @@ jobs:
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
@@ -379,7 +376,6 @@ jobs:
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
@@ -399,7 +395,6 @@ jobs:
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
@@ -585,7 +580,6 @@ jobs:
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
@@ -605,7 +599,6 @@ jobs:
       params:
         BBL_STATE_DIR: bbl-gcp-cf
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       input_mapping:
         bbl-state: updated-bbl-state
       on_failure:
@@ -620,7 +613,6 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-gcp-cf
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       INFRASTRUCTURE: google
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -631,7 +623,6 @@ jobs:
       params:
         BBL_STATE_DIR: bbl-gcp-cf
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
@@ -644,7 +635,6 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-gcp-cf
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       SYSTEM_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
@@ -658,7 +648,6 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -668,7 +657,6 @@ jobs:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -677,7 +665,6 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
