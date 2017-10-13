@@ -47,6 +47,14 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
+- name: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: consul-release-develop
   type: git
   source:
@@ -657,6 +665,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
     - get: ops-files
       resource: empty-ops-files
     - get: cf-deployment
@@ -668,6 +677,7 @@ jobs:
     - get: cats-concourse-task
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
@@ -686,6 +696,7 @@ jobs:
     on_failure:
       task: bbl-destroy
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       input_mapping:
         bbl-state: updated-bbl-state
       params:
@@ -718,6 +729,7 @@ jobs:
           bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -728,6 +740,7 @@ jobs:
           rebase: true
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: consul-cf-cats
     input_mapping:
@@ -758,6 +771,7 @@ jobs:
           rebase: true
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_STATE_DIR: consul-cf-cats
       SYSTEM_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
@@ -770,12 +784,14 @@ jobs:
       do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
       - task: cleanup-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
@@ -794,6 +810,7 @@ jobs:
           bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -804,6 +821,7 @@ jobs:
           rebase: true
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       integration-configs: ci
     params:
@@ -814,12 +832,14 @@ jobs:
       do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
       - task: cleanup-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
@@ -838,6 +858,7 @@ jobs:
           bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
         params:
@@ -848,6 +869,7 @@ jobs:
           rebase: true
   - task: run-cats
     file: cats-concourse-task/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping: {integration-config: updated-integration-configs }
     params:
       CONFIG_FILE_PATH: artifacts/cats_config.json
@@ -855,12 +877,14 @@ jobs:
       do:
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
           bbl-state: updated-bbl-state
       - task: cleanup-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         params:
           BBL_STATE_DIR: consul-cf-cats
         input_mapping:
@@ -879,6 +903,7 @@ jobs:
           bbl-states-repo: updated-bbl-state
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
           bbl-state: updated-bbl-state
         params:
