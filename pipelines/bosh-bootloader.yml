@@ -84,7 +84,7 @@ resources:
 - name: bbl-release
   type: github-release
   source:
-    user: cloudfoundry
+    owner: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: true
@@ -92,7 +92,7 @@ resources:
 - name: bbl-release-official
   type: github-release
   source:
-    user: cloudfoundry
+    owner: cloudfoundry
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: false
@@ -107,7 +107,7 @@ resources:
 - name: terraform
   type: github-release
   source:
-    user: hashicorp
+    owner: hashicorp
     repository: terraform
 
 - name: bosh-cli
