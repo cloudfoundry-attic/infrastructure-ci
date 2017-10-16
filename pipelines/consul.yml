@@ -192,6 +192,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
     - get: stemcell
       resource: gcp-stemcell
       trigger: true
@@ -274,6 +275,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
   - task: cleanup-consats-linux-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -306,6 +308,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
     - get: stemcell
       resource: gcp-stemcell
       trigger: true
@@ -387,6 +390,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
   - task: cleanup-consats-linux-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -441,6 +445,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
     - get: windows-stemcell
       trigger: true
   - task: bbl-up
@@ -522,6 +527,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
   - task: cleanup-consats-windows-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -553,6 +559,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
@@ -633,6 +640,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
   - task: cleanup-consats-windows-deployment
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     params:
@@ -663,6 +671,7 @@ jobs:
     - get: bbl-state
       resource: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
+      version: { tag: "v4.16" }
     - get: cf-deployment-concourse-tasks-w-gcloud-image
     - get: ops-files
       resource: empty-ops-files
