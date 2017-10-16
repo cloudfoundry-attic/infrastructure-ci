@@ -42,10 +42,10 @@ resources:
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: cf-deployment-concourse-tasks
-  type: git
+  type: github-release
   source:
-    branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    owner: cloudfoundry
+    repository: cf-deployment-concourse-tasks
 
 - name: cf-deployment-concourse-tasks-w-gcloud-image
   type: docker-image
