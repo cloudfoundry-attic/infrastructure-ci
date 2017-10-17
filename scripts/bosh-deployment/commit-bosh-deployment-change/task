@@ -10,7 +10,12 @@ function main() {
     git fetch http
 
     git checkout master
-    git merge --no-edit bump-deployments-ci
+
+    if ! git merge --no-edit bump-deployments-ci ; then
+      git checkout --theirs bosh/deployment_files.go
+      git add .
+      git commit -m "Merge branch 'bump-deployments-ci'"
+    fi
 
     cp -r . ${ROOT}/bosh-bootloader
   popd > /dev/null
