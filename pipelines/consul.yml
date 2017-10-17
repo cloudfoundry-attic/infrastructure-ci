@@ -246,8 +246,10 @@ jobs:
       resource: gcp-stemcell
     - get: latest-consul-release
     - get: turbulence-release
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
   - task: consats-linux-turbulence
     file: ci/scripts/consul/run-consats/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
     params:
       BBL_STATE_DIR: consats-linux-turbulence
       PARALLEL_NODES: 3
@@ -255,6 +257,7 @@ jobs:
     ensure:
       task: delete-consats-linux-deployments
       file: ci/scripts/common/delete-deployments/task.yml
+      image: cf-deployment-concourse-tasks-w-gcloud-image
       params:
         BBL_STATE_DIR: consats-linux-turbulence
       input_mapping:
@@ -359,8 +362,10 @@ jobs:
       resource: gcp-stemcell
     - get: latest-consul-release
     - get: turbulence-release
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
   - task: consats-linux
     file: ci/scripts/consul/run-consats/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
     params:
       BBL_STATE_DIR: consats-linux
       PARALLEL_NODES: 8
@@ -368,6 +373,7 @@ jobs:
     ensure:
       task: delete-consats-linux-deployments
       file: ci/scripts/common/delete-deployments/task.yml
+      image: cf-deployment-concourse-tasks-w-gcloud-image
       params:
         BBL_STATE_DIR: consats-linux
       input_mapping:
@@ -414,8 +420,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-deployment
     - get: bosh-lite-stemcell
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
   - task: deploy-sample-manifest
     file: ci/scripts/common/deploy-sample-manifests/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
@@ -493,8 +501,10 @@ jobs:
       resource: gcp-stemcell
     - get: turbulence-release
     - get: latest-consul-release
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
   - task: consats-windows
     file: ci/scripts/consul/run-consats/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
     params:
       BBL_STATE_DIR: consats-windows
       PARALLEL_NODES: 7
@@ -503,6 +513,7 @@ jobs:
     ensure:
       task: delete-consats-windows-deployments
       file: ci/scripts/common/delete-deployments/task.yml
+      image: cf-deployment-concourse-tasks-w-gcloud-image
       params:
         BBL_STATE_DIR: consats-windows
       input_mapping:
@@ -604,8 +615,10 @@ jobs:
       resource: gcp-stemcell
     - get: turbulence-release
     - get: latest-consul-release
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
   - task: consats-windows
     file: ci/scripts/consul/run-consats/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
     params:
       BBL_STATE_DIR: consats-windows-turbulence
       PARALLEL_NODES: 3
@@ -614,6 +627,7 @@ jobs:
     ensure:
       task: delete-consats-windows-deployments
       file: ci/scripts/common/delete-deployments/task.yml
+      image: cf-deployment-concourse-tasks-w-gcloud-image
       params:
         BBL_STATE_DIR: consats-windows-turbulence
       input_mapping:
