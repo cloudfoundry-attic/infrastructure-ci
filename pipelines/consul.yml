@@ -12,8 +12,8 @@ groups:
   - consats-windows
   - teardown-consats-windows
   - cats
+  - teardown-cats
   - deploy-sample-manifest
-  - create-final-release
   - merge-master-into-develop
   - setup-consats-linux-turbulence
   - consats-linux-turbulence
@@ -21,6 +21,8 @@ groups:
   - setup-consats-windows-turbulence
   - consats-windows-turbulence
   - teardown-consats-windows-turbulence
+  - releasable
+  - create-final-release
 
 resources:
 - name: infrastructure-ci
@@ -703,13 +705,11 @@ jobs:
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
       ops-files: bbl-state
-    on_failure:
-      task: bbl-destroy
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      input_mapping:
-        bbl-state: updated-bbl-state
+    ensure:
+      put: infrastructure-ci-bbl-states
       params:
-        BBL_STATE_DIR: consul-cf-cats
+        repository: updated-bbl-state
+        rebase: true
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
     image: cf-deployment-concourse-tasks-w-gcloud-image
@@ -723,70 +723,12 @@ jobs:
       ACTION: add
     input_mapping:
       bbl-states-repo: updated-bbl-state
-    on_failure:
-      do:
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-w-gcloud-image
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        input_mapping:
-          bbl-state: updated-bbl-state
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-          BBL_GCP_REGION: {{gcp_region}}
-          BBL_GCP_ZONE: {{gcp_zone}}
-      - put: infrastructure-ci-bbl-states
-        params:
-          repository: updated-bbl-state
-          rebase: true
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     params:
       BBL_STATE_DIR: consul-cf-cats
     input_mapping:
       bbl-state: updated-bbl-state
-    on_failure:
-      do:
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-w-gcloud-image
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        input_mapping:
-          bbl-state: updated-bbl-state
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-          BBL_GCP_REGION: {{gcp_region}}
-          BBL_GCP_ZONE: {{gcp_zone}}
-      - put: infrastructure-ci-bbl-states
-        params:
-          repository: updated-bbl-state
-          rebase: true
   - task: deploy
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     params:
@@ -797,142 +739,80 @@ jobs:
     input_mapping:
       bbl-state: updated-bbl-state
       ops-files: cf-deployment
-    on_failure:
-      do:
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-w-gcloud-image
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        input_mapping:
-          bbl-state: updated-bbl-state
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-          BBL_GCP_REGION: {{gcp_region}}
-          BBL_GCP_ZONE: {{gcp_zone}}
-      - put: infrastructure-ci-bbl-states
-        params:
-          repository: updated-bbl-state
-          rebase: true
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-vars-store
+        rebase: true
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
       integration-configs: ci
+      vars-store: updated-vars-store
     params:
       CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
       VARS_STORE_FILE: consul-cf-cats/deployment-vars.yml
       SYSTEM_DOMAIN: consul-cf-cats.infrastructure.cf-app.com
-    on_failure:
-      do:
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-w-gcloud-image
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        input_mapping:
-          bbl-state: updated-bbl-state
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-          BBL_GCP_REGION: {{gcp_region}}
-          BBL_GCP_ZONE: {{gcp_zone}}
-      - put: infrastructure-ci-bbl-states
-        params:
-          repository: updated-bbl-state
-          rebase: true
   - task: run-cats
     file: cats-concourse-task/task.yml
     input_mapping: {integration-config: updated-integration-configs }
     params:
       CONFIG_FILE_PATH: artifacts/cats_config.json
-    ensure:
-      do:
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: cleanup-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-        input_mapping:
-          bbl-state: updated-bbl-state
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-w-gcloud-image
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-bbl-state
-      - task: bbl-destroy
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        input_mapping:
-          bbl-state: updated-bbl-state
-        params:
-          BBL_STATE_DIR: consul-cf-cats
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-          BBL_GCP_REGION: {{gcp_region}}
-          BBL_GCP_ZONE: {{gcp_zone}}
-      - put: infrastructure-ci-bbl-states
-        params:
-          repository: updated-bbl-state
-          rebase: true
+
+- name: teardown-cats
+  serial_groups: [cf-cats]
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-state
+      resource: infrastructure-ci-bbl-states
+      passed: [cats]
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-w-gcloud-image
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+  - task: cleanup-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+  - task: remove-from-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    image: cf-deployment-concourse-tasks-w-gcloud-image
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
+      ACTION: remove
+  - task: bbl-destroy
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    params:
+      BBL_STATE_DIR: consul-cf-cats
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_ZONE: {{gcp_zone}}
+  - put: infrastructure-ci-bbl-states
+    params:
+      repository: updated-bbl-state
+      rebase: true
+
+- name: releasable
+  serial: true
+  plan:
+  - aggregate:
+    - get: consul-release-develop
+      passed:
+      - consats-linux
+      - consats-windows
+      - cats
+      - deploy-sample-manifest
+      trigger: true
 
 - name: create-final-release
   serial: true
@@ -942,11 +822,7 @@ jobs:
       resource: infrastructure-ci
     - get: release-repo
       resource: consul-release-develop
-      passed:
-      - consats-linux
-      - consats-windows
-      - cats
-      - deploy-sample-manifest
+      passed: [releasable]
       trigger: true
     - get: release-repo-master
       resource: consul-release-master
