@@ -32,8 +32,8 @@ RUN /opt/rubies/ruby-2.2.4/bin/gem install bundler --no-rdoc --no-ri
 RUN /opt/rubies/ruby-2.2.4/bin/gem install bosh_cli --no-rdoc --no-ri
 
 # Install bosh_cli v2
-RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.29-linux-amd64 && \
-  mv bosh-cli-2.0.29-linux-amd64 /usr/local/bin/bosh && \
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.44-linux-amd64 && \
+  mv bosh-cli-2.0.44-linux-amd64 /usr/local/bin/bosh && \
   chmod +x /usr/local/bin/bosh
 
 # Install terraform
