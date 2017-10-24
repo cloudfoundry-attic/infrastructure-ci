@@ -789,6 +789,8 @@ jobs:
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: consul-cf-cats.infrastructure.cf-app.com
       ACTION: remove
+    input_mapping:
+      bbl-states-repo: bbl-state
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
