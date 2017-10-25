@@ -163,6 +163,22 @@ resources:
     paths:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev
 
+- name: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: cf-deployment-concourse-tasks-bbl-dev-w-gcloud-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+
 jobs:
 - name: test-bosh-bootloader
   public: true
@@ -420,9 +436,16 @@ jobs:
       - get: infrastructure-ci
         resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
         trigger: true
+      - get: infrastructure-ci
+        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile-w-gcloud
+        trigger: true
     - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
+        cache: false
+    - put: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+      params:
+        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         cache: false
 
 - name: passed-acceptance-tests
@@ -692,6 +715,8 @@ jobs:
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
+    - get: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+      passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment
@@ -735,7 +760,7 @@ jobs:
           repository: updated-bbl-state
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     params:
       BBL_STATE_DIR: bbl-gcp-cf-with-cats
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
