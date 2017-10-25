@@ -425,6 +425,7 @@ jobs:
       trigger: true
       passed:
       - aws-acceptance-tests
+      - azure-acceptance-tests
       - gcp-acceptance-tests
       - aws-concourse-acceptance-tests
       - gcp-concourse-acceptance-tests
