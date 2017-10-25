@@ -1,4 +1,4 @@
-FROM cfinfrastructure/cf-deployment-concourse-bbl-dev
+FROM cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 RUN \
