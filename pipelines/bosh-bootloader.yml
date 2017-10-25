@@ -433,19 +433,19 @@ jobs:
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
         trigger: true
-      - get: infrastructure-ci
+      - get: bbl-dev
         resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
         trigger: true
-      - get: infrastructure-ci
-        resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile-w-gcloud
+      - get: bbl-dev-w-gcloud
+        resource: cf-deployment-concourse-tasks-bbl-dev-w-gcloud-dockerfile
         trigger: true
     - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
-        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
+        build: bbl-dev/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
         cache: false
     - put: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
       params:
-        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+        build: bbl-dev-w-gcloud/dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         cache: false
 
 - name: passed-acceptance-tests
