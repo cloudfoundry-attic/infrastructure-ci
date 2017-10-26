@@ -25,4 +25,4 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: test
-    file: ci/scripts/misc/socks5-proxy/unit-tests/task.yml
+    file: ci/scripts/misc/socks5-proxy/task.yml

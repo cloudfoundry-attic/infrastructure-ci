@@ -11,4 +11,4 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/misc/socks5-proxy/unit-tests/task
+  path: ci/scripts/misc/socks5-proxy/task
