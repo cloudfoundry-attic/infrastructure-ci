@@ -1,0 +1,28 @@
+groups:
+- name: socks5-proxy
+  jobs:
+  - unit-tests
+
+resources:
+- name: socks5-proxy
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/socks5-proxy.git
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+jobs:
+- name: unit-tests
+  public: true
+  plan:
+  - aggregate:
+    - get: socks5-proxy
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: test
+    file: ci/scripts/misc/socks5-proxy/unit-tests/task.yml
