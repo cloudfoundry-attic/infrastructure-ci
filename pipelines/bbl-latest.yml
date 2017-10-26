@@ -4,13 +4,6 @@ groups:
   - unit-tests
   - deploy-app
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
 - name: bbl-latest-app
   type: git
@@ -24,10 +17,6 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
 - name: pws
   type: cf
   source:
@@ -50,10 +39,6 @@ jobs:
     file: ci/scripts/misc/bbl-latest/unit-tests/task.yml
     params:
       GITHUB_OAUTH_TOKEN: {{github_oauth_token}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 - name: deploy-app
   public: true
   plan:
@@ -63,7 +48,3 @@ jobs:
   - put: pws
     params:
       manifest: bbl-latest-app/apps/bbl-latest/manifest.yml
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
