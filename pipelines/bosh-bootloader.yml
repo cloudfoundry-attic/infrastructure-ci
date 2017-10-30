@@ -742,9 +742,9 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-gcp-cf-with-cats.bbl-test.ci.cf-app.com
+      BBL_LB_CERT: {{bbl_gcp_cf_with_cats_ssl_cert}}
+      BBL_LB_KEY: {{bbl_gcp_cf_with_cats_ssl_key}}
+      LB_DOMAIN: bbl-gcp-cf-with-cats.infrastructure.cf-app.com
       BBL_ENV_NAME: bbl-gcp-cf-with-cats
       BBL_STATE_DIR: bbl-gcp-cf-with-cats
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -808,7 +808,7 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-gcp-cf-with-cats
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      SYSTEM_DOMAIN: bbl-gcp-cf-with-cats.bbl-test.ci.cf-app.com
+      SYSTEM_DOMAIN: bbl-gcp-cf-with-cats.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-with-cats/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml
     on_failure:
@@ -830,6 +830,19 @@ jobs:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf-with-cats
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-w-gcloud-image
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-with-cats
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-gcp-cf-with-cats.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -846,10 +859,10 @@ jobs:
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
       integration-configs: ci
-      vars-store: updated-vars-store
+      vars-store: updated-bbl-state
     params:
       CATS_INTEGRATION_CONFIG_FILE: artifacts/cats_config.json
-      VARS_STORE_FILE: bbl-gcp-cf-with-cats/deployment-vars.yml
+      VARS_STORE_FILE: bbl-gcp-cf-with-cats/vars/director-deployment-vars.yml
       SYSTEM_DOMAIN: bbl-gcp-cf-with-cats.infrastructure.cf-app.com
   - task: run-cats
     file: cats-concourse-task/task.yml
@@ -875,6 +888,19 @@ jobs:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf-with-cats
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-w-gcloud-image
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-with-cats
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-gcp-cf-with-cats.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
