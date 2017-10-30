@@ -5,13 +5,12 @@ groups:
   - aws-acceptance-tests
   - azure-acceptance-tests
   - gcp-acceptance-tests
-  - aws-concourse-acceptance-tests
-  - gcp-concourse-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-aws-cf
   - bbl-gcp-cf
   - bbl-gcp-cf-with-cats
   - bbl-gcp-concourse
+  - bbl-aws-concourse
   - major
   - minor
   - passed-acceptance-tests
@@ -35,26 +34,6 @@ groups:
   - test-with-latest-bosh-cli
 
 resources:
-- name: aws-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-
-- name: gcp-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-trusty-go_agent
-
-# - name: garden-release
-#   type: bosh-io-release
-#   source:
-#     repository: cloudfoundry/garden-runc-release
-
-# - name: concourse-release
-#   type: bosh-io-release
-#   source:
-#     repository: concourse/concourse
-
 - name: bosh-bootloader
   type: git
   source:
@@ -364,49 +343,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: gcp
 
-- name: gcp-concourse-acceptance-tests
-  serial: true
-  plan:
-  - aggregate:
-    - get: concourse-deployment
-    - get: stemcell
-      resource: gcp-stemcell
-      trigger: true
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader
-      passed: [test-bosh-bootloader]
-      trigger: true
-  - task: test
-    file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-
-- name: aws-concourse-acceptance-tests
-  serial: true
-  plan:
-  - aggregate:
-    - get: concourse-deployment
-    - get: stemcell
-      resource: aws-stemcell
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader
-      passed: [test-bosh-bootloader]
-      trigger: true
-  - task: test
-    file: ci/scripts/bosh-bootloader/concourse-acceptance/task.yml
-    params:
-      BBL_IAAS: aws
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_REGION: {{aws_region}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-
 # Smoke-tests
 - name: test-with-latest-terraform
   serial: true
@@ -478,12 +414,13 @@ jobs:
   - aggregate:
     - get: concourse-deployment
     - get: bosh-bootloader
+      passed: [passed-acceptance-tests]
+      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-fork
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: vars-files
@@ -509,10 +446,6 @@ jobs:
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-state
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -568,11 +501,6 @@ jobs:
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
       MANIFEST_FILE: concourse-deployment.yml
       OPS_FILES: operations/gcp.yml
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-vars-store
-        rebase: true
     on_failure:
       do:
       - task: delete-concourse-deployment
@@ -655,126 +583,175 @@ jobs:
           params:
             repository: updated-bbl-state
 
-# - name: bbl-aws-concourse
-#   serial: true
-#   build_logs_to_retain: 100
-#   plan:
-#   - aggregate:
-#     - get: concourse-deployment
-#     - get: bosh-bootloader
-#     - get: cf-deployment-concourse-tasks
-#       resource: cf-deployment-concourse-tasks-fork
-#     - get: infrastructure-ci-bbl-states
-#     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#       passed: [bbl-downstream-docker-image]
-#       trigger: true
-#     - get: ci
-#       resource: infrastructure-ci
-#     - get: vars-files
-#       resource: infrastructure-ci-bbl-states
-#     - get: vars-store
-#       resource: infrastructure-ci-bbl-states
-#   - task: bbl-up
-#     file: cf-deployment-concourse-tasks/bbl-up/task.yml
-#     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#     params:
-#       BBL_IAAS: aws
-#       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-#       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-#       BBL_AWS_REGION: us-west-2
-#       BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-#       BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
-#       BBL_LB_TYPE: concourse
-#       BBL_ENV_NAME: bbl-aws-concourse
-#       BBL_STATE_DIR: bbl-aws-concourse
-#       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-#       GIT_COMMIT_USERNAME: CI Infra Bot
-#     input_mapping:
-#       bbl-state: infrastructure-ci-bbl-states
-#       ops-files: infrastructure-ci-bbl-states
-#     on_failure:
-#       task: bbl-up-destroy-infrastructure
-#       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-#       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#       params:
-#         BBL_STATE_DIR: bbl-aws-concourse
-#         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-#         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-#       input_mapping:
-#         bbl-state: updated-bbl-state
-#       on_failure:
-#         put: infrastructure-ci-bbl-states
-#         params:
-#           repository: updated-bbl-state
-#   - task: upload-stemcell
-#     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-#     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#     input_mapping:
-#       bbl-state: updated-bbl-state
-#     params:
-#       BBL_STATE_DIR: bbl-aws-concourse
-#       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-#       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-#       INFRASTRUCTURE: aws
-#     on_failure:
-#       task: upload-stemcell-destroy-infrastructure
-#       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-#       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#       input_mapping:
-#         bbl-state: updated-bbl-state
-#       params:
-#         BBL_STATE_DIR: bbl-aws-concourse
-#         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-#         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-#       on_failure:
-#         put: infrastructure-ci-bbl-states
-#         params:
-#           repository: updated-bbl-state
-#   - task: deploy-concourse
-#     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-#     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#     input_mapping:
-#       bbl-state: updated-bbl-state
-#     params:
-#       BBL_STATE_DIR: bbl-aws-concourse
-#       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-#       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-#       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
-#       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
-#       MANIFEST_FILE: concourse-deployment.yml
-#     ensure:
-#       do:
-#       - task: delete-concourse-deployment
-#         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-#         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#         input_mapping:
-#           bbl-state: updated-bbl-state
-#         params:
-#           BBL_STATE_DIR: bbl-gcp-concourse
-#           DEPLOYMENT_NAME: concourse
-#       - task: bosh-cleanup
-#         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-#         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#         input_mapping:
-#           bbl-state: updated-bbl-state
-#         params:
-#           CLEAN_ALL: true
-#           BBL_STATE_DIR: bbl-gcp-concourse
-#           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-#           BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-#       - task: destroy-infrastructure
-#         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-#         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-#         input_mapping:
-#           bbl-state: updated-bbl-state
-#         params:
-#           BBL_STATE_DIR: bbl-gcp-concourse
-#           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-#           BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-#         on_failure:
-#           put: infrastructure-ci-bbl-states
-#           params:
-#             repository: updated-bbl-state
+- name: bbl-aws-concourse
+  serial: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: concourse-deployment
+    - get: bosh-bootloader
+      passed: [passed-acceptance-tests]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+      resource: cf-deployment-concourse-tasks-fork
+    - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: aws
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_REGION: us-west-2
+      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      BBL_LB_TYPE: concourse
+      BBL_ENV_NAME: bbl-aws-concourse
+      BBL_STATE_DIR: bbl-aws-concourse
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_STATE_DIR: bbl-aws-concourse
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      input_mapping:
+        bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-aws-concourse
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      INFRASTRUCTURE: aws
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-aws-concourse
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
+  - task: deploy-concourse
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-aws-concourse
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
+      VARS_STORE_FILE: bbl-aws-concourse/deployment-vars.yml
+      MANIFEST_FILE: concourse-deployment.yml
+    on_failure:
+      do:
+      - task: delete-concourse-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-concourse
+          DEPLOYMENT_NAME: concourse
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-aws-concourse
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-concourse
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
+  - task: curl-concourse
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      params:
+        BBL_STATE_DIR: bbl-aws-concourse
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | cut -d '[' -f 2 | tr -d ']') | grep '<title>Concourse</title>'"
+    ensure:
+      do:
+      - task: delete-concourse-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-concourse
+          DEPLOYMENT_NAME: concourse
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-aws-concourse
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-aws-concourse
+          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
 
 - name: passed-acceptance-tests
   plan:
@@ -785,10 +762,6 @@ jobs:
       - aws-acceptance-tests
       - azure-acceptance-tests
       - gcp-acceptance-tests
-      - aws-concourse-acceptance-tests
-      - gcp-concourse-acceptance-tests
-      # - bbl-aws-concourse
-      # - bbl-gcp-concourse
       - bbl-downstream-docker-image
 
 - name: bbl-aws-cf
@@ -1246,6 +1219,8 @@ jobs:
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
+      - bbl-aws-concourse
+      - bbl-gcp-concourse
 
 - name: github-release
   plan:
