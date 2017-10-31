@@ -591,7 +591,7 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [passed-acceptance-tests]
-      trigger: true
+      # trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-fork
     - get: infrastructure-ci-bbl-states
@@ -640,10 +640,12 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       bbl-state: updated-bbl-state
+      cf-deployment: concourse-deployment
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      MANIFEST_FILE: concourse-deployment.yml
       INFRASTRUCTURE: aws
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -664,6 +666,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       bbl-state: updated-bbl-state
+      cf-deployment: concourse-deployment
+      ops-files: concourse-deployment
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
