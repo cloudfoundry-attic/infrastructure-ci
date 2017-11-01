@@ -673,7 +673,7 @@ jobs:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
-      VARS_STORE_FILE: bbl-aws-concourse/deployment-vars.yml
+      VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
       MANIFEST_FILE: concourse-deployment.yml
     on_failure:
       do:
