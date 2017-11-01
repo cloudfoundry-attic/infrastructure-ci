@@ -388,7 +388,7 @@ jobs:
   - do:
     - aggregate:
       - get: bosh-bootloader
-        passed: [test-bosh-bootloader]
+        passed: [passed-acceptance-tests]
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
         trigger: true
@@ -414,7 +414,7 @@ jobs:
   - aggregate:
     - get: concourse-deployment
     - get: bosh-bootloader
-      passed: [passed-acceptance-tests]
+      passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-fork
@@ -590,7 +590,7 @@ jobs:
   - aggregate:
     - get: concourse-deployment
     - get: bosh-bootloader
-      passed: [passed-acceptance-tests]
+      passed: [bbl-downstream-docker-image]
       # trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-fork
@@ -766,7 +766,6 @@ jobs:
       - aws-acceptance-tests
       - azure-acceptance-tests
       - gcp-acceptance-tests
-      - bbl-downstream-docker-image
 
 - name: bbl-aws-cf
   serial: true
@@ -774,7 +773,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [passed-acceptance-tests]
+      passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -898,7 +897,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [passed-acceptance-tests]
+      passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
@@ -1016,7 +1015,7 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      passed: [passed-acceptance-tests]
+      passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
     - get: infrastructure-ci-bbl-states
