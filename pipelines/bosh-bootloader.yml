@@ -261,7 +261,7 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_REGION: {{aws_region}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: aws
+        BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
     - task: up-after-plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -271,7 +271,7 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_REGION: {{aws_region}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: aws
+        BBL_TEST_PACKAGES: bbl
         RUN_TEST: up-after-plan
 
 - name: azure-acceptance-tests
@@ -342,7 +342,7 @@ jobs:
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
         BBL_AZURE_LOCATION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: azure
+        BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
     - task: up-after-plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -354,7 +354,7 @@ jobs:
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
         BBL_AZURE_LOCATION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: azure
+        BBL_TEST_PACKAGES: bbl
         RUN_TEST: up-after-plan
 
 - name: gcp-acceptance-tests
