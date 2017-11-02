@@ -253,6 +253,26 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: aws
         RUN_TEST: bosh-deployment-vars
+    - task: plan
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: plan
+    - task: up-after-plan
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_REGION: {{aws_region}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: aws
+        RUN_TEST: up-after-plan
 
 - name: azure-acceptance-tests
   serial: true
@@ -312,6 +332,30 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: azure
         RUN_TEST: bosh-deployment-vars
+    - task: plan
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: azure
+        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
+        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
+        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
+        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: azure
+        RUN_TEST: plan
+    - task: up-after-plan
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: azure
+        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
+        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
+        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
+        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: azure
+        RUN_TEST: up-after-plan
 
 - name: gcp-acceptance-tests
   serial: true
@@ -591,7 +635,7 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      # trigger: true
+      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-fork
     - get: infrastructure-ci-bbl-states
