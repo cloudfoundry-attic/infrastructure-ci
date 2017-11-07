@@ -7,6 +7,7 @@ groups:
   - gcp-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-aws-cf
+  - bbl-lite-gcp
   - bbl-gcp-cf
   - bbl-gcp-cf-with-cats
   - bbl-gcp-concourse
@@ -930,6 +931,123 @@ jobs:
           BBL_STATE_DIR: bbl-aws-cf
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            repository: updated-bbl-state
+
+- name: bbl-lite-gcp
+  serial: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      passed: [bbl-downstream-docker-image]
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+      resource: cf-deployment-concourse-tasks-fork
+    - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_ZONE: {{bbl_gcp_zone}}
+      BBL_CREATE_LBS: false
+      BBL_PLAN_PATCH: bosh-lite-patch
+      BBL_ENV_NAME: bbl-lite-gcp
+      BBL_STATE_DIR: bbl-lite-gcp
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      ops-files: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      params:
+        BBL_STATE_DIR: bbl-lite-gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      input_mapping:
+        bbl-state: updated-bbl-state
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-lite-gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      INFRASTRUCTURE: google
+    on_failure:
+      task: upload-stemcell-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-lite-gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          repository: updated-bbl-state
+  - task: deploy-cf
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: bbl-lite-gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      SYSTEM_DOMAIN: bbl-lite-gcp.infrastructure.cf-app.com
+      VARS_STORE_FILE: bbl-lite-gcp/deployment-vars.yml
+      OPS_FILES: operations/use-compiled-releases.yml operations/bosh-lite.yml
+    ensure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-lite-gcp
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-lite-gcp
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-lite-gcp
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
