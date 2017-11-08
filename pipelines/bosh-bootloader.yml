@@ -504,6 +504,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -530,6 +531,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -578,6 +580,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -626,6 +629,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 - name: bbl-aws-concourse
@@ -679,6 +683,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -705,6 +710,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -752,6 +758,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -800,6 +807,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 - name: passed-acceptance-tests
@@ -864,6 +872,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -888,6 +897,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -934,6 +944,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 - name: bbl-lite-gcp
@@ -987,6 +998,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -1009,6 +1021,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -1051,6 +1064,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 - name: bbl-gcp-cf
@@ -1104,6 +1118,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
@@ -1126,6 +1141,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -1168,6 +1184,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 
@@ -1226,6 +1243,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
@@ -1261,6 +1279,7 @@ jobs:
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
+          rebase: true
           repository: updated-bbl-state
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
@@ -1316,6 +1335,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
   - task: update-integration-config
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
@@ -1374,6 +1394,7 @@ jobs:
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
+            rebase: true
             repository: updated-bbl-state
 
 - name: releasable
