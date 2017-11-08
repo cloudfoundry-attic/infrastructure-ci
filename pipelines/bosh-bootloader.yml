@@ -1008,7 +1008,7 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-lite-gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      INFRASTRUCTURE: google
+      INFRASTRUCTURE: bosh-lite
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
