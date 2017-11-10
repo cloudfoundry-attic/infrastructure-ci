@@ -15,6 +15,15 @@ pushd terraforming-aws > /dev/null
   export TF_VAR_rds_instance_count=1
   export TF_VAR_dns_suffix=terraforming-aws-env.example.com
 
+  echo env_name=${TF_VAR_env_name} > terraform.tfvars
+  echo access_key=${TF_VAR_access_key} >> terraform.tfvars
+  echo secret__key=${TF_VAR_secret_key} >> terraform.tfvars
+  echo region=${TF_VAR_region} >> terraform.tfvars
+  echo availability_zones=${TF_VAR_availability_zones} >> terraform.tfvars
+  echo ops_manager_ami=${TF_VAR_ops_manager_ami} >> terraform.tfvars
+  echo rds_instance_count=${TF_VAR_rds_instance_count} >> terraform.tfvars
+  echo dns_suffix=${TF_VAR_dns_suffix} >> terraform.tfvars
+
   terraform plan -out=plan
 
   terraform apply
