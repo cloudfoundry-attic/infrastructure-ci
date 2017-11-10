@@ -139,10 +139,12 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
-- name: cf-deployment-concourse-tasks-fork
+# Fork of cf-deployment-concourse-tasks that has features
+# we need that are not yet merged into upstream
+- name: cf-deployment-concourse-tasks-infrastructure
   type: git
   source:
-    branch: lb-type
+    branch: infrastructure
     uri: https://github.com/mcwumbly/cf-deployment-concourse-tasks.git
 
 - name: cf-deployment-concourse-tasks-docker-image
@@ -462,7 +464,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-fork
+      resource: cf-deployment-concourse-tasks-infrastructure
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -491,6 +493,7 @@ jobs:
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
+      bbl-plan-patch: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -642,7 +645,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-fork
+      resource: cf-deployment-concourse-tasks-infrastructure
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -670,6 +673,7 @@ jobs:
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
+      bbl-plan-patch: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -956,7 +960,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-fork
+      resource: cf-deployment-concourse-tasks-infrastructure
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -978,7 +982,7 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_CREATE_LBS: false
-      BBL_PLAN_PATCH: bosh-lite-patch
+      BBL_PLAN_PATCH: plan-patches/bosh-lite-gcp
       BBL_ENV_NAME: bbl-lite-gcp
       BBL_STATE_DIR: bbl-lite-gcp
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -986,6 +990,7 @@ jobs:
     input_mapping:
       bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
+      bbl-plan-patch: bosh-bootloader
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
