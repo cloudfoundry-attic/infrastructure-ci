@@ -8,8 +8,8 @@ pushd terraforming-aws > /dev/null
   set +x
     echo "access_key = \"${AWS_ACCESS_KEY_ID}\"" >> terraform.tfvars
     echo "secret_key = \"${AWS_SECRET_ACCESS_KEY}\"" >> terraform.tfvars
-    echo "ssl_cert=<<EOF\n${AWS_SSL_CERT}\nEOF" >> terraform.tfvars
-    echo "ssl_private_key=<<EOF\n${AWS_SSL_CERT_PRIVATE_KEY}\nEOF" >> terraform.tfvars
+    echo -e "ssl_cert = <<EOF\n${AWS_SSL_CERT}\nEOF" >> terraform.tfvars
+    echo -e "ssl_private_key = <<EOF\n${AWS_SSL_CERT_PRIVATE_KEY}\nEOF" >> terraform.tfvars
   set -x
   echo 'region = "us-west-1"' >> terraform.tfvars
   echo 'availability_zones = ["us-west-1a", "us-west-1c"]' >> terraform.tfvars
