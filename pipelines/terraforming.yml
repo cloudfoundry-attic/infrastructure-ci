@@ -36,6 +36,8 @@ jobs:
     params:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      AWS_SSL_CERT: {{ssl_cert}}
+      AWS_SSL_CERT_PRIVATE_KEY: {{ssl_cert_private_key}}
 
 - name: terraforming-gcp
   plan:
