@@ -25,6 +25,7 @@ resources:
 
 jobs:
 - name: terraforming-aws
+  serial: true
   plan:
   - aggregate:
     - get: terraforming-aws
@@ -40,6 +41,7 @@ jobs:
       AWS_SSL_CERT_PRIVATE_KEY: {{ssl_cert_private_key}}
 
 - name: terraforming-gcp
+  serial: true
   plan:
   - aggregate:
     - get: terraforming-gcp
