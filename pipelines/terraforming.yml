@@ -26,11 +26,12 @@ resources:
 jobs:
 - name: terraforming-aws
   plan:
-  - get: terraforming-aws
-    trigger: true
-  - get: ci
-    resource: infrastructure-ci
-  - task: check-syntax
+  - aggregate:
+    - get: terraforming-aws
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: apply-and-destroy
     file: ci/scripts/terraforming/check-aws-syntax/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
@@ -38,11 +39,12 @@ jobs:
 
 - name: terraforming-gcp
   plan:
-  - get: terraforming-gcp
-    trigger: true
-  - get: ci
-    resource: infrastructure-ci
-  - task: check-syntax
+  - aggregate:
+    - get: terraforming-gcp
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: apply-and-destroy
     file: ci/scripts/terraforming/check-gcp-syntax/task.yml
     params:
       GCP_PROJECT_ID: {{gcp_project_id}}
