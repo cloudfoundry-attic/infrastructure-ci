@@ -1,4 +1,4 @@
-#!/bin/bash -exu
+#!/bin/bash -xu
 
 pushd terraforming-gcp > /dev/null
 
@@ -21,7 +21,9 @@ pushd terraforming-gcp > /dev/null
   key="$(echo "${GCP_SSL_CERT_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
   echo -e "ssl_cert_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
 
-  terraform plan
+  set -e
+    terraform plan
+  set +e
 
   terraform apply
 

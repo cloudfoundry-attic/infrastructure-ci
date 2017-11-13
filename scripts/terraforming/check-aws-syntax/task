@@ -1,4 +1,4 @@
-#!/bin/bash -exu
+#!/bin/bash -xu
 
 pushd terraforming-aws > /dev/null
 
@@ -17,7 +17,9 @@ pushd terraforming-aws > /dev/null
   echo 'rds_instance_count = 1' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-aws-env.example.com"'  >> terraform.tfvars
 
-  terraform plan -out=plan
+  set -e
+    terraform plan -out=plan
+  set +e
 
   terraform apply
 
