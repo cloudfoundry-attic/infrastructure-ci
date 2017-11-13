@@ -6,7 +6,7 @@ pushd terraforming-aws > /dev/null
 
   echo 'env_name="terraforming-aws-env"' > terraform.tfvars
   echo "access_key = \"${AWS_ACCESS_KEY_ID}\"" >> terraform.tfvars
-  echo 'secret_key = \"${AWS_SECRET_ACCESS_KEY}\"' >> terraform.tfvars
+  echo "secret_key = \"${AWS_SECRET_ACCESS_KEY}\"" >> terraform.tfvars
   echo 'region = "us-west-1"' >> terraform.tfvars
   echo 'availability_zones = ["us-west-1a", "us-west-1c"]' >> terraform.tfvars
   echo 'ops_manager_ami = "ami-4f291f2f"' >> terraform.tfvars
