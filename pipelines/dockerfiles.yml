@@ -7,14 +7,15 @@ groups:
   - deployment-docker-image
   - cf-deployment-concourse-tasks-w-gcloud-image
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
+- name: terraform-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/terraform
+
 - name: deployment-dockerfile
   type: git
   source:
@@ -98,11 +99,6 @@ resources:
     repository: bosh-bootloader
     access_token: {{cf_infra_bot_user_github_access_token}}
 
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
-
 jobs:
 - name: minimal-docker-image
   public: true
@@ -120,10 +116,6 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/minimal
         cache: false
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: golang-docker-image
   public: true
@@ -142,10 +134,6 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/golang
         cache: false
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 - name: deployment-docker-image
   public: true
@@ -166,10 +154,24 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/deployment
         cache: false
-      on_failure:
-        put: slack-alert
+
+- name: terraform-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: deployment-docker-image
+        passed: [deployment-docker-image]
+        trigger: true
         params:
-          text: {{slack_failure_text}}
+          skip_download: true
+      - get: infrastructure-ci
+        resource: terraform-dockerfile
+        trigger: true
+    - put: terraform-image
+      params:
+        build: infrastructure-ci/dockerfiles/terraform
+        cache: false
 
 - name: cf-deployment-concourse-tasks-w-gcloud-image
   public: true
@@ -185,7 +187,3 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-w-gcloud
         cache: false
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
