@@ -26,6 +26,7 @@ resources:
 jobs:
 - name: terraforming-aws
   serial: true
+  public: false
   plan:
   - aggregate:
     - get: terraforming-aws
@@ -42,6 +43,7 @@ jobs:
 
 - name: terraforming-gcp
   serial: true
+  public: false
   plan:
   - aggregate:
     - get: terraforming-gcp
