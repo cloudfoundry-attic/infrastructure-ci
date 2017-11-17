@@ -5,6 +5,7 @@ groups:
   - minimal-docker-image
   - golang-docker-image
   - deployment-docker-image
+  - terraform-image
   - cf-deployment-concourse-tasks-w-gcloud-image
 
 resources:
@@ -92,6 +93,14 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: terraform-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/terraform
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: bbl-release
   type: github-release
   source:
@@ -168,7 +177,7 @@ jobs:
       - get: infrastructure-ci
         resource: terraform-dockerfile
         trigger: true
-    - put: terraform-image
+    - put: terraform-docker-image
       params:
         build: infrastructure-ci/dockerfiles/terraform
         cache: false
