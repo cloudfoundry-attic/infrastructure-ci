@@ -19,7 +19,7 @@ pushd terraforming-gcp > /dev/null
   echo -e "ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
 
   key="$(echo "${GCP_SSL_CERT_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
-  echo -e "ssl_cert_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
+  echo -e "ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
 
   set -e
     terraform plan -out=plan
