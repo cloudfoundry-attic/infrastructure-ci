@@ -1,10 +1,12 @@
 FROM cfinfrastructure/minimal
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
+ENV GO_VERSION 1.9
+
 # Install go
-RUN wget https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz && \
-  tar -C /usr/local -xzf go1.9.linux-amd64.tar.gz && \
-  rm -rf go1.9.linux-amd64.tar.gz
+RUN wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && \
+  tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
+  rm -rf go${GO_VERSION}.linux-amd64.tar.gz
 RUN chown -R testuser:testuser /usr/local/go/pkg
 
 # Create directory for GOPATH

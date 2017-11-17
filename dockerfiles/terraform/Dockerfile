@@ -1,6 +1,8 @@
 FROM cfinfrastructure/golang
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
+ENV TERRAFORM_VERSION 0.11.0
+
 RUN \
       apt-get update && \
       apt-get -qqy install --fix-missing \
@@ -26,7 +28,7 @@ ENV PATH $PATH:/home/root/.gem/ruby/2.2.4/bin:/opt/rubies/ruby-2.2.4/lib/ruby/ge
 RUN chmod -R 777 /opt/rubies/
 
 # Install terraform
-RUN wget https://releases.hashicorp.com/terraform/0.11.0/terraform_0.11.0_linux_amd64.zip && \
-  unzip terraform_0.11.0_linux_amd64.zip && \
-  rm terraform_0.11.0_linux_amd64.zip && \
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+  rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
