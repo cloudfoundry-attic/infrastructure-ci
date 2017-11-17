@@ -25,7 +25,7 @@ pushd terraforming-gcp > /dev/null
     terraform plan -out=plan
   set +e
 
-  terraform apply
+  terraform apply plan
 
   terraform destroy -force
 
