@@ -22,7 +22,7 @@ pushd terraforming-gcp > /dev/null
   echo -e "ssl_cert_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
 
   set -e
-    terraform plan
+    terraform plan -out=plan
   set +e
 
   terraform apply
