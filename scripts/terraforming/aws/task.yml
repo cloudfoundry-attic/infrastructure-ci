@@ -11,7 +11,7 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/terraforming/check-aws-syntax/task
+  path: ci/scripts/terraforming/aws/task
 
 params:
   AWS_ACCESS_KEY_ID:

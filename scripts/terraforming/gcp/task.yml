@@ -11,7 +11,7 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/terraforming/check-gcp-syntax/task
+  path: ci/scripts/terraforming/gcp/task
 
 params:
   GCP_PROJECT_ID:

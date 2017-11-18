@@ -34,12 +34,30 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: apply-and-destroy
-    file: ci/scripts/terraforming/check-aws-syntax/task.yml
+    file: ci/scripts/terraforming/aws/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       AWS_SSL_CERT: {{ssl_cert}}
       AWS_SSL_PRIVATE_KEY: {{ssl_cert_private_key}}
+
+- name: terraforming-azure
+  serial: true
+  public: false
+  plan:
+  - aggregate:
+    - get: terraforming-azure
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: apply-and-destroy
+    file: ci/scripts/terraforming/azure/task.yml
+    params:
+      AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+      AZURE_TENANT_ID: {{azure_tenant_id}}
+      AZURE_CLIENT_ID: {{azure_client_id}}
+      AZURE_CLIENT_SECRET: {{azure_client_secret}}
+      AZURE_VM_ADMIN_PASSWORD: {{azure_vm_admin_password}}
 
 - name: terraforming-gcp
   serial: true
@@ -51,7 +69,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - task: apply-and-destroy
-    file: ci/scripts/terraforming/check-gcp-syntax/task.yml
+    file: ci/scripts/terraforming/gcp/task.yml
     params:
       GCP_PROJECT_ID: {{gcp_project_id}}
       GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}

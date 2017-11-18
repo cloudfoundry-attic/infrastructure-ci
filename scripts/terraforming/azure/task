@@ -1,0 +1,28 @@
+#!/bin/bash -xu
+
+pushd terraforming-gcp > /dev/null
+
+  terraform init
+
+  echo "subscription_id = \"${AZURE_SUBSCRIPTION_ID}\"" > terraform.tfvars
+  echo "tenant_id = \"${AZURE_TENANT_ID}\"" >> terraform.tfvars
+  echo "client_id = \"${AZURE_CLIENT_ID}\"" >> terraform.tfvars
+  echo "client_secret = \"${AZURE_CLIENT_SECRET}\"" >> terraform.tfvars
+
+  echo 'env_name = "terraforming-azure-env"' >> terraform.tfvars
+  echo 'env_short_name = "tf-azure-env"' >> terraform.tfvars
+  echo 'ops_manager_image_uri = "https://opsmanagerwestus.blob.core.windows.net/images/ops-manager-1.12.0.vhd"' >> terraform.tfvars
+  echo 'location = "West US"' >> terraform.tfvars
+  echo 'vm_admin_username = "admin-username"' >> terraform.tfvars
+  echo "vm_admin_password = \"${AZURE_VM_ADMIN_PASSWORD}\"" >> terraform.tfvars
+  echo 'dns_suffix = "terraforming-azure-env.cf-app.com"' >> terraform.tfvars
+
+  set -e
+    terraform plan -out=plan
+  set +e
+
+  terraform apply plan
+
+  terraform destroy -force
+
+popd > /dev/null

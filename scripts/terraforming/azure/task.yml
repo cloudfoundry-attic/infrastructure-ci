@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/terraform
+
+inputs:
+- name: terraforming-azure
+- name: ci
+
+run:
+  path: ci/scripts/terraforming/azure/task
+
+params:
+  AZURE_SUBSCRIPTION_ID:
+  AZURE_TENANT_ID:
+  AZURE_CLIENT_ID:
+  AZURE_CLIENT_SECRET:
+  AZURE_VM_ADMIN_PASSWORD:
