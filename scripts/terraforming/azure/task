@@ -10,7 +10,7 @@ pushd terraforming-azure > /dev/null
   echo "client_secret = \"${AZURE_CLIENT_SECRET}\"" >> terraform.tfvars
 
   echo 'env_name = "terraformingazure"' >> terraform.tfvars
-  echo 'env_short_name = "terraformingazure"' >> terraform.tfvars
+  echo 'env_short_name = "tfazure"' >> terraform.tfvars
   echo 'ops_manager_image_uri = "https://opsmanagerwestus.blob.core.windows.net/images/ops-manager-1.12.0.vhd"' >> terraform.tfvars
   echo 'location = "West US"' >> terraform.tfvars
   echo 'vm_admin_username = "admin-username"' >> terraform.tfvars
