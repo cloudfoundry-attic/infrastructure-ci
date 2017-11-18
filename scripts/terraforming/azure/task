@@ -1,6 +1,6 @@
 #!/bin/bash -xu
 
-pushd terraforming-gcp > /dev/null
+pushd terraforming-azure > /dev/null
 
   terraform init
 
