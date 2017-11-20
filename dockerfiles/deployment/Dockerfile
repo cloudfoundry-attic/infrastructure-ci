@@ -1,6 +1,9 @@
 FROM cfinfrastructure/golang
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
+ENV TERRAFORM_VERSION 0.10.8
+ENV BOSH_CLI_VERSION 2.0.44
+
 RUN \
       apt-get update && \
       apt-get -qqy install --fix-missing \
@@ -32,14 +35,14 @@ RUN /opt/rubies/ruby-2.2.4/bin/gem install bundler --no-rdoc --no-ri
 RUN /opt/rubies/ruby-2.2.4/bin/gem install bosh_cli --no-rdoc --no-ri
 
 # Install bosh_cli v2
-RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.44-linux-amd64 && \
-  mv bosh-cli-2.0.44-linux-amd64 /usr/local/bin/bosh && \
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 && \
+  mv bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 /usr/local/bin/bosh && \
   chmod +x /usr/local/bin/bosh
 
 # Install terraform
-RUN wget https://releases.hashicorp.com/terraform/0.11.0/terraform_0.11.0_linux_amd64.zip && \
-  unzip terraform_0.11.0_linux_amd64.zip && \
-  rm terraform_0.11.0_linux_amd64.zip && \
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+  rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
 
 # Install gcloud
