@@ -10,13 +10,6 @@ groups:
   - delete-worker-deployment
   - teardown-worker-infrastructure
 
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
 resources:
 - name: cf-deployment-concourse-tasks
   type: git
@@ -51,11 +44,6 @@ resources:
     bucket: bosh-windows-stemcells
     regexp: light-bosh-stemcell-(.*)-google-kvm-windows2012R2-go_agent.tgz
 
-- name: slack-alert
-  type: slack-notification
-  source:
-    url: https://hooks.slack.com/services/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
-
 jobs:
 - name: unit-tests
   public: true
@@ -71,10 +59,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         GOVCLOUD_AWS_SECRET_ACCESS_KEY: {{govcloud_images_secret_access_key}}
         GOVCLOUD_AWS_ACCESS_KEY_ID: {{govcloud_images_access_key_id}}
-      on_failure:
-        put: slack-alert
-        params:
-          text: {{slack_failure_text}}
 
 # Infrastructure
 - name: setup-worker-infrastructure
@@ -100,10 +84,6 @@ jobs:
       params:
         repository: updated-bbl-state
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: deploy-worker
   public: true
@@ -130,10 +110,6 @@ jobs:
       TSA_HOST: {{wings_tsa_host}}
       TSA_PUBLIC_KEY: {{wings_tsa_public_key}}
       TSA_WORKER_PRIVATE_KEY: {{windows_tsa_worker_private_key}}
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
 
 - name: delete-worker-deployment
   public: true
@@ -176,7 +152,3 @@ jobs:
       params:
         repository: bbl-states-repo-out
         rebase: true
-    on_failure:
-      put: slack-alert
-      params:
-        text: {{slack_failure_text}}
