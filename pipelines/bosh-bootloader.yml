@@ -310,6 +310,8 @@ jobs:
       resource: infrastructure-ci
   - aggregate:
     - task: bbl-up
+      tags:
+      - {{vsphere_network_name}}
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: vsphere
@@ -329,6 +331,8 @@ jobs:
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
     - task: bosh-deployment-vars
+      tags:
+      - {{vsphere_network_name}}
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: vsphere
