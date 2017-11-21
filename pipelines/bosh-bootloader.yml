@@ -1541,6 +1541,7 @@ jobs:
           version: { tag: bbl-release/number }
           globs:
           - bbl-*_osx
+          - bbl-*_linux_x86-64
         trigger: true
       - get: ci
         resource: infrastructure-ci
