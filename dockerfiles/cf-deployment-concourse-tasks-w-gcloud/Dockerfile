@@ -1,4 +1,4 @@
-FROM relintdockerhubpushbot/cf-deployment-concourse-tasks
+FROM relintdockerhubpushbot/cf-deployment-concourse-tasks:latest
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 RUN \
