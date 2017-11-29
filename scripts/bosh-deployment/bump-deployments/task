@@ -24,8 +24,6 @@ function main() {
     commitish=$(git -C ./jumpbox-deployment rev-parse HEAD)
 
     echo "- *Current jumpbox-deployment: cppforlife/jumpbox-deployment@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm jumpbox-deployment/.gitignore
-    rm jumpbox-deployment/README.md
     rm -rf jumpbox-deployment/.git
   popd
 
@@ -36,11 +34,7 @@ function main() {
     commitish=$(git -C ./bosh-deployment rev-parse HEAD)
 
     echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment@${commitish}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm bosh-deployment/.gitignore
-    rm bosh-deployment/README.md
     rm -rf bosh-deployment/.git
-    rm -rf bosh-deployment/ci
-    rm -rf bosh-deployment/docs
   popd
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
