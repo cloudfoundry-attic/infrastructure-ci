@@ -515,6 +515,7 @@ jobs:
         trigger: true
       - get: ci
         resource: infrastructure-ci
+      - get: cf-deployment-concourse-tasks-bbl-dev-dockerfile
       - get: bbl-dev
         resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
         trigger: true
@@ -524,9 +525,9 @@ jobs:
     - task: prepare-bbl-dev-docker-workspace
       file: ci/scripts/bosh-bootloader/prepare-docker-workspace/task.yml
       input_mapping:
-        dockerfiles: bbl-dev
+        dockerfiles: cf-deployment-concourse-tasks-bbl-dev-dockerfile
       params:
-        DOCKERFILE: cf-deployment-concourse-tasks-bbl-dev/Dockerfile
+        DOCKERFILE: dockerfiles/cf-deployment-concourse-tasks-bbl-dev/Dockerfile
     - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
         build: docker-workspace
