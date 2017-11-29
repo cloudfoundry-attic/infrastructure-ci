@@ -513,16 +513,25 @@ jobs:
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
         trigger: true
+      - get: ci
+        resource: infrastructure-ci
       - get: bbl-dev
         resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
         trigger: true
       - get: bbl-dev-w-gcloud
         resource: cf-deployment-concourse-tasks-bbl-dev-w-gcloud-dockerfile
         trigger: true
+    - task: prepare-bbl-dev-docker-workspace
+      file: ci/scripts/bosh-bootloader/prepare-docker-workspace/task.yml
+      input_mapping:
+        dockerfiles: bbl-dev
+      params:
+        DOCKERFILE: cf-deployment-concourse-tasks-bbl-dev/Dockerfile
     - put: cf-deployment-concourse-tasks-bbl-dev-docker-image
       params:
-        build: bbl-dev/dockerfiles/cf-deployment-concourse-tasks-bbl-dev
+        build: docker-workspace
         cache: false
+    # - task: copy-bbl-for-bbl-dev-w-gcloud
     - put: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
       params:
         build: bbl-dev-w-gcloud/dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud

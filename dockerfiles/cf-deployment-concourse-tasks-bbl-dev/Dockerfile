@@ -11,8 +11,8 @@ ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 # go install latest bosh-bootloader develop
-RUN git clone https://github.com/cloudfoundry/bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader && \
-  cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
+ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
+RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
   git rev-parse HEAD && go install github.com/cloudfoundry/bosh-bootloader/bbl
 
 # Install bosh_cli v2.0.44
