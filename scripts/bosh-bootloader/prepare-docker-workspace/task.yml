@@ -22,4 +22,4 @@ run:
   - -c
   - |
     cp -R ./bosh-bootloader docker-workspace/
-    cp "${dockerfiles}/${DOCKERFILE}" docker-workspace/
+    cp "dockerfiles/${DOCKERFILE}" docker-workspace/
