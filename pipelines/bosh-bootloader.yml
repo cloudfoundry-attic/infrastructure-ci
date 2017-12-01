@@ -369,7 +369,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
@@ -381,7 +381,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: no-director
@@ -393,7 +393,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
@@ -405,7 +405,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: azure
         RUN_TEST: bosh-deployment-vars
@@ -417,7 +417,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
@@ -429,7 +429,7 @@ jobs:
         BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
         BBL_AZURE_CLIENT_ID: {{azure_client_id}}
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_LOCATION: {{azure_location}}
+        BBL_AZURE_REGION: {{azure_location}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: up-after-plan
