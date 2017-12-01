@@ -633,7 +633,6 @@ jobs:
       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
       MANIFEST_FILE: concourse-deployment.yml
-      OPS_FILES: operations/gcp.yml
     on_failure:
       do:
       - task: delete-concourse-deployment
