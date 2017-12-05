@@ -4,8 +4,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/pivotal-cf-experimental/gomegamatchers"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -46,7 +44,7 @@ var _ = Describe("Generate", func() {
 		manifest, err := Generate("fixtures/example.yml")
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(manifest).To(gomegamatchers.MatchYAML(expectedManifest))
+		Expect(manifest).To(MatchYAML(expectedManifest))
 	})
 
 	Context("failure cases", func() {
