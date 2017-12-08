@@ -11,6 +11,7 @@ function main() {
 
   echo "cleaning up orphaned disks and releases"
   bosh -n clean-up --all
+  pkill ssh
 }
 
 function setup_bosh_env_vars() {
