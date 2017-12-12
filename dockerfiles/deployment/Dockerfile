@@ -10,6 +10,7 @@ RUN \
             apt-transport-https \
             awscli \
             openssl \
+            silversearcher-ag \
             unzip \
       && \
       apt-get clean
