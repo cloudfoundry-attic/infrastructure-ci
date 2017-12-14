@@ -17,6 +17,8 @@ var _ = Describe("Generate", func() {
 			"BOSH_CLIENT":                   "some-bosh-username",
 			"BOSH_CLIENT_SECRET":            "some-bosh-password",
 			"BOSH_CA_CERT":                  "some-bosh-director-ca-cert",
+			"JUMPBOX_URL":                   "some-jumpbox-url",
+			"JUMPBOX_PRIVATE_KEY":           "fixtures/jumpbox.key",
 			"PARALLEL_NODES":                "10",
 			"CONSUL_RELEASE_VERSION":        "some-consul-release-version",
 			"STEMCELL_VERSION":              "some-stemcell-version",

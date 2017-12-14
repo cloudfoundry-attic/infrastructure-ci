@@ -32,6 +32,12 @@ properties:
         username: some-bosh-username
         password: some-bosh-password
         director_ca_cert: some-bosh-director-ca-cert
+      jumpbox:
+        private_key: |
+          -----BEGIN RSA PRIVATE KEY-----
+          some-key
+          -----END RSA PRIVATE KEY-----
+        url: some-jumpbox-url
       parallel_nodes: 10
       consul_release_version: some-consul-release-version
       latest_consul_release_version: some-latest-consul-release-version
