@@ -45,6 +45,10 @@ type Manifest struct {
 					Password       string `yaml:"password"`
 					DirectorCACert string `yaml:"director_ca_cert"`
 				} `yaml:"bosh"`
+				Jumpbox struct {
+					PrivateKey string `yaml:private_key,omitempty"`
+					URL        string `yaml:"url,omitempty"`
+				} `yaml:"jumpbox,omitempty"`
 				ParallelNodes              int    `yaml:"parallel_nodes"`
 				ConsulReleaseVersion       string `yaml:"consul_release_version"`
 				LatestConsulReleaseVersion string `yaml:"latest_consul_release_version"`
@@ -85,6 +89,9 @@ func Generate(exampleManifestFilePath string) ([]byte, error) {
 	manifest.Properties.Consul.AcceptanceTests.BOSH.Username = os.Getenv("BOSH_CLIENT")
 	manifest.Properties.Consul.AcceptanceTests.BOSH.Password = os.Getenv("BOSH_CLIENT_SECRET")
 	manifest.Properties.Consul.AcceptanceTests.BOSH.DirectorCACert = os.Getenv("BOSH_CA_CERT")
+
+	manifest.Properties.Consul.AcceptanceTests.Jumpbox.PrivateKey = os.Getenv("JUMPBOX_PRIVATE_KEY")
+	manifest.Properties.Consul.AcceptanceTests.Jumpbox.URL = os.Getenv("JUMPBOX_URL")
 
 	manifest.Properties.Consul.AcceptanceTests.ConsulReleaseVersion = os.Getenv("CONSUL_RELEASE_VERSION")
 	manifest.Properties.Consul.AcceptanceTests.LatestConsulReleaseVersion = os.Getenv("LATEST_CONSUL_RELEASE_VERSION")
