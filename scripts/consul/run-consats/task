@@ -31,6 +31,7 @@ function setup_bosh_env_vars() {
   set +x
   pushd "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" > /dev/null
     eval "$(bbl print-env)"
+    export JUMPBOX_URL="$(bbl jumpbox-address):22"
   popd > /dev/null
   set -x
 }
