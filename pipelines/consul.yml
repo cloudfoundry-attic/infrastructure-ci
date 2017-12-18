@@ -293,6 +293,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
         BBL_STATE_DIR: consats-linux-turbulence
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -414,6 +415,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
         BBL_STATE_DIR: consats-linux
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -558,6 +560,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
         BBL_STATE_DIR: consats-windows
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -677,6 +680,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
         BBL_STATE_DIR: consats-windows-turbulence
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
