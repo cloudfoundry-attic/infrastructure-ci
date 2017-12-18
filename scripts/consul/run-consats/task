@@ -108,7 +108,7 @@ function teardown() {
   set +e
   bosh -d consats -n delete-deployment
   bosh -d consats -n delete-release consul
-  pkill ssh
+  pkill ssh || true
   set -e
 }
 
