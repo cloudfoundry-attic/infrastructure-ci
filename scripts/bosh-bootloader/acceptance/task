@@ -7,7 +7,7 @@ mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
   ln -s "${ROOT}/bosh-bootloader"
 
-  TF_LOG=DEBUG
-  TF_LOG_PATH="${ROOT}/tf-logs.txt"
+  export TF_LOG=DEBUG
+  export TF_LOG_PATH="${ROOT}/tf-logs.txt"
   ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
 popd > /dev/null
