@@ -245,16 +245,6 @@ jobs:
         BBL_TEST_PACKAGES: aws
         RUN_TEST: plan-lbs
   - aggregate:
-    - task: upgrade
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: bbl
-        RUN_TEST: upgrade
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
