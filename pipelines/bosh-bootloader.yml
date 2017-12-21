@@ -120,13 +120,11 @@ resources:
     branch: master
     uri: https://github.com/evanfarrar/concourse-deployment.git
 
-# CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
-  type: github-release
+  type: git
   source:
-    user: cloudfoundry
-    repository: cf-deployment-concourse-tasks
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    tag_filter: v4.21
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
 # Fork of cf-deployment-concourse-tasks that has features
 # we need that are not yet merged into upstream
