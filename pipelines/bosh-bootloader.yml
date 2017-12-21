@@ -122,10 +122,11 @@ resources:
 
 # CF Deployment Concourse Tasks Resource
 - name: cf-deployment-concourse-tasks
-  type: git
+  type: github-release
   source:
-    branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    user: cloudfoundry
+    repository: cf-deployment-concourse-tasks
+    access_token: {{cf_infra_bot_user_github_access_token}}
 
 # Fork of cf-deployment-concourse-tasks that has features
 # we need that are not yet merged into upstream
@@ -932,7 +933,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
@@ -943,12 +944,12 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1059,7 +1060,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: bosh-bootloader
     on_failure:
@@ -1070,12 +1071,12 @@ jobs:
         BBL_STATE_DIR: bbl-lite-gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       input_mapping:
-        env-repo: updated-bbl-state
+        bbl-state: updated-bbl-state
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
