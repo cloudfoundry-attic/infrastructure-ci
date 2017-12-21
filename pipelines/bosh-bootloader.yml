@@ -932,7 +932,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
@@ -943,12 +943,12 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
+          repository: updated-env-repo
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1059,7 +1059,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: bosh-bootloader
     on_failure:
@@ -1070,12 +1070,12 @@ jobs:
         BBL_STATE_DIR: bbl-lite-gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-bbl-state
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
+          repository: updated-env-repo
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
