@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+
+inputs:
+  - name: bbl-state
+  - name: ci
+
+params:
+  BBL_STATE_DIR:
+
+run:
+  path: ci/scripts/bosh-bootloader/test-bosh-ssh/task
