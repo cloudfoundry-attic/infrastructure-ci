@@ -120,7 +120,7 @@ resources:
     branch: master
     uri: https://github.com/evanfarrar/concourse-deployment.git
 
-- name: cf-deployment-concourse-tasks
+- name: cdct
   type: git
   source:
     tag_filter: v4.21
@@ -903,6 +903,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -1189,6 +1190,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
