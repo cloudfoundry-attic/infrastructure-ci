@@ -1031,7 +1031,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -1052,8 +1052,7 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_CREATE_LBS: false
-      BBL_PLAN_PATCH: plan-patches/bosh-lite-gcp
+      IS_BOSH_LITE: true
       BBL_ENV_NAME: bbl-lite-gcp
       BBL_STATE_DIR: bbl-lite-gcp
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
