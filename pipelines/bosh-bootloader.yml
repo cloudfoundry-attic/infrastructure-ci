@@ -40,6 +40,9 @@ resources:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: {{cf_infra_bot_user_github_private_key}}
+    ignore_paths:
+      - docs/**
+      - README.md
 
 - name: infrastructure-ci
   type: git
