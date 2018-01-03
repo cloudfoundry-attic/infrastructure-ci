@@ -5,7 +5,6 @@ groups:
   - aws-acceptance-tests
   - azure-acceptance-tests
   - gcp-acceptance-tests
-  - vsphere-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-aws-cf
   - bbl-lite-gcp
@@ -274,58 +273,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
-
-- name: vsphere-acceptance-tests
-  serial: true
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      passed: [test-bosh-bootloader]
-      trigger: true
-    - get: ci
-      resource: infrastructure-ci
-  - task: bosh-deployment-vars
-    tags:
-    - {{vsphere_network_name}}
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-      BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-      BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-      BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: vsphere
-      RUN_TEST: bosh-deployment-vars
-  - task: bbl-up
-    tags:
-    - {{vsphere_network_name}}
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-      BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-      BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-      BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: bbl
-      RUN_TEST: bbl-up
 
 - name: azure-acceptance-tests
   serial: true
@@ -1177,7 +1124,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          env-repo: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-lite-gcp
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -1185,7 +1132,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          env-repo: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-lite-gcp
@@ -1194,7 +1141,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          env-repo: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-lite-gcp
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
