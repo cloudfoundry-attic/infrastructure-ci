@@ -212,16 +212,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: up-after-plan
-    - task: bosh-deployment-vars
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: bosh-deployment-vars
     - task: create-lbs
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -320,18 +310,6 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
-    - task: bosh-deployment-vars
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
-        BBL_TEST_ENV_ID_PREFIX: bbl-ci
-        BBL_TEST_PACKAGES: azure
-        RUN_TEST: bosh-deployment-vars
     - task: lbs
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -386,7 +364,6 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
         BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
         BBL_GCP_REGION: {{bbl_gcp_region}}
-        BBL_GCP_ZONE: {{bbl_gcp_zone}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
     - task: gcp-tests
@@ -395,7 +372,6 @@ jobs:
         BBL_IAAS: gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
         BBL_GCP_REGION: {{bbl_gcp_region}}
-        BBL_GCP_ZONE: {{bbl_gcp_zone}}
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: gcp
 
@@ -416,7 +392,6 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
 
 - name: test-with-latest-bosh-cli
@@ -435,7 +410,6 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
 
 # CF Deployment Pipelines
@@ -500,7 +474,6 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       BBL_LB_TYPE: concourse
@@ -1011,7 +984,6 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       IS_BOSH_LITE: true
       BBL_ENV_NAME: bbl-lite-gcp
       BBL_STATE_DIR: bbl-lite-gcp
@@ -1180,7 +1152,6 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
