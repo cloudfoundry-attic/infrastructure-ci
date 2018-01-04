@@ -9,6 +9,7 @@ image_resource:
 
 inputs:
 - name: env-repo  # - The env repo containing the Director's bbl state dir
+- name: ci # - the repo containing this script
 
 run:
   path: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task
