@@ -11,7 +11,7 @@ inputs:
 - name: env-repo  # - The env repo containing the Director's bbl state dir
 
 run:
-  path: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task
+  path: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task
 
 params:
   BBL_STATE_DIR: bbl-state
