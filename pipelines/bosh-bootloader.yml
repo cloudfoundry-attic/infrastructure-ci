@@ -954,7 +954,7 @@ jobs:
           BBL_STATE_DIR: bbl-aws-cf
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        on_failure:
+        ensure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
