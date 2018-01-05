@@ -120,7 +120,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/evanfarrar/concourse-deployment.git
+    uri: https://github.com/concourse/concourse-deployment.git
 
 - name: cdct
   type: git
@@ -467,8 +467,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
@@ -505,18 +503,16 @@ jobs:
         params:
           rebase: true
           repository: updated-bbl-state
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+  - task: upload-concourse-stemcell
+    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
-      cf-deployment: concourse-deployment
+      env-repo: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-concourse
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       INFRASTRUCTURE: google
-      MANIFEST_FILE: concourse-deployment.yml
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -533,6 +529,25 @@ jobs:
         params:
           rebase: true
           repository: updated-bbl-state
+  - task: copy-version
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      source: concourse-deployment
+      destination: updated-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: source
+      - name: destination
+      outputs:
+      - name: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-gcp-concourse
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml && cp -r destination/* updated-bbl-state"
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -540,13 +555,16 @@ jobs:
       bbl-state: updated-bbl-state
       cf-deployment: concourse-deployment
       ops-files: concourse-deployment
+      vars-files: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-concourse
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
-      MANIFEST_FILE: concourse-deployment.yml
+      VARS_FILES: "bbl-gcp-concourse/concourse-defaults.yml bbl-gcp-concourse/concourse-secrets.yml bbl-gcp-concourse/versions.yml"
+      OPS_FILES: "cluster/operations/no-auth.yml cluster/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
+      MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
       - task: delete-concourse-deployment
@@ -647,8 +665,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
   - task: bbl-up
@@ -685,17 +701,15 @@ jobs:
         params:
           rebase: true
           repository: updated-bbl-state
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+  - task: upload-concourse-stemcell
+    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
-      cf-deployment: concourse-deployment
+      env-repo: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      MANIFEST_FILE: concourse-deployment.yml
       INFRASTRUCTURE: aws
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -713,6 +727,25 @@ jobs:
         params:
           rebase: true
           repository: updated-bbl-state
+  - task: copy-version
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      source: concourse-deployment
+      destination: updated-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: source
+      - name: destination
+      outputs:
+      - name: updated-bbl-state
+      params:
+        BBL_STATE_DIR: bbl-aws-concourse
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml && cp -r destination/* updated-bbl-state"
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -720,13 +753,16 @@ jobs:
       bbl-state: updated-bbl-state
       cf-deployment: concourse-deployment
       ops-files: concourse-deployment
+      vars-files: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
-      MANIFEST_FILE: concourse-deployment.yml
+      VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/versions.yml"
+      OPS_FILES: "cluster/operations/no-auth.yml cluster/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
+      MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
       - task: delete-concourse-deployment
