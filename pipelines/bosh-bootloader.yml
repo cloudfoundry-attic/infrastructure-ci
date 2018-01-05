@@ -861,11 +861,6 @@ jobs:
     input_mapping:
       env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -876,7 +871,7 @@ jobs:
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
         env-repo: updated-env-repo
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -891,11 +886,6 @@ jobs:
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       INFRASTRUCTURE: aws
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -907,7 +897,7 @@ jobs:
         BBL_STATE_DIR: bbl-aws-cf
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -954,7 +944,7 @@ jobs:
           BBL_STATE_DIR: bbl-aws-cf
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -998,11 +988,6 @@ jobs:
       env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: bosh-bootloader
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1012,7 +997,7 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       input_mapping:
         env-repo: updated-env-repo
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1026,11 +1011,6 @@ jobs:
       BBL_STATE_DIR: bbl-lite-gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       INFRASTRUCTURE: bosh-lite
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1041,7 +1021,7 @@ jobs:
         BBL_IAAS: gcp
         BBL_STATE_DIR: bbl-lite-gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1167,11 +1147,6 @@ jobs:
     input_mapping:
       env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1181,7 +1156,7 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       input_mapping:
         env-repo: updated-env-repo
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1195,11 +1170,6 @@ jobs:
       BBL_STATE_DIR: bbl-gcp-cf
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       INFRASTRUCTURE: google
-    on_success:
-      put: infrastructure-ci-bbl-states
-      params:
-        rebase: true
-        repository: updated-env-repo
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1210,7 +1180,7 @@ jobs:
         BBL_IAAS: gcp
         BBL_STATE_DIR: bbl-gcp-cf
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      ensure:
+      on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1253,7 +1223,7 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
