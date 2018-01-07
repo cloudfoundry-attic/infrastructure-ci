@@ -52,17 +52,17 @@ RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk-trusty main" > /et
   apt-get update && \
   apt-get -qqy install google-cloud-sdk
 
-# Install bbl
-RUN curl -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
-  sed -n '/browser_download_url.*linux/p' | \
-  cut -d\" -f4 | xargs wget && \
-  mv bbl-* /usr/local/bin/bbl && \
-  chmod +x /usr/local/bin/bbl
-
 # Install jq
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   mv jq-linux64 /usr/local/bin/jq && \
   chmod +x /usr/local/bin/jq
+
+# Install bbl
+RUN curl -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
+  jq -r '.assets[] | .browser_download_url | select(contains("linux"))' | \
+  xargs wget && \
+  mv bbl-* /usr/local/bin/bbl && \
+  chmod +x /usr/local/bin/bbl
 
 # Install spiff
 RUN wget https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.7/spiff_linux_amd64 && \
