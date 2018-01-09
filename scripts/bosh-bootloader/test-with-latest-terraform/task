@@ -17,5 +17,5 @@ mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
   ln -s "${ROOT}/bosh-bootloader"
 
-  ./bosh-bootloader/scripts/acceptance_tests gcp
+  ./bosh-bootloader/scripts/acceptance_tests bbl
 popd > /dev/null
