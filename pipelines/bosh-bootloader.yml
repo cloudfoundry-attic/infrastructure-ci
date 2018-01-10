@@ -103,6 +103,7 @@ resources:
   source:
     owner: hashicorp
     repository: terraform
+    access_token: {{cf_infra_bot_user_github_access_token}}
 
 - name: bosh-cli
   type: s3
