@@ -5,6 +5,7 @@ groups:
   - aws-acceptance-tests
   - azure-acceptance-tests
   - gcp-acceptance-tests
+  - vsphere-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-aws-cf
   - bbl-lite-gcp
@@ -275,34 +276,34 @@ jobs:
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
 
-# - name: vsphere-acceptance-tests
-#   serial: true
-#   plan:
-#   - aggregate:
-#     - get: bosh-bootloader
-#       passed: [test-bosh-bootloader]
-#       trigger: true
-#     - get: ci
-#       resource: infrastructure-ci
-#   - aggregate:
-#     - task: bbl-tests
-#       file: ci/scripts/bosh-bootloader/acceptance/task.yml
-#       params:
-#         BBL_IAAS: vsphere
-#         BBL_VSPHERE_NETWORK_NAME: {{vsphere_network_name}}
-#         BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
-#         BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-#         BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-#         BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-#         BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-#         BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-#         BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-#         BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-#         BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-#         BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-#         BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
-#         BBL_TEST_ENV_ID_PREFIX: bbl-ci
-#         BBL_TEST_PACKAGES: bbl
+- name: vsphere-acceptance-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - aggregate:
+    - task: bbl-tests
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: vsphere
+        BBL_VSPHERE_NETWORK_NAME: {{vsphere_network_name}}
+        BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
+        BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
+        BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
+        BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
+        BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
+        BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
+        BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
+        BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
+        BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
+        BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
+        BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
 
 - name: gcp-acceptance-tests
   serial: true
