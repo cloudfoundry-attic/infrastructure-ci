@@ -23,6 +23,9 @@ ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
 RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
   git rev-parse HEAD && go install github.com/cloudfoundry/bosh-bootloader/bbl
 
+RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader \
+  /var/repos/bosh-bootloader
+
 # Install bosh_cli v2.0.44
 RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.44-linux-amd64 && \
   mv bosh-cli-2.0.44-linux-amd64 /usr/local/bin/bosh && \
