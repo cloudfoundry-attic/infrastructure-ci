@@ -290,7 +290,7 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: vsphere
-        BBL_VSPHERE_NETWORK_NAME: {{vsphere_network_name}}
+        BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
         BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
         BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
         BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
