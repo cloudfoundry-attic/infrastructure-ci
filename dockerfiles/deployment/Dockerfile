@@ -12,6 +12,7 @@ RUN \
             openssl \
             silversearcher-ag \
             unzip \
+            tree \
       && \
       apt-get clean
 

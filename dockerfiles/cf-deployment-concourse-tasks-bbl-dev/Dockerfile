@@ -10,6 +10,14 @@ ENV GOPATH /go
 # add go and GOPATH/bin to PATH
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
+RUN \
+      apt-get update && \
+      apt-get -qqy install --fix-missing \
+            silversearcher-ag \
+            tree \
+      && \
+      apt-get clean
+
 # go install latest bosh-bootloader develop
 ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
 RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
