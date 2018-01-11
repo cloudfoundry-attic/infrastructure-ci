@@ -1225,6 +1225,7 @@ jobs:
       - bbl-gcp-cf
       - bbl-aws-concourse
       - bbl-gcp-concourse
+      - bbl-lite-gcp
 
 - name: github-release
   plan:
