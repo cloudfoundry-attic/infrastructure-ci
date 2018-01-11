@@ -287,6 +287,8 @@ jobs:
       resource: infrastructure-ci
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    tags:
+    - {{vsphere_network_name}}
     params:
       BBL_IAAS: vsphere
       BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
