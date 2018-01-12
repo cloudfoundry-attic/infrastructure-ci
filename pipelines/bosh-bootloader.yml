@@ -192,6 +192,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
     - get: ci
@@ -266,7 +267,7 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-gcp-cf-test
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      SYSTEM_DOMAIN: bbl-downstream-test.bbl-test.ci.cf-app.com
+      SYSTEM_DOMAIN: bbl-downstream-test.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-test/deployment-vars.yml
       OPS_FILES: "operations/use-compiled-releases.yml"
     on_failure:
@@ -301,10 +302,23 @@ jobs:
           params:
             rebase: true
             repository: updated-env-repo
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf-test
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
+      ACTION: add
+    input_mapping:
+      bbl-states-repo: updated-env-repo
   - task: ping-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      bbl-state: updated-env-repo
     config:
       platform: linux
       inputs:
@@ -315,9 +329,22 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "cf api https://api.bbl-downstream-test.bbl-test.ci.cf-app.com"
+          - "cf api https://api.bbl-downstream-test.infrastructure.cf-app.com"
     ensure:
       do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-env-repo
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
