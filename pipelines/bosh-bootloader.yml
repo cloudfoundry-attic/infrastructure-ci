@@ -1230,6 +1230,7 @@ jobs:
       resource: cdct
     - get: infrastructure-ci
     - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
     - get: ci
@@ -1341,7 +1342,7 @@ jobs:
             repository: updated-env-repo
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     params:
       BBL_STATE_DIR: bbl-gcp-cf-with-check
       GCP_DNS_PROJECT_ID: {{bbl_gcp_project_id}}
@@ -1374,7 +1375,7 @@ jobs:
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       - task: remove-from-gcp-dns
         file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         params:
           BBL_STATE_DIR: bbl-gcp-cf-with-check
           GCP_DNS_PROJECT_ID: {{bbl_gcp_project_id}}
@@ -1383,6 +1384,9 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-gcp-cf-with-check.infrastructure.cf-app.com
           ACTION: remove
+        input_mapping:
+          ci: infrastructure-ci
+          bbl-states-repo: updated-env-repo
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1426,7 +1430,7 @@ jobs:
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       - task: remove-from-gcp-dns
         file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         params:
           BBL_STATE_DIR: bbl-gcp-cf-with-check
           GCP_DNS_PROJECT_ID: {{bbl_gcp_project_id}}
@@ -1435,6 +1439,9 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-gcp-cf-with-check.infrastructure.cf-app.com
           ACTION: remove
+        input_mapping:
+          ci: infrastructure-ci
+          bbl-states-repo: updated-env-repo
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1475,7 +1482,7 @@ jobs:
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       - task: remove-from-gcp-dns
         file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         params:
           BBL_STATE_DIR: bbl-gcp-cf-with-check
           GCP_DNS_PROJECT_ID: {{bbl_gcp_project_id}}
@@ -1484,6 +1491,9 @@ jobs:
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-gcp-cf-with-check.infrastructure.cf-app.com
           ACTION: remove
+        input_mapping:
+          ci: infrastructure-ci
+          bbl-states-repo: updated-env-repo
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
