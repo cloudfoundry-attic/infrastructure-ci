@@ -19,7 +19,7 @@ groups:
   - releasable
   - github-release
 
-- name: test-vars
+- name: experimental
   jobs:
   - bbl-gcp-cf-test
 
@@ -135,12 +135,6 @@ resources:
     tag_filter: v5.*
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
-- name: cdct-master
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
-
 # Fork of cf-deployment-concourse-tasks that has features
 # we need that are not yet merged into upstream
 - name: cf-deployment-concourse-tasks-infrastructure
@@ -196,7 +190,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cdct-master
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
@@ -274,8 +268,54 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       SYSTEM_DOMAIN: bbl-downstream-test.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf-test/deployment-vars.yml
-      OPS_FILES: "operations/use-compiled-releases.yml operations/override-app-domains.yml"
-      VARS: "app_domains=\\\"[\"apps.cf-dsabeti.cf-app.com\"]\\\" smoke_test_app_domain=\\\"[\"apps.cf-dsabeti.cf-app.com\"]\\\""
+      OPS_FILES: "operations/use-compiled-releases.yml"
+    on_failure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-env-repo
+  - task: ping-cf
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      params:
+        BBL_STATE_DIR: bbl-gcp-cf-test
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "cf api https://api.bbl-downstream-test.bbl-test.ci.cf-app.com"
     ensure:
       do:
       - task: delete-cf-deployment
