@@ -1251,7 +1251,7 @@ jobs:
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-gcp-cf-with-check.infrastructure.cf-app.com
-      BBL_ENV_NAME: bbl-downstream
+      BBL_ENV_NAME: bbl-gcp-cf-with-check
       BBL_STATE_DIR: bbl-gcp-cf-with-check
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
