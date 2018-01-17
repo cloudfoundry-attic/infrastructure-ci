@@ -252,18 +252,18 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
-    # - task: bbl-up
-    #   file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    #   params:
-    #     BBL_IAAS: azure
-    #     BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-    #     BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-    #     BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-    #     BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-    #     BBL_AZURE_REGION: {{azure_location}}
-    #     BBL_TEST_ENV_ID_PREFIX: bbl-ci
-    #     BBL_TEST_PACKAGES: bbl
-    #     RUN_TEST: bbl-up
+    - task: bbl-up
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: azure
+        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
+        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
+        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
+        BBL_AZURE_REGION: {{azure_location}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: bbl-up
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
