@@ -26,7 +26,7 @@ pushd terraforming-gcp > /dev/null
     echo -e "ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
 
     echo -e "iso_seg_ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
-    echo -e "iso_seg_ssl_private_key = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
+    echo -e "iso_seg_ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
   set -x
 
   terraform plan -out=plan
