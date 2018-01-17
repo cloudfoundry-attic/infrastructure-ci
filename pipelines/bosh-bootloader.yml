@@ -630,6 +630,8 @@ jobs:
       BBL_AZURE_CLIENT_ID: {{azure_client_id}}
       BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
       BBL_AZURE_REGION: {{azure_location}}
+      BBL_LB_CERT: {{azure_lb_cert}}
+      BBL_LB_KEY: {{azure_lb_key}}
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-azure-concourse
       BBL_STATE_DIR: bbl-azure-concourse
