@@ -1,8 +1,10 @@
-#!/bin/bash -xu
+#!/bin/bash -exu
 
 pushd terraforming-gcp > /dev/null
 
   terraform init
+
+  trap 'terraform destroy -force; exit' EXIT
 
   echo 'env_name = "terraforming-gcp-env"' > terraform.tfvars
   echo "project = \"${GCP_PROJECT_ID}\"" >> terraform.tfvars
@@ -27,9 +29,7 @@ pushd terraforming-gcp > /dev/null
     echo -e "iso_seg_ssl_private_key = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
   set -x
 
-  set -e
-    terraform plan -out=plan
-  set +e
+  terraform plan -out=plan
 
   terraform apply plan
 
