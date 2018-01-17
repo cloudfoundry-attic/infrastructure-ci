@@ -7,7 +7,7 @@ function check_upload_stemcell_params() {
     exit 1
   fi
   local supported_infrastructures
-  supported_infrastructures=("aws" "google" "boshlite" "bosh-lite" "vsphere")
+  supported_infrastructures=("aws" "azure" "google" "boshlite" "bosh-lite" "vsphere")
   any_matched=false
   for iaas in ${supported_infrastructures[*]}; do
     if [ "${INFRASTRUCTURE}" == "${iaas}" ]; then
