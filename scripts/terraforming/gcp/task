@@ -22,6 +22,9 @@ pushd terraforming-gcp > /dev/null
 
     key="$(echo "${GCP_SSL_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
     echo -e "ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> terraform.tfvars
+
+    echo -e "iso_seg_ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
+    echo -e "iso_seg_ssl_private_key = <<SSL_CERT\n${cert}SSL_CERT" >> terraform.tfvars
   set -x
 
   set -e
