@@ -51,6 +51,8 @@ function upload_stemcell() {
     stemcell_name="${stemcell_name}-warden-boshlite"
   elif [ "$INFRASTRUCTURE" = "vsphere" ]; then
     stemcell_name="${stemcell_name}-vsphere-esxi"
+  elif [ "$INFRASTRUCTURE" = "azure" ]; then
+    stemcell_name="${stemcell_name}-azure-hyperv"
   fi
 
   stemcell_name="${stemcell_name}-${os}-${bosh_agent}"
