@@ -315,6 +315,38 @@ jobs:
       ACTION: add
     input_mapping:
       bbl-states-repo: updated-env-repo
+    on_failure:
+      do:
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf-test
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-env-repo
   - task: ping-cf
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
