@@ -23,7 +23,7 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-    - get: az-auomation
+    - get: az-automation
       trigger: true
   - task: test
     file: ci/scripts/terraforming/az-automation/task.yml
