@@ -25,7 +25,6 @@ RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
 
 RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader /var/repos
 
-# Install bosh_cli v2.0.44
-RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.44-linux-amd64 && \
-  mv bosh-cli-2.0.44-linux-amd64 /usr/local/bin/bosh && \
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.48-linux-amd64 && \
+  mv bosh-cli-2.0.48-linux-amd64 /usr/local/bin/bosh && \
   chmod +x /usr/local/bin/bosh

@@ -2,7 +2,7 @@ FROM cfinfrastructure/golang
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ENV TERRAFORM_VERSION 0.11.0
-ENV BOSH_CLI_VERSION 2.0.44
+ENV BOSH_CLI_VERSION 2.0.48
 
 RUN \
       apt-get update && \
