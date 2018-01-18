@@ -1,0 +1,29 @@
+groups:
+- name: az-automation
+  jobs:
+  - tests
+
+resources:
+- name: az-automation
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/genevievelesperance/az-automation.git
+
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+jobs:
+- name: tests
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: az-auomation
+      trigger: true
+  - task: test
+    file: ci/scripts/terraforming/az-automation/task.yml
