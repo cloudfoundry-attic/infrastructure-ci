@@ -1,10 +1,11 @@
 FROM relintdockerhubpushbot/cf-deployment-concourse-tasks
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
+ENV BOSH_CLI_VERSION 2.0.48
+
 # Create directory for GOPATH
 RUN mkdir -p /go/bin
 
-# set GOPATH
 ENV GOPATH /go
 
 # add go and GOPATH/bin to PATH
@@ -25,6 +26,6 @@ RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
 
 RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader /var/repos
 
-RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.48-linux-amd64 && \
-  mv bosh-cli-2.0.48-linux-amd64 /usr/local/bin/bosh && \
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 && \
+  mv bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 /usr/local/bin/bosh && \
   chmod +x /usr/local/bin/bosh
