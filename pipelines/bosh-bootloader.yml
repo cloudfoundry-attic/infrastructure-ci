@@ -1023,7 +1023,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | cut -d '[' -f 2 | tr -d ']') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | cut -d '(' -f 2 | tr -d ')') | grep '<title>Concourse</title>'"
     ensure:
       do:
       - task: delete-concourse-deployment
