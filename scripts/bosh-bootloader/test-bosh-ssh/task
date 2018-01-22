@@ -2,7 +2,5 @@
 
 set -e -x -u
 
-trap 'pkill ssh; exit' EXIT
-
 eval "$(bbl print-env --state-dir bbl-state/${BBL_STATE_DIR})"
 bosh ssh diego-cell -d cf 'echo "we made it!"'
