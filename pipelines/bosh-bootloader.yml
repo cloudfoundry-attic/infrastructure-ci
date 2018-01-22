@@ -213,7 +213,7 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-downstream-test.bbl-test.ci.cf-app.com
+      LB_DOMAIN: bbl-downstream-test.infrastructure.cf-app.com
       BBL_ENV_NAME: bbl-downstream-test
       BBL_STATE_DIR: bbl-gcp-cf-test
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -369,7 +369,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "cf api https://api.bbl-downstream-test.infrastructure.cf-app.com"
+          - "cf api https://api.bbl-downstream-test.infrastructure.cf-app.com --skip-ssl-validation"
     ensure:
       do:
       - task: remove-from-gcp-dns
