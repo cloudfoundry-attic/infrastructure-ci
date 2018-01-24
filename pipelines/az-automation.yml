@@ -69,7 +69,6 @@ jobs:
           globs:
           - az-automation-*_osx
           - az-automation-*_linux_x86-64
-        passed: [build-release]
       - get: ci
     - task: bump-brew-tap
       file: ci/scripts/az-automation/bump-brew-tap/task.yml
