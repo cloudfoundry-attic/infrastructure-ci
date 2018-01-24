@@ -33,7 +33,7 @@ function main() {
     echo "Building 64-bit Darwin"
 
     GOARCH=amd64 GOOS=darwin \
-      go build -o "{ROOT}/builds/bin/az-automation-v${VERSION}-darwin-amd64" .
+      go build -o "${ROOT}/builds/bin/az-automation-v${VERSION}-darwin-amd64" .
 
     echo "Building 64-bit Windows"
 
