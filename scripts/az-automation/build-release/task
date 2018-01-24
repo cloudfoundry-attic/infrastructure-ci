@@ -2,8 +2,9 @@
 
 ROOT="${PWD}"
 VERSION=$(cat "${ROOT}/release/version")
-LINUX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}_linux_x86-64"
-OSX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}_osx"
+LINUX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-linux-amd64"
+OSX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-darwin-amd64"
+WINDOWS_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-windows-amd64"
 
 function main() {
   local commit_sha
@@ -26,6 +27,11 @@ function main() {
 
     GOARCH=amd64 GOOS=darwin \
       go build -o "${OSX_BUILD_PATH}" .
+
+    echo "Building 64-bit Windows"
+
+    CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
+      go build -o "${WINDOWS_BUILD_PATH}" .
 
   popd > /dev/null
 
