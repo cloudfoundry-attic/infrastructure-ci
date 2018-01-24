@@ -35,12 +35,11 @@ jobs:
   - task: test
     file: infrastructure-ci/scripts/az-automation/test/task.yml
 
-- name: build-release 
+- name: build-release
   plan:
   - aggregate:
     - get: infrastructure-ci
-    - get: version
-      resource: az-automation-release
+    - get: az-automation-release
     - get: az-automation
   - task: test
     file: infrastructure-ci/scripts/az-automation/build-release/task.yml

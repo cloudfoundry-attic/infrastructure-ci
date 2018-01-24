@@ -8,7 +8,7 @@ image_resource:
 
 inputs:
 - name: az-automation
-- name: ci
+- name: infrastructure-ci
 
 run:
-  path: ci/scripts/terraforming/az-automation/task
+  path: infrastructure-ci/scripts/az-automation/test/task
