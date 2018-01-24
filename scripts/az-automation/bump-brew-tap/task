@@ -3,7 +3,7 @@
 set -e -x -u
 
 ROOT="${PWD}"
-VERSION=$(cat "${root}/release/version")
+VERSION=$(cat "${ROOT}/release/version")
 
 shaOS=$(shasum -a 256 release/az-automation-*_osx | cut -d ' ' -f 1)
 shaLinux=$(shasum -a 256 release/az-automation-*_linux_x86-64 | cut -d ' ' -f 1)
@@ -13,7 +13,7 @@ pushd homebrew-tap
 class AzAutomation < Formula
   desc "Command line utility for cleaning up orphaned IAAS resources."
   homepage "https://github.com/genevievelesperance/az-automation"
-  version "v${version}"
+  version "v${VERSION}"
 
   if OS.mac?
     url "https://github.com/genevievelesperance/az-automation/releases/download/#{version}/az-automation-#{version}_osx"
