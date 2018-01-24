@@ -41,5 +41,14 @@ jobs:
     - get: infrastructure-ci
     - get: az-automation-release
     - get: az-automation
-  - task: test
+      passed: [tests]
+  - task: build-release
     file: infrastructure-ci/scripts/az-automation/build-release/task.yml
+  - put: az-automation-release
+    params:
+      name: builds/name
+      tag: builds/name
+      commitish: builds/commitish
+      body: builds/body
+      globs:
+      - builds/bin/az-automation-*
