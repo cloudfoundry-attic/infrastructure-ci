@@ -4,6 +4,7 @@ ROOT="${PWD}"
 BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
 BBL_LINUX_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_linux_x86-64"
 BBL_OSX_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_osx"
+BBL_WINDOWS_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_windows"
 
 function main() {
   local bosh_bootloader_commit_sha
@@ -11,6 +12,7 @@ function main() {
 
   mkdir -p "${GOPATH}/src/github.com/cloudfoundry/"
   ln -s "${ROOT}/bosh-bootloader" "${GOPATH}/src/github.com/cloudfoundry/"
+
   bosh_bootloader_commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
   deployment_versions=$(cat "${ROOT}/bosh-bootloader/deployment-versions.txt")
 
@@ -30,9 +32,11 @@ function main() {
 
     linux_sha=$(shasum -a 256 "${BBL_LINUX_BUILD_PATH}" | cut -d ' ' -f 1)
     osx_sha=$(shasum -a 256 "${BBL_OSX_BUILD_PATH}" | cut -d ' ' -f 1)
+    windows_sha=$(shasum -a 256 "${BBL_WINDOWS_BUILD_PATH}" | cut -d ' ' -f 1)
 
     echo "- *Linux sha256: \`${linux_sha}\`*" >> body
     echo -n "- *OSX sha256: \`${osx_sha}\`*" >> body
+    echo -n "- *Windows sha256: \`${windows_sha}\`*" >> body
   popd > /dev/null
 }
 
@@ -48,6 +52,12 @@ function build_bbl() {
     go build \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_OSX_BUILD_PATH}" .
+
+  echo "Building 64-bit Windows"
+  CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
+    go build \
+    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -o "${BBL_WINDOWS_BUILD_PATH}" .
 }
 
 main
