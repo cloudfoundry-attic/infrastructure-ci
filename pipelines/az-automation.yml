@@ -51,7 +51,7 @@ jobs:
     - get: release
     - get: az-automation
       passed: [test]
-  - task: build-release
+  - task: build-release-with-minor-bump
     file: ci/scripts/az-automation/build-release/task.yml
   - put: release
     params:
@@ -64,6 +64,8 @@ jobs:
 - name: bump-brew-tap
   plan:
   - aggregate:
+    - get: az-automation
+      passed: [build-release]
     - get: homebrew-tap
     - get: release
       params:
@@ -71,6 +73,7 @@ jobs:
         globs:
         - az-automation-*_osx
         - az-automation-*_linux_x86-64
+      trigger: true
     - get: ci
       resource: infrastructure-ci
   - task: bump-brew-tap
