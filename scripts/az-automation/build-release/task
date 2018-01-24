@@ -2,9 +2,6 @@
 
 ROOT="${PWD}"
 VERSION=$(cat "${ROOT}/release/version")
-LINUX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-linux-amd64"
-OSX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-darwin-amd64"
-WINDOWS_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}-windows-amd64"
 
 function bump_minor_version() {
   major=$(cat "${ROOT}/release/version" | cut -d 'v' -f 2 | cut -d '.' -f 1)
@@ -31,17 +28,17 @@ function main() {
 
     CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
       go build -a -tags netgo -installsuffix netgo \
-      -o "${LINUX_BUILD_PATH}" .
+      -o "${ROOT}/builds/bin/az-automation-v${VERSION}-linux-amd64" .
 
     echo "Building 64-bit Darwin"
 
     GOARCH=amd64 GOOS=darwin \
-      go build -o "${OSX_BUILD_PATH}" .
+      go build -o "{ROOT}/builds/bin/az-automation-v${VERSION}-darwin-amd64" .
 
     echo "Building 64-bit Windows"
 
     CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
-      go build -o "${WINDOWS_BUILD_PATH}" .
+      go build -o "${ROOT}/builds/bin/az-automation-v${VERSION}-windows-amd64" .
 
   popd > /dev/null
 
