@@ -20,7 +20,7 @@ resources:
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: false
 
-- name: ci
+- name: infrastructure-ci
   type: git
   source:
     branch: master
@@ -37,6 +37,7 @@ jobs:
   plan:
   - aggregate:
     - get: ci
+      resource: infrastructure-ci
     - get: az-automation
       trigger: true
   - task: test
@@ -46,6 +47,7 @@ jobs:
   plan:
   - aggregate:
     - get: ci
+      resource: infrastructure-ci
     - get: release
     - get: az-automation
       passed: [test]
@@ -61,17 +63,18 @@ jobs:
 
 - name: bump-brew-tap
   plan:
-    - aggregate:
-      - get: homebrew-tap
-      - get: release
-        params:
-          version: { tag: release/version }
-          globs:
-          - az-automation-*_osx
-          - az-automation-*_linux_x86-64
-      - get: ci
-    - task: bump-brew-tap
-      file: ci/scripts/az-automation/bump-brew-tap/task.yml
-    - put: homebrew-tap
+  - aggregate:
+    - get: homebrew-tap
+    - get: release
       params:
-        repository: updated-homebrew-tap/homebrew-tap
+        version: { tag: release/version }
+        globs:
+        - az-automation-*_osx
+        - az-automation-*_linux_x86-64
+    - get: ci
+      resource: infrastructure-ci
+  - task: bump-brew-tap
+    file: ci/scripts/az-automation/bump-brew-tap/task.yml
+  - put: homebrew-tap
+    params:
+      repository: updated-homebrew-tap/homebrew-tap
