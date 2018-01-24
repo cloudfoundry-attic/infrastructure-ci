@@ -11,7 +11,7 @@ shaLinux=$(shasum -a 256 release/az-automation-*-linux-amd64 | cut -d ' ' -f 1)
 pushd homebrew-tap
   cat <<EOF > az-automation.rb
 class AzAutomation < Formula
-  desc "Command line utility for cleaning up orphaned IAAS resources."
+  desc "Command line utility for creating an Azure Service Principal."
   homepage "https://github.com/genevievelesperance/az-automation"
   version "v${VERSION}"
 
