@@ -19,10 +19,6 @@ groups:
   - releasable
   - github-release
 
-- name: experimental
-  jobs:
-  - bbl-gcp-cf-test
-
 - name: homebrew-tap
   jobs:
   - bump-brew-tap
@@ -132,8 +128,8 @@ resources:
 - name: cdct
   type: git
   source:
-    tag_filter: v5.*
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    branch: master
+    uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
 
 # Fork of cf-deployment-concourse-tasks that has features
 # we need that are not yet merged into upstream
@@ -141,7 +137,7 @@ resources:
   type: git
   source:
     branch: infrastructure
-    uri: https://github.com/mcwumbly/cf-deployment-concourse-tasks.git
+    uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
@@ -181,241 +177,6 @@ resources:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
 
 jobs:
-- name: bbl-gcp-cf-test
-  serial: true
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      passed: [bbl-downstream-docker-image]
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-      resource: cdct
-    - get: infrastructure-ci-bbl-states
-    - get: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      passed: [bbl-downstream-docker-image]
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment
-    - get: ops-files
-      resource: cf-deployment
-    - get: vars-files
-      resource: infrastructure-ci-bbl-states
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
-  - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-downstream-test.infrastructure.cf-app.com
-      BBL_ENV_NAME: bbl-downstream-test
-      BBL_STATE_DIR: bbl-gcp-cf-test
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
-    input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-    on_failure:
-      task: bbl-up-destroy-infrastructure
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      params:
-        BBL_STATE_DIR: bbl-gcp-cf-test
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      input_mapping:
-        env-repo: updated-env-repo
-      on_failure:
-        put: infrastructure-ci-bbl-states
-        params:
-          rebase: true
-          repository: updated-env-repo
-  - task: add-to-gcp-dns
-    file: ci/scripts/common/manage-gcp-dns/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
-    params:
-      BBL_STATE_DIR: bbl-gcp-cf-test
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
-      ACTION: add
-    input_mapping:
-      bbl-states-repo: updated-env-repo
-    on_failure:
-      task: destroy-infrastructure
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      input_mapping:
-        env-repo: updated-env-repo
-      params:
-        BBL_STATE_DIR: bbl-gcp-cf-test
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      on_failure:
-        put: infrastructure-ci-bbl-states
-        params:
-          rebase: true
-          repository: updated-env-repo
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      env-repo: updated-env-repo
-    params:
-      BBL_STATE_DIR: bbl-gcp-cf-test
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      INFRASTRUCTURE: google
-    on_failure:
-      do:
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-env-repo
-      - task: destroy-infrastructure
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        on_failure:
-          put: infrastructure-ci-bbl-states
-          params:
-            rebase: true
-            repository: updated-env-repo
-  - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      env-repo: updated-env-repo
-    params:
-      BBL_STATE_DIR: bbl-gcp-cf-test
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      SYSTEM_DOMAIN: bbl-downstream-test.infrastructure.cf-app.com
-      VARS_STORE_FILE: bbl-gcp-cf-test/deployment-vars.yml
-      OPS_FILES: "operations/use-compiled-releases.yml"
-    on_failure:
-      do:
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-env-repo
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          CLEAN_ALL: true
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      - task: destroy-infrastructure
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        on_failure:
-          put: infrastructure-ci-bbl-states
-          params:
-            rebase: true
-            repository: updated-env-repo
-  - task: ping-cf
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      bbl-state: updated-env-repo
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bbl-gcp-cf-test
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "cf api https://api.bbl-downstream-test.infrastructure.cf-app.com --skip-ssl-validation"
-    ensure:
-      do:
-      - task: remove-from-gcp-dns
-        file: ci/scripts/common/manage-gcp-dns/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-          GCP_DNS_ZONE_NAME: infrastructure
-          GCP_DNS_RECORD_SET_NAME: bbl-downstream-test.infrastructure.cf-app.com
-          ACTION: remove
-        input_mapping:
-          bbl-states-repo: updated-env-repo
-      - task: delete-cf-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          CLEAN_ALL: true
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      - task: destroy-infrastructure
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-gcp-cf-test
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        on_failure:
-          put: infrastructure-ci-bbl-states
-          params:
-            rebase: true
-            repository: updated-env-repo
-
 - name: test-bosh-bootloader
   public: true
   plan:
@@ -677,7 +438,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: infrastructure-ci-bbl-states
     on_failure:
@@ -689,17 +450,17 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
         BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
+          repository: updated-env-repo
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      env-repo: updated-bbl-state
+      env-repo: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-gcp-concourse
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -710,7 +471,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       params:
         BBL_IAAS: gcp
         BBL_STATE_DIR: bbl-gcp-concourse
@@ -720,34 +481,37 @@ jobs:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
-  - task: copy-version
+          repository: updated-env-repo
+  - task: copy-bosh-files
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       source: concourse-deployment
-      destination: updated-bbl-state
+      destination: updated-env-repo
     config:
       platform: linux
       inputs:
       - name: source
       - name: destination
       outputs:
-      - name: updated-bbl-state
+      - name: updated-env-repo
       params:
         BBL_STATE_DIR: bbl-gcp-concourse
       run:
         path: bash
         args:
           - "-c"
-          - "cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml && cp -r destination/* updated-bbl-state"
+          - >-
+            cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml \
+            && cp -r source/cluster/operations/* destination/${BBL_STATE_DIR}/operations/ \
+            && cp -r destination/* updated-env-repo
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      env-repo: updated-env-repo
       cf-deployment: concourse-deployment
-      ops-files: concourse-deployment
-      vars-files: updated-bbl-state
+      ops-files: updated-env-repo
+      vars-files: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-gcp-concourse
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -755,7 +519,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
       VARS_FILES: "bbl-gcp-concourse/concourse-defaults.yml bbl-gcp-concourse/concourse-secrets.yml bbl-gcp-concourse/versions.yml"
-      OPS_FILES: "cluster/operations/no-auth.yml cluster/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-gcp-concourse/operations/ports.yml bbl-gcp-concourse/operations/no-auth.yml bbl-gcp-concourse/operations/privileged-http.yml bbl-gcp-concourse/operations/privileged-https.yml bbl-gcp-concourse/operations/tls.yml bbl-gcp-concourse/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -763,7 +527,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-gcp-concourse
           DEPLOYMENT_NAME: concourse
@@ -771,7 +535,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-concourse
@@ -781,7 +545,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-gcp-concourse
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -790,11 +554,11 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      bbl-state: updated-env-repo
     config:
       platform: linux
       inputs:
@@ -812,7 +576,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-gcp-concourse
           DEPLOYMENT_NAME: concourse
@@ -820,7 +584,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-concourse
@@ -830,7 +594,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-gcp-concourse
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -839,7 +603,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
 
 - name: bbl-azure-concourse
   serial: true
@@ -877,7 +641,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: infrastructure-ci-bbl-states
     on_failure:
@@ -892,17 +656,17 @@ jobs:
         BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
         BBL_AZURE_REGION: {{azure_location}}
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
+          repository: updated-env-repo
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      env-repo: updated-bbl-state
+      env-repo: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-azure-concourse
       BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
@@ -916,7 +680,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       params:
         BBL_IAAS: azure
         BBL_STATE_DIR: bbl-azure-concourse
@@ -929,34 +693,37 @@ jobs:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
-  - task: copy-version
+          repository: updated-env-repo
+  - task: copy-bosh-files
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       source: concourse-deployment
-      destination: updated-bbl-state
+      destination: updated-env-repo
     config:
       platform: linux
       inputs:
       - name: source
       - name: destination
       outputs:
-      - name: updated-bbl-state
+      - name: updated-env-repo
       params:
         BBL_STATE_DIR: bbl-azure-concourse
       run:
         path: bash
         args:
           - "-c"
-          - "cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml && cp -r destination/* updated-bbl-state"
+          - >-
+            cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml \
+            && cp -r source/cluster/operations/* destination/${BBL_STATE_DIR}/operations/ \
+            && cp -r destination/* updated-env-repo
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      env-repo: updated-env-repo
       cf-deployment: concourse-deployment
       ops-files: concourse-deployment
-      vars-files: updated-bbl-state
+      vars-files: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-azure-concourse
       BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
@@ -967,7 +734,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-azure-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbl-azure-concourse/versions.yml"
-      OPS_FILES: "cluster/operations/no-auth.yml cluster/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-azure-concourse/operations/ports.yml bbl-azure-concourse/operations/no-auth.yml bbl-azure-concourse/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -975,7 +742,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-azure-concourse
           DEPLOYMENT_NAME: concourse
@@ -983,7 +750,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-azure-concourse
@@ -996,7 +763,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-azure-concourse
           BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
@@ -1008,11 +775,11 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      bbl-state: updated-env-repo
     config:
       platform: linux
       inputs:
@@ -1030,7 +797,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-azure-concourse
           DEPLOYMENT_NAME: concourse
@@ -1038,7 +805,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-azure-concourse
@@ -1051,7 +818,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-azure-concourse
           BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
@@ -1063,7 +830,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
 
 - name: bbl-aws-concourse
   serial: true
@@ -1099,7 +866,7 @@ jobs:
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      bbl-state: infrastructure-ci-bbl-states
+      env-repo: infrastructure-ci-bbl-states
       ops-files: infrastructure-ci-bbl-states
       bbl-plan-patch: infrastructure-ci-bbl-states
     on_failure:
@@ -1111,17 +878,17 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       on_failure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
+          repository: updated-env-repo
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      env-repo: updated-bbl-state
+      env-repo: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -1132,7 +899,7 @@ jobs:
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev-docker-image
       input_mapping:
-        bbl-state: updated-bbl-state
+        env-repo: updated-env-repo
       params:
         BBL_IAAS: aws
         BBL_STATE_DIR: bbl-aws-concourse
@@ -1142,34 +909,37 @@ jobs:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-bbl-state
-  - task: copy-version
+          repository: updated-env-repo
+  - task: copy-bosh-files
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
       source: concourse-deployment
-      destination: updated-bbl-state
+      destination: updated-env-repo
     config:
       platform: linux
       inputs:
       - name: source
       - name: destination
       outputs:
-      - name: updated-bbl-state
+      - name: updated-env-repo
       params:
         BBL_STATE_DIR: bbl-aws-concourse
       run:
         path: bash
         args:
           - "-c"
-          - "cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml && cp -r destination/* updated-bbl-state"
+          - >-
+            cp source/versions.yml destination/${BBL_STATE_DIR}/versions.yml \
+            && cp -r source/cluster/operations/* destination/${BBL_STATE_DIR}/operations/ \
+            && cp -r destination/* updated-env-repo
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      env-repo: updated-env-repo
       cf-deployment: concourse-deployment
-      ops-files: concourse-deployment
-      vars-files: updated-bbl-state
+      ops-files: updated-env-repo
+      vars-files: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -1177,7 +947,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/versions.yml"
-      OPS_FILES: "cluster/operations/no-auth.yml cluster/operations/privileged-http.yml cluster/operations/privileged-https.yml cluster/operations/tls.yml cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-aws-concourse/operations/ports.yml bbl-aws-concourse/operations/no-auth.yml bbl-aws-concourse/operations/privileged-http.yml bbl-aws-concourse/operations/privileged-https.yml bbl-aws-concourse/operations/tls.yml bbl-aws-concourse/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -1185,7 +955,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-aws-concourse
           DEPLOYMENT_NAME: concourse
@@ -1193,7 +963,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-aws-concourse
@@ -1203,7 +973,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -1212,11 +982,11 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      bbl-state: updated-bbl-state
+      bbl-state: updated-env-repo
     config:
       platform: linux
       inputs:
@@ -1234,7 +1004,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-aws-concourse
           DEPLOYMENT_NAME: concourse
@@ -1242,7 +1012,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-aws-concourse
@@ -1252,7 +1022,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
         input_mapping:
-          bbl-state: updated-bbl-state
+          env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
@@ -1261,7 +1031,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-bbl-state
+            repository: updated-env-repo
 
 - name: passed-acceptance-tests
   plan:
@@ -1571,6 +1341,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
     - get: ci
@@ -1591,7 +1362,7 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
+      LB_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -1613,6 +1384,33 @@ jobs:
         params:
           rebase: true
           repository: updated-env-repo
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+    params:
+      BBL_STATE_DIR: bbl-gcp-cf
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
+      ACTION: add
+    input_mapping:
+      bbl-states-repo: updated-env-repo
+    on_failure:
+      task: destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      input_mapping:
+        env-repo: updated-env-repo
+      params:
+        BBL_STATE_DIR: bbl-gcp-cf
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      on_failure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-env-repo
   - task: upload-stemcell
     file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1623,20 +1421,33 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       INFRASTRUCTURE: google
     on_failure:
-      task: upload-stemcell-destroy-infrastructure
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-      input_mapping:
-        env-repo: updated-env-repo
-      params:
-        BBL_IAAS: gcp
-        BBL_STATE_DIR: bbl-gcp-cf
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      on_failure:
-        put: infrastructure-ci-bbl-states
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
         params:
-          rebase: true
-          repository: updated-env-repo
+          BBL_STATE_DIR: bbl-gcp-cf
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-env-repo
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-env-repo
   - task: deploy-cf
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1645,11 +1456,24 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-gcp-cf
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      SYSTEM_DOMAIN: bbl-downstream.bbl-test.ci.cf-app.com
+      SYSTEM_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
-      OPS_FILES: operations/use-compiled-releases.yml
-    ensure:
+      OPS_FILES: "operations/use-compiled-releases.yml"
+    on_failure:
       do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-env-repo
       - task: delete-cf-deployment
         file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1680,6 +1504,65 @@ jobs:
           params:
             rebase: true
             repository: updated-env-repo
+  - task: smoke-tests
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      bbl-state: updated-env-repo
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "cd bbl-state/bbl-gcp-cf/ && eval \"$(bbl print-env)\" && bosh -d cf run-errand smoke-tests"
+    ensure:
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-env-repo
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: bbl-gcp-cf
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+        input_mapping:
+          env-repo: updated-env-repo
+        params:
+          BBL_STATE_DIR: bbl-gcp-cf
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-env-repo
+
 
 - name: releasable
   plan:
