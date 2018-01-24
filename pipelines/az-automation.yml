@@ -1,8 +1,9 @@
 groups:
 - name: az-automation
   jobs:
-  - tests
+  - test
   - build-release
+  - bump-brew-tap
 
 resources:
 - name: az-automation
@@ -25,8 +26,14 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
+- name: homebrew-tap
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/genevievelesperance/homebrew-tap.git
+
 jobs:
-- name: tests
+- name: test
   plan:
   - aggregate:
     - get: infrastructure-ci
@@ -41,7 +48,7 @@ jobs:
     - get: infrastructure-ci
     - get: az-automation-release
     - get: az-automation
-      passed: [tests]
+      passed: [test]
   - task: build-release
     file: infrastructure-ci/scripts/az-automation/build-release/task.yml
   - put: az-automation-release
@@ -51,3 +58,22 @@ jobs:
       commitish: builds/commitish
       globs:
       - builds/bin/az-automation-*
+
+- name: bump-brew-tap
+  plan:
+    - aggregate:
+      - get: homebrew-tap
+      - get: az-automation-release
+        params:
+          version: { tag: az-automation/version }
+          globs:
+          - az-automation-*_osx
+          - az-automation-*_linux_x86-64
+        passed: [build-release]
+      - get: ci
+        resource: infrastructure-ci
+    - task: bump-brew-tap
+      file: infrastructure-ci/scripts/az-automation/bump-brew-tap/task.yml
+    - put: homebrew-tap
+      params:
+        repository: updated-homebrew-tap/homebrew-tap
