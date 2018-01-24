@@ -37,6 +37,7 @@ function main() {
     echo "- *Linux sha256: \`${linux_sha}\`*" >> body
     echo -n "- *OSX sha256: \`${osx_sha}\`*" >> body
     echo -n "- *Windows sha256: \`${windows_sha}\`*" >> body
+    echo -n "*Known Issues:* Windows support is incomplete." >> body
   popd > /dev/null
 }
 
