@@ -7,12 +7,12 @@ image_resource:
     repository: cfinfrastructure/deployment
 
 inputs:
-- name: az-automation-release
+- name: release
 - name: homebrew-tap
-- name: infrastructure-ci
+- name: ci
 
 outputs:
 - name: updated-homebrew-tap
 
 run:
-  path: infrastructure-ci/scripts/az-automation/bump-brew-tap/task
+  path: ci/scripts/az-automation/bump-brew-tap/task

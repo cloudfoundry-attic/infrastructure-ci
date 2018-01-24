@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-VERSION=$(cat "${ROOT}/az-automation-release/version")
+VERSION=$(cat "${ROOT}/release/version")
 LINUX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}_linux_x86-64"
 OSX_BUILD_PATH="${ROOT}/builds/bin/az-automation-v${VERSION}_osx"
 

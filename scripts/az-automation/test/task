@@ -4,8 +4,6 @@ ROOT="${PWD}"
 
 mkdir -p "${GOPATH}/src/github.com/genevievelesperance"
 
-sudo echo nameserver 127.0.0.1 > /etc/resolv.conf
-
 pushd "${GOPATH}/src/github.com/genevievelesperance" > /dev/null
   ln -s "${ROOT}/az-automation"
   ./az-automation/scripts/test

@@ -8,7 +8,7 @@ image_resource:
 
 inputs:
 - name: az-automation
-- name: infrastructure-ci
+- name: ci
 
 run:
-  path: infrastructure-ci/scripts/az-automation/test/task
+  path: ci/scripts/az-automation/test/task

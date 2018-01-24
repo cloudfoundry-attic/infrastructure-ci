@@ -8,11 +8,11 @@ image_resource:
 
 inputs:
   - name: az-automation
-  - name: az-automation-release
-  - name: infrastructure-ci
+  - name: release
+  - name: ci
 
 outputs:
   - name: builds
 
 run:
-  path: infrastructure-ci/scripts/az-automation/build-release/task
+  path: ci/scripts/az-automation/build-release/task

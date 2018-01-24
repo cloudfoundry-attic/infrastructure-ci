@@ -12,7 +12,7 @@ resources:
     branch: master
     uri: https://github.com/genevievelesperance/az-automation.git
 
-- name: az-automation-release
+- name: release
   type: github-release
   source:
     owner: genevievelesperance
@@ -20,7 +20,7 @@ resources:
     access_token: {{cf_infra_bot_user_github_access_token}}
     drafts: false
 
-- name: infrastructure-ci
+- name: ci
   type: git
   source:
     branch: master
@@ -36,22 +36,22 @@ jobs:
 - name: test
   plan:
   - aggregate:
-    - get: infrastructure-ci
+    - get: ci
     - get: az-automation
       trigger: true
   - task: test
-    file: infrastructure-ci/scripts/az-automation/test/task.yml
+    file: ci/scripts/az-automation/test/task.yml
 
 - name: build-release
   plan:
   - aggregate:
-    - get: infrastructure-ci
-    - get: az-automation-release
+    - get: ci
+    - get: release
     - get: az-automation
       passed: [test]
   - task: build-release
-    file: infrastructure-ci/scripts/az-automation/build-release/task.yml
-  - put: az-automation-release
+    file: ci/scripts/az-automation/build-release/task.yml
+  - put: release
     params:
       name: builds/name
       tag: builds/name
@@ -63,17 +63,16 @@ jobs:
   plan:
     - aggregate:
       - get: homebrew-tap
-      - get: az-automation-release
+      - get: release
         params:
-          version: { tag: az-automation/version }
+          version: { tag: release/version }
           globs:
           - az-automation-*_osx
           - az-automation-*_linux_x86-64
         passed: [build-release]
       - get: ci
-        resource: infrastructure-ci
     - task: bump-brew-tap
-      file: infrastructure-ci/scripts/az-automation/bump-brew-tap/task.yml
+      file: ci/scripts/az-automation/bump-brew-tap/task.yml
     - put: homebrew-tap
       params:
         repository: updated-homebrew-tap/homebrew-tap
