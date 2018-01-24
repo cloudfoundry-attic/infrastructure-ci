@@ -2,6 +2,7 @@ groups:
 - name: az-automation
   jobs:
   - tests
+  - build-release
 
 resources:
 - name: az-automation
@@ -9,6 +10,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/genevievelesperance/az-automation.git
+
+- name: az-automation-release
+  type: github-release
+  source:
+    owner: genevievelesperance
+    repository: az-automation
+    access_token: {{cf_infra_bot_user_github_access_token}}
+    drafts: false
 
 - name: infrastructure-ci
   type: git
@@ -18,12 +27,20 @@ resources:
 
 jobs:
 - name: tests
-  public: true
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
+    - get: infrastructure-ci
     - get: az-automation
       trigger: true
   - task: test
-    file: ci/scripts/terraforming/az-automation/task.yml
+    file: infrastructure-ci/scripts/az-automation/test/task.yml
+
+- name: build-release 
+  plan:
+  - aggregate:
+    - get: infrastructure-ci
+    - get: version
+      resource: az-automation-release
+    - get: az-automation
+  - task: test
+    file: infrastructure-ci/scripts/az-automation/build-release/task.yml
