@@ -720,7 +720,7 @@ jobs:
     input_mapping:
       env-repo: updated-env-repo
       cf-deployment: concourse-deployment
-      ops-files: concourse-deployment
+      ops-files: updated-env-repo
       vars-files: updated-env-repo
     params:
       BBL_STATE_DIR: bbl-azure-concourse
