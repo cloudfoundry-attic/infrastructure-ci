@@ -197,7 +197,6 @@ jobs:
     - get: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
     - get: stemcell
       resource: gcp-stemcell
-      trigger: true
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
@@ -322,7 +321,6 @@ jobs:
     - get: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
     - get: stemcell
       resource: gcp-stemcell
-      trigger: true
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
@@ -469,7 +467,6 @@ jobs:
       resource: cf-deployment-concourse-tasks-bbl4
     - get: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
     - get: windows-stemcell
-      trigger: true
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
@@ -640,7 +637,6 @@ jobs:
       passed: [setup-consats-windows-turbulence]
     - get: windows-stemcell
       resource: windows-stemcell
-      trigger: true
     - get: stemcell
       resource: gcp-stemcell
     - get: turbulence-release
