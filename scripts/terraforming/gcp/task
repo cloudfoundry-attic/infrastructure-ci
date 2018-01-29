@@ -1,4 +1,4 @@
-#!/bin/bash -xu
+#!/bin/bash -exu
 
 pushd terraforming-gcp > /dev/null
 
