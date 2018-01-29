@@ -225,8 +225,10 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-linux-turbulence
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       input_mapping:
         bbl-state: updated-bbl-state
 
@@ -293,8 +295,10 @@ jobs:
       task: destroy-consats-linux-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-linux-turbulence
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -349,7 +353,9 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-linux
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       input_mapping:
         bbl-state: updated-bbl-state
@@ -416,8 +422,10 @@ jobs:
       task: destroy-consats-linux-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-linux
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -495,8 +503,10 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-windows
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       input_mapping:
         bbl-state: updated-bbl-state
 
@@ -562,8 +572,10 @@ jobs:
       task: destroy-consats-windows-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-windows
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -616,8 +628,10 @@ jobs:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-windows-turbulence
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       input_mapping:
         bbl-state: updated-bbl-state
 
@@ -683,8 +697,10 @@ jobs:
       task: destroy-consats-windows-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       params:
+        BBL_IAAS: gcp
         BBL_STATE_DIR: consats-windows-turbulence
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -824,6 +840,7 @@ jobs:
   - task: bbl-destroy
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     params:
+      BBL_IAAS: gcp
       BBL_STATE_DIR: consul-cf-cats
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
