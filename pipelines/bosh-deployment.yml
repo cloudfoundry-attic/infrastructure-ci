@@ -97,7 +97,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - aggregate:
-    - task: bbl-up-credhub
+    - task: bbl-plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
@@ -106,7 +106,7 @@ jobs:
         BBL_AWS_REGION: {{aws_region}}
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
-        RUN_TEST: bbl-up-credhub
+        RUN_TEST: plan
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -117,7 +117,7 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
-    - task: no-director
+    - task: bbl-up
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
@@ -126,37 +126,7 @@ jobs:
         BBL_AWS_REGION: {{aws_region}}
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
-        RUN_TEST: no-director
-    - task: bosh-deployment-vars
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: bosh-deployment-vars
-    - task: load-balancers
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: load-balancers
-    - task: stack-migration-up
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: aws
-        RUN_TEST: stack-migration-up
+        RUN_TEST: bbl-up
 
 - name: gcp-acceptance-tests
   serial: true
@@ -170,16 +140,6 @@ jobs:
     - get: ci
       resource: infrastructure-ci
   - aggregate:
-    - task: bbl-tests
-      file: ci/scripts/bosh-bootloader/acceptance/task.yml
-      params:
-        BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
-        BBL_GCP_ZONE: {{bbl_gcp_zone}}
-        BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: bbl
     - task: gcp-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -189,7 +149,7 @@ jobs:
         BBL_GCP_REGION: {{bbl_gcp_region}}
         BBL_GCP_ZONE: {{bbl_gcp_zone}}
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
-        BBL_TEST_PACKAGES: gcp
+        BBL_TEST_PACKAGES: bbl
 
 - name: github-release
   serial: true
