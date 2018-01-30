@@ -59,6 +59,12 @@ function build_bbl() {
     go build \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_WINDOWS_BUILD_PATH}" .
+
+  echo "Testing 32-bit platform"
+  CGO_ENABLED=0 GOARCH=386 GOOS=freebsd \
+    go build \
+    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -o "/tmp/" .
 }
 
 main
