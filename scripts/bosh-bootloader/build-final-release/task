@@ -64,7 +64,7 @@ function build_bbl() {
   CGO_ENABLED=0 GOARCH=386 GOOS=freebsd \
     go build \
     -ldflags "-X main.Version=${BBL_VERSION}" \
-    -o "/tmp/" .
+    -o "/tmp/test-compile-32" .
 }
 
 main
