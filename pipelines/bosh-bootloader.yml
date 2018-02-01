@@ -1132,7 +1132,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-aws-cf/deployment-vars.yml
-      OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml operations/scale-to-one-az.yml"
+      OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
     ensure:
       do:
       - task: delete-cf-deployment
@@ -1455,7 +1455,7 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       SYSTEM_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
-      OPS_FILES: "operations/use-compiled-releases.yml"
+      OPS_FILES: "operations/use-compiled-releases.yml operations/scale-to-one-az.yml"
     on_failure:
       do:
       - task: remove-from-gcp-dns
