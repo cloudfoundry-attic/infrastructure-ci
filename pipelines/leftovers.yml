@@ -2,48 +2,19 @@ groups:
 - name: leftovers
   jobs:
   - test
-  - build-release
-  - bump-brew-tap
 
 resources:
 - name: leftovers
   type: git
   source:
     branch: master
-    uri: https://github.com/genevievelesperance/leftovers.git
-
-- name: leftovers-cli
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/genevievelesperance/leftovers-cli.git
-
-- name: lib-release
-  type: github-release
-  source:
-    owner: genevievelesperance
-    repository: leftovers
-    access_token: {{cf_infra_bot_user_github_access_token}}
-
-- name: cli-release
-  type: github-release
-  source:
-    owner: genevievelesperance
-    repository: leftovers
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    uri: https://github.com/genevieve/leftovers.git
 
 - name: infrastructure-ci
   type: git
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-
-- name: homebrew-tap
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:genevievelesperance/homebrew-tap.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
 
 jobs:
 - name: test
@@ -55,42 +26,3 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/leftovers/test/task.yml
-
-- name: build-cli-release
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: release
-    - get: leftovers
-      passed: [test]
-  - task: build-release-with-minor-bump
-    file: ci/scripts/leftovers/build-release/task.yml
-  - put: release
-    params:
-      name: builds/name
-      tag: builds/name
-      commitish: builds/commitish
-      globs:
-      - builds/bin/leftovers-*
-
-- name: bump-brew-tap
-  plan:
-  - aggregate:
-    - get: leftovers
-      passed: [build-release]
-    - get: homebrew-tap
-    - get: cli-release
-      params:
-        version: { tag: release/version }
-        globs:
-        - leftovers-*-darwin-amd64
-        - leftovers-*-linux-amd64
-      trigger: true
-    - get: ci
-      resource: infrastructure-ci
-  - task: bump-brew-tap
-    file: ci/scripts/leftovers/bump-brew-tap/task.yml
-  - put: homebrew-tap
-    params:
-      repository: updated-homebrew-tap/homebrew-tap
