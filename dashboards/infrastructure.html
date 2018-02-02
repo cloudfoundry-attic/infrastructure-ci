@@ -46,6 +46,18 @@
     </style>
   </head>
   <body>
+
+    <div class="row">
+      <div class="col-short">
+        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/dockerfiles"></iframe>
+        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/infrastructure-ci"></iframe>
+        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/socks5-proxy"></iframe>
+      </div>
+      <div class="col-long">
+        <iframe class="long-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/terraforming"></iframe>
+      </div>
+    </div>
+
     <div class="row-big">
       <div class="col-short">
         <iframe class="mini-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/leftovers"></iframe>
@@ -59,15 +71,6 @@
         <iframe class="long-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/bosh-bootloader?groups=smoke-tests&groups=cf-deployment&groups=bosh-bootloader"></iframe>
       </div>
     </div>
-    <div class="row">
-      <div class="col-short">
-        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/dockerfiles"></iframe>
-        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/infrastructure-ci"></iframe>
-        <iframe class="short-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/socks5-proxy"></iframe>
-      </div>
-      <div class="col-long">
-        <iframe class="long-pipeline" src="https://wings.concourse.ci/teams/cf-infrastructure/pipelines/terraforming"></iframe>
-      </div>
-    </div>
+
   </body>
 </html>
