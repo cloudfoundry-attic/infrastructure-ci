@@ -12,14 +12,14 @@ pushd homebrew-tap
   cat <<EOF > az-automation.rb
 class AzAutomation < Formula
   desc "Command line utility for creating an Azure Service Principal."
-  homepage "https://github.com/genevievelesperance/az-automation"
+  homepage "https://github.com/genevieve/az-automation"
   version "v${VERSION}"
 
   if OS.mac?
-    url "https://github.com/genevievelesperance/az-automation/releases/download/#{version}/az-automation-#{version}-darwin-amd64"
+    url "https://github.com/genevieve/az-automation/releases/download/#{version}/az-automation-#{version}-darwin-amd64"
     sha256 "${shaOS}"
   elsif OS.linux?
-    url "https://github.com/genevievelesperance/az-automation/releases/download/#{version}/az-automation-#{version}-linux-amd64"
+    url "https://github.com/genevieve/az-automation/releases/download/#{version}/az-automation-#{version}-linux-amd64"
     sha256 "${shaLinux}"
   end
 

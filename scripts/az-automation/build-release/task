@@ -16,13 +16,13 @@ function bump_minor_version() {
 function main() {
   local commit_sha
 
-  mkdir -p "${GOPATH}/src/github.com/genevievelesperance/"
+  mkdir -p "${GOPATH}/src/github.com/genevieve/"
 
-  ln -s "${ROOT}/az-automation" "${GOPATH}/src/github.com/genevievelesperance/"
+  ln -s "${ROOT}/az-automation" "${GOPATH}/src/github.com/genevieve/"
 
   commit_sha=$(git -C "${ROOT}/az-automation" rev-parse HEAD)
 
-  pushd "${GOPATH}/src/github.com/genevievelesperance/az-automation" > /dev/null
+  pushd "${GOPATH}/src/github.com/genevieve/az-automation" > /dev/null
 
     echo "Building 64-bit Linux"
 
