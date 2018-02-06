@@ -3,6 +3,7 @@ groups:
   jobs:
   - test
   - build-release
+  - bump-brew-tap
 
 resources:
 - name: leftovers
@@ -23,6 +24,13 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+- name: homebrew-tap
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:genevieve/homebrew-tap.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
 
 jobs:
 - name: test
@@ -52,3 +60,24 @@ jobs:
       commitish: builds/commitish
       globs:
       - builds/bin/leftovers-*
+
+- name: bump-brew-tap
+  plan:
+  - aggregate:
+    - get: leftovers
+      passed: [build-release]
+    - get: homebrew-tap
+    - get: release
+      params:
+        version: { tag: release/version }
+        globs:
+        - leftovers-*-darwin-amd64
+        - leftovers-*-linux-amd64
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: bump-brew-tap
+    file: ci/scripts/leftovers/bump-brew-tap/task.yml
+  - put: homebrew-tap
+    params:
+      repository: updated-homebrew-tap/homebrew-tap
