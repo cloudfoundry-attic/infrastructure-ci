@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+- name: release
+- name: homebrew-tap
+- name: ci
+
+outputs:
+- name: updated-homebrew-tap
+
+run:
+  path: ci/scripts/leftovers/bump-brew-tap/task
