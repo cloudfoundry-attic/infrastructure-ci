@@ -2,6 +2,7 @@ groups:
 - name: leftovers
   jobs:
   - test
+  - build-release
 
 resources:
 - name: leftovers
@@ -9,6 +10,13 @@ resources:
   source:
     branch: master
     uri: https://github.com/genevieve/leftovers.git
+
+- name: release
+  type: github-release
+  source:
+    owner: genevieve
+    repository: leftovers
+    access_token: {{cf_infra_bot_user_github_access_token}}
 
 - name: infrastructure-ci
   type: git
@@ -26,3 +34,21 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/leftovers/test/task.yml
+
+- name: build-release
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: release
+    - get: leftovers
+      passed: [test]
+  - task: build-release-with-minor-bump
+    file: ci/scripts/leftovers/build-release/task.yml
+  - put: release
+    params:
+      name: builds/name
+      tag: builds/name
+      commitish: builds/commitish
+      globs:
+      - builds/bin/leftovers-*
