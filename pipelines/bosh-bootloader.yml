@@ -1037,8 +1037,9 @@ jobs:
       trigger: true
       passed:
       - aws-acceptance-tests
-      - azure-acceptance-tests
+      # - azure-acceptance-tests
       - gcp-acceptance-tests
+      - vsphere-acceptance-tests
 
 - name: bbl-aws-cf
   serial: true
