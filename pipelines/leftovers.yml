@@ -2,6 +2,7 @@ groups:
 - name: leftovers
   jobs:
   - test
+  - acceptance-gcp
   - build-release
   - bump-brew-tap
 
@@ -56,7 +57,7 @@ jobs:
     file: ci/scripts/leftovers/acceptance/task.yml
     params:
       LEFTOVERS_ACCEPTANCE: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
 
 - name: build-release
   plan:
@@ -65,7 +66,7 @@ jobs:
       resource: infrastructure-ci
     - get: release
     - get: leftovers
-      passed: [test]
+      passed: [acceptance-gcp]
   - task: build-release-with-minor-bump
     file: ci/scripts/leftovers/build-release/task.yml
   - put: release
