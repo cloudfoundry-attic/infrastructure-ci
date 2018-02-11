@@ -43,6 +43,21 @@ jobs:
   - task: test
     file: ci/scripts/leftovers/test/task.yml
 
+- name: acceptance-gcp
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: leftovers
+      trigger: true
+      passed: [test]
+  - task: acceptance
+    file: ci/scripts/leftovers/acceptance/task.yml
+    params:
+      LEFTOVERS_ACCEPTANCE: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+
 - name: build-release
   plan:
   - aggregate:
