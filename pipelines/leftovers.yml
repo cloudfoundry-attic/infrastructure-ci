@@ -3,6 +3,7 @@ groups:
   jobs:
   - test
   - acceptance-gcp
+  - acceptance-aws
   - build-release
   - bump-brew-tap
 
@@ -59,6 +60,23 @@ jobs:
       LEFTOVERS_ACCEPTANCE: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
 
+- name: acceptance-aws
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: leftovers
+      trigger: true
+      passed: [test]
+  - task: acceptance
+    file: ci/scripts/leftovers/acceptance/task.yml
+    params:
+      LEFTOVERS_ACCEPTANCE: aws
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_REGION: {{aws_region}}
+
 - name: build-release
   plan:
   - aggregate:
@@ -66,7 +84,7 @@ jobs:
       resource: infrastructure-ci
     - get: release
     - get: leftovers
-      passed: [acceptance-gcp]
+      passed: [acceptance-gcp, acceptance-aws]
   - task: build-release-with-minor-bump
     file: ci/scripts/leftovers/build-release/task.yml
   - put: release
