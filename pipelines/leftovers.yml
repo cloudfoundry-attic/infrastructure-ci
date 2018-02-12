@@ -2,8 +2,9 @@ groups:
 - name: leftovers
   jobs:
   - test
-  - acceptance-gcp
   - acceptance-aws
+  - acceptance-azure
+  - acceptance-gcp
   - build-release
   - bump-brew-tap
 
@@ -76,6 +77,24 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
       BBL_AWS_REGION: {{aws_region}}
+
+- name: acceptance-azure
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: leftovers
+      trigger: true
+      passed: [test]
+  - task: acceptance
+    file: ci/scripts/leftovers/acceptance/task.yml
+    params:
+      LEFTOVERS_ACCEPTANCE: azure
+      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
+      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
+      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
 
 - name: build-release
   plan:
