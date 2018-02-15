@@ -1376,7 +1376,6 @@ jobs:
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream.infrastructure.cf-app.com
-      OPS_FILES: bbl-gcp-cf/use-4-azs-for-router.yml
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -1472,7 +1471,7 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       SYSTEM_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
-      OPS_FILES: "operations/use-compiled-releases.yml operations/scale-to-one-az.yml"
+      OPS_FILES: "operations/use-compiled-releases.yml operations/scale-to-one-az.yml operations/workaround/use-4-azs-for-router.yml"
     on_failure:
       do:
       - task: remove-from-gcp-dns
