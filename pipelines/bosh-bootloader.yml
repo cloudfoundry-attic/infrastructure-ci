@@ -35,6 +35,10 @@ groups:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
 
+- name: testing
+  jobs:
+  - unit-tests
+
 resources:
 - name: bosh-bootloader
   type: git
@@ -178,6 +182,17 @@ resources:
 
 jobs:
 - name: test-bosh-bootloader
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      trigger: true
+  - task: test
+    file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+
+- name: unit-tests
   public: true
   plan:
   - aggregate:
@@ -1361,6 +1376,7 @@ jobs:
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream.infrastructure.cf-app.com
+      OPS_FILES: bbl-gcp-cf/use-4-azs-for-router.yml
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
