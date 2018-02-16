@@ -959,7 +959,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/versions.yml"
-      OPS_FILES: "bbl-aws-concourse/operations/ports.yml bbl-aws-concourse/cluster/operations/no-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-aws-concourse/cluster/operations/no-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
