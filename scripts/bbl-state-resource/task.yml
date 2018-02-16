@@ -1,0 +1,11 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source: cfinfrastructure/golang
+
+inputs:
+- name: a-bbl-state
+
+run:
+  path: ci/scripts/bbl-state-resource
