@@ -2,7 +2,8 @@
 platform: linux
 image_resource:
   type: docker-image
-  source: cfinfrastructure/golang
+  source:
+    repository: cfinfrastructure/golang
 
 inputs:
 - name: a-bbl-state
