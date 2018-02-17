@@ -9,4 +9,4 @@ inputs:
 - name: a-bbl-state
 
 run:
-  path: ci/scripts/bbl-state-resource
+  path: ci/scripts/bbl-state-resource/task
