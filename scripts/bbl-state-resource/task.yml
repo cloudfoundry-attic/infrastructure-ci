@@ -7,6 +7,7 @@ image_resource:
 
 inputs:
 - name: a-bbl-state
+- name: ci
 
 run:
   path: ci/scripts/bbl-state-resource/task
