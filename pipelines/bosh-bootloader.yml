@@ -39,7 +39,25 @@ groups:
   jobs:
   - unit-tests
 
+- name: bbl-state-resource
+  jobs:
+  - bogus-job-that-gets
+
+resource_types:
+- name: bbl-state-resource
+  type: docker-image
+  source:
+    repository: cfinfrastructure/bbl-state-resource
+
 resources:
+- name: a-second-bbl-state
+  type: bbl-state-resource
+  source:
+    name: resource-ci
+    iaas: gcp
+    gcp_region: us-east1
+    gcp_service_account_key: {{bbl_gcp_service_account_key}}
+
 - name: bosh-bootloader
   type: git
   source:
@@ -181,6 +199,16 @@ resources:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
 
 jobs:
+- name: bogus-job-that-gets
+  public: false
+  plan:
+  - aggregate:
+    - get: a-second-bbl-state
+    - get: ci
+      resource: infrastructure-ci
+  - task: check-contents
+    file: ci/scripts/bbl-state-resource/task.yml
+
 - name: test-bosh-bootloader
   public: true
   plan:
