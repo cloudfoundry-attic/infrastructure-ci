@@ -6,6 +6,7 @@ groups:
   - azure-acceptance-tests
   - gcp-acceptance-tests
   - vsphere-acceptance-tests
+  - openstack-acceptance-tests
   - bbl-downstream-docker-image
   - bbl-aws-cf
   - bbl-lite-gcp
@@ -347,6 +348,38 @@ jobs:
       BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
       BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
       BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
+      BBL_TEST_ENV_ID_PREFIX: bbl-ci
+      BBL_TEST_PACKAGES: bbl
+      RUN_TEST: bbl-up
+
+- name: openstack-acceptance-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      passed: [test-bosh-bootloader]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: bbl-up
+    file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    tags:
+    - {{vsphere_network_name}}
+    params:
+      BBL_IAAS: openstack
+      BBL_OPENSTACK_INTERNAL_CIDR: {{bbl_openstack_internal_cidr}}
+      BBL_OPENSTACK_EXTERNAL_IP: {{bbl_openstack_external_ip}}
+      BBL_OPENSTACK_AUTH_URL: {{bbl_openstack_auth_url}}
+      BBL_OPENSTACK_AZ: {{bbl_openstack_az}}
+      BBL_OPENSTACK_DEFAULT_KEY_NAME: {{bbl_openstack_default_key_name}}
+      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: {{bbl_openstack_default_security_group}}
+      BBL_OPENSTACK_NETWORK_ID: {{bbl_openstack_network_id}}
+      BBL_OPENSTACK_PASSWORD: {{bbl_openstack_password}}
+      BBL_OPENSTACK_USERNAME: {{bbl_openstack_username}}
+      BBL_OPENSTACK_PROJECT: {{bbl_openstack_project}}
+      BBL_OPENSTACK_DOMAIN: {{bbl_openstack_domain}}
+      BBL_OPENSTACK_REGION: {{bbl_openstack_region}}
+      BBL_OPENSTACK_PRIVATE_KEY: {{bbl_openstack_private_key}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -1080,9 +1113,10 @@ jobs:
       trigger: true
       passed:
       - aws-acceptance-tests
-      # - azure-acceptance-tests
+      - azure-acceptance-tests
       - gcp-acceptance-tests
       - vsphere-acceptance-tests
+      - openstack-acceptance-tests
 
 - name: bbl-aws-cf
   serial: true
