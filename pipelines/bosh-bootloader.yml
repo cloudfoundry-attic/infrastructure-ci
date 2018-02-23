@@ -63,6 +63,16 @@ resources:
     gcp-region: us-east1
     gcp-service-account-key: {{bbl_gcp_service_account_key}}
 
+- name: bbl-state-resource-src
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/bbl-state-resource.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+    ignore_paths:
+      - docs/**
+      - README.md
+
 - name: bosh-bootloader
   type: git
   source:
@@ -204,12 +214,36 @@ resources:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
 
 jobs:
+- name: bbl-state-resource-units
+  public: false
+  plan:
+  - get: bbl-state-resource-src
+    trigger: true
+  - task: run-units
+    file: bbl-state-resource-src/ci/run-units-task.yml
+
+- name: bbl-state-resource-acceptance
+  public: false
+  plan:
+  - get: bbl-state-resource-src
+    trigger: true
+    passed: [bbl-state-resource-units]
+  - task: run-acceptance
+    file: bbl-state-resource-src/ci/run-acceptance-task.yml
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+
 - name: bbl-up
   public: false
   plan:
-  - put: test-bbl-state
-    params:
-      command: "up"
+  - aggregate:
+    - get: bbl-state-resource-src
+      trigger: true
+      passed:
+        - bbl-state-resource-units
+    - put: test-bbl-state
+      params:
+        command: "up"
 
 - name: bbl-check-down
   public: false
