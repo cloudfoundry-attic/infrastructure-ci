@@ -43,10 +43,11 @@ groups:
 - name: bbl-state-resource
   jobs:
   - bbl-state-resource-units
+  - build-bbl-state-docker
   - bbl-state-resource-acceptance
   - bbl-up
   - bbl-check-down
-  # - rebuild-and-push-container
+  - bbl-state-resource-tag-latest
 
 resource_types:
 - name: bbl-state-resource
@@ -176,6 +177,14 @@ resources:
     branch: infrastructure
     uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
 
+- name: bbl-state-resource-docker
+  type: docker-image
+  source:
+    repository: cfinfrastructure/bbl-state-resource
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
   source:
@@ -222,13 +231,55 @@ jobs:
   - task: run-units
     file: bbl-state-resource-src/ci/run-units-task.yml
 
+- name: build-bbl-state-docker
+  public: false
+  plan:
+  - aggregate:
+    - get: bbl-state-resource-src
+      trigger: true
+      passed:
+      - bbl-state-resource-units
+    - get: bbl-release
+      trigger: true
+      resource: bbl-release-official
+      params:
+        version: { tag: bbl-release/number }
+        globs:
+        - bbl-*_linux_x86-64
+  - task: format-version-as-json
+    image: busybox
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-release
+      outputs:
+      - name: docker-build-args
+      run:
+        path: bash
+        args:
+          - "-c"
+          - printf '{"bbl_version": "%s"}' $(cat bbl-release/number) > docker-build-args/json
+  - put: bbl-state-resource-docker
+    params:
+      build: bbl-state-resource-src
+      build_args_file: docker-build-args/json
+
 - name: bbl-state-resource-acceptance
   public: false
   serial: true
   plan:
+  - get: bbl-release
+    resource: bbl-release-official
+    params:
+      version: { tag: bbl-release/number }
+      globs:
+      - bbl-*_linux_x86-64
+    trigger: true
+  - get: bbl-state-resource-docker
+    passed: [build-bbl-state-docker]
   - get: bbl-state-resource-src
     trigger: true
-    passed: [bbl-state-resource-units]
+    passed: [build-bbl-state-docker]
   - task: run-acceptance
     file: bbl-state-resource-src/ci/run-acceptance-task.yml
     params:
@@ -241,28 +292,46 @@ jobs:
   plan:
   - aggregate:
     - get: bbl-state-resource-src
+      passed:
+        - build-bbl-state-docker
+    - get: bbl-state-resource-docker
       trigger: true
       passed:
-        - bbl-state-resource-units
+        - build-bbl-state-docker
     - put: test-bbl-state
       params:
         command: "up"
       on_failure:
         put: test-bbl-state
         params:
-          command: "domn"
+          command: "down"
 
 - name: bbl-check-down
   public: false
   serial_groups:
   - test-bbl-state
   plan:
-  - get: test-bbl-state
-    trigger: true
-    passed: [bbl-up]
+  - aggregate:
+    - get: bbl-state-resource-docker
+      passed: [bbl-up]
+    - get: test-bbl-state
+      trigger: true
+      passed: [bbl-up]
   - put: test-bbl-state
     params:
       command: "down"
+
+- name: bbl-state-resource-tag-latest
+  public: false
+  plan:
+  - get: bbl-state-resource-docker
+    trigger: true
+    passed:
+      - bbl-check-down
+      - bbl-state-resource-acceptance
+  - put: bbl-state-resource-docker
+    params:
+      tag_latest: true
 
 - name: test-bosh-bootloader
   public: true
