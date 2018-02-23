@@ -224,6 +224,7 @@ jobs:
 
 - name: bbl-state-resource-acceptance
   public: false
+  serial: true
   plan:
   - get: bbl-state-resource-src
     trigger: true
@@ -235,6 +236,8 @@ jobs:
 
 - name: bbl-up
   public: false
+  serial_groups:
+  - test-bbl-state
   plan:
   - aggregate:
     - get: bbl-state-resource-src
@@ -244,9 +247,15 @@ jobs:
     - put: test-bbl-state
       params:
         command: "up"
+      on_failure:
+        put: test-bbl-state
+        params:
+          command: "domn"
 
 - name: bbl-check-down
   public: false
+  serial_groups:
+  - test-bbl-state
   plan:
   - get: test-bbl-state
     trigger: true
