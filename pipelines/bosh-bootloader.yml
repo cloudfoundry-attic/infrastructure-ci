@@ -42,7 +42,11 @@ groups:
 
 - name: bbl-state-resource
   jobs:
-  - bogus-job-that-gets
+  - bbl-state-resource-units
+  - bbl-state-resource-acceptance
+  - bbl-up
+  - bbl-check-down
+  # - rebuild-and-push-container
 
 resource_types:
 - name: bbl-state-resource
@@ -51,13 +55,13 @@ resource_types:
     repository: cfinfrastructure/bbl-state-resource
 
 resources:
-- name: a-second-bbl-state
+- name: test-bbl-state
   type: bbl-state-resource
   source:
     name: resource-ci
     iaas: gcp
-    gcp_region: us-east1
-    gcp_service_account_key: {{bbl_gcp_service_account_key}}
+    gcp-region: us-east1
+    gcp-service-account-key: {{bbl_gcp_service_account_key}}
 
 - name: bosh-bootloader
   type: git
@@ -200,15 +204,22 @@ resources:
     - dockerfiles/cf-deployment-concourse-tasks-bbl-dev-w-gcloud
 
 jobs:
-- name: bogus-job-that-gets
+- name: bbl-up
   public: false
   plan:
-  - aggregate:
-    - get: a-second-bbl-state
-    - get: ci
-      resource: infrastructure-ci
-  - task: check-contents
-    file: ci/scripts/bbl-state-resource/task.yml
+  - put: test-bbl-state
+    params:
+      command: "up"
+
+- name: bbl-check-down
+  public: false
+  plan:
+  - get: test-bbl-state
+    trigger: true
+    passed: [bbl-up]
+  - put: test-bbl-state
+    params:
+      command: "down"
 
 - name: test-bosh-bootloader
   public: true
