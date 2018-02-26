@@ -36,10 +36,6 @@ groups:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
 
-- name: testing
-  jobs:
-  - unit-tests
-
 - name: bbl-state-resource
   jobs:
   - bbl-state-resource-units
@@ -340,17 +336,6 @@ jobs:
       tag_latest: true
 
 - name: test-bosh-bootloader
-  public: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-    - get: bosh-bootloader
-      trigger: true
-  - task: test
-    file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
-
-- name: unit-tests
   public: true
   plan:
   - aggregate:
