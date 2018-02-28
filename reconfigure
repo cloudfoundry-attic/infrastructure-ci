@@ -16,7 +16,7 @@ function main() {
     vars="-l ${var_file}"
   fi
 
-  fly -t wings set-pipeline -p ${1} -c ${pipeline_file} -l ${shared_env} ${vars}
+  fly -t ${2:-"ovoc"} set-pipeline -p ${1} -c ${pipeline_file} -l ${shared_env} ${vars}
 }
 
 main ${1}
