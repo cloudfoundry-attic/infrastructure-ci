@@ -50,12 +50,13 @@ resource_types:
   type: docker-image
   source:
     repository: cfinfrastructure/bbl-state-resource
+    tag: ci
 
 resources:
 - name: test-bbl-state
   type: bbl-state-resource
   source:
-    name: resource-ci
+    name: test-bbl-state-env
     iaas: gcp
     gcp-region: us-east1
     gcp-service-account-key: {{bbl_gcp_service_account_key}}
@@ -230,6 +231,8 @@ jobs:
 
 - name: build-bbl-state-docker
   public: false
+  serial_groups:
+  - test-bbl-state
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -269,20 +272,22 @@ jobs:
   public: false
   serial: true
   plan:
-  - get: bbl-release
-    resource: bbl-release-official
-    passed: [build-bbl-state-docker]
-    trigger: true
-    params:
-      version: { tag: bbl-release/number }
-      globs:
-      - bbl-*_linux_x86-64
-  - get: bbl-state-resource-docker
-    passed: [build-bbl-state-docker]
-  - get: bbl-state-resource-src
-    trigger: true
-    passed: [build-bbl-state-docker]
+  - aggregate:
+    - get: bbl-release
+      resource: bbl-release-official
+      passed: [build-bbl-state-docker]
+      trigger: true
+      params:
+        version: { tag: bbl-release/number }
+        globs:
+        - bbl-*_linux_x86-64
+    - get: bbl-state-resource-docker
+      passed: [build-bbl-state-docker]
+    - get: bbl-state-resource-src
+      trigger: true
+      passed: [build-bbl-state-docker]
   - task: run-acceptance
+    image: bbl-state-resource-docker
     file: bbl-state-resource-src/ci/run-acceptance-task.yml
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
@@ -300,13 +305,14 @@ jobs:
       trigger: true
       passed:
         - build-bbl-state-docker
-    - put: test-bbl-state
+    - get: test-bbl-state
+  - put: test-bbl-state
+    params:
+      command: "up"
+    on_failure:
+      put: test-bbl-state
       params:
-        command: "up"
-      on_failure:
-        put: test-bbl-state
-        params:
-          command: "down"
+        command: "down"
 
 - name: bbl-check-down
   public: false
@@ -316,11 +322,13 @@ jobs:
   - aggregate:
     - get: bbl-state-resource-docker
       passed: [bbl-up]
-    - get: test-bbl-state
+    - get: renamed-test-bbl-state # test that we don't inadvertantly break resource rename capabilities
+      resource: test-bbl-state
       trigger: true
       passed: [bbl-up]
   - put: test-bbl-state
     params:
+      state_dir: renamed-test-bbl-state # test that configuring state dir behaves appropriately
       command: "down"
 
 - name: bbl-state-resource-tag-latest
@@ -331,9 +339,12 @@ jobs:
     passed:
       - bbl-check-down
       - bbl-state-resource-acceptance
+    params:
+      save: true
   - put: bbl-state-resource-docker
     params:
       tag_latest: true
+      load: bbl-state-resource-docker
 
 - name: test-bosh-bootloader
   public: true
