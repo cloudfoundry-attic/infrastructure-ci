@@ -5,6 +5,7 @@ groups:
   - acceptance-aws
   - acceptance-azure
   - acceptance-gcp
+  - acceptance-vsphere
   - build-release
   - bump-brew-tap
 
@@ -107,6 +108,8 @@ jobs:
       passed: [test]
   - task: acceptance
     file: ci/scripts/leftovers/acceptance/task.yml
+    tags:
+    - {{vsphere_network_name}}
     params:
       LEFTOVERS_ACCEPTANCE: vsphere
       BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
