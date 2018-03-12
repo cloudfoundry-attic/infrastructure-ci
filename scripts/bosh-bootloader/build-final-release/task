@@ -35,7 +35,7 @@ function main() {
     windows_sha=$(shasum -a 256 "${BBL_WINDOWS_BUILD_PATH}" | cut -d ' ' -f 1)
 
     echo "- *Linux sha256: \`${linux_sha}\`*" >> body
-    echo -n "- *OSX sha256: \`${osx_sha}\`*" >> body
+    echo "- *OSX sha256: \`${osx_sha}\`*" >> body
     echo "- *Windows sha256: \`${windows_sha}\`*" >> body
     echo "*Known Issues:* Windows support is incomplete." >> body
   popd > /dev/null
