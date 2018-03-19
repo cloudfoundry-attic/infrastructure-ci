@@ -10,7 +10,7 @@ pushd terraforming-gcp > /dev/null
   echo "project = \"${GCP_PROJECT_ID}\"" >> terraform.tfvars
   echo 'region = "us-central1"' >> terraform.tfvars
   echo 'zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> terraform.tfvars
-  echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-1.12.0.tar.gz"' >> terraform.tfvars
+  echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-2.0-build.264.tar.gz"' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
   echo 'isolation_segment = true' >> terraform.tfvars
 
