@@ -343,7 +343,7 @@ jobs:
       save: true
   - put: bbl-state-resource-docker
     params:
-      tag_latest: true
+      tag_as_latest: true
       load: bbl-state-resource-docker
 
 - name: test-bosh-bootloader
