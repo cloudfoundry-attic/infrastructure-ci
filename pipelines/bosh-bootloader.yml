@@ -158,7 +158,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/concourse/concourse-deployment.git
+    uri: https://github.com/concourse/concourse-bosh-deployment.git
 
 - name: cdct
   type: git
