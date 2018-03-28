@@ -762,7 +762,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
       VARS_FILES: "bbl-gcp-concourse/concourse-defaults.yml bbl-gcp-concourse/concourse-secrets.yml bbl-gcp-concourse/versions.yml"
-      OPS_FILES: "bbl-gcp-concourse/cluster/operations/privileged-https.yml bbl-gcp-concourse/cluster/opertations/privilieged-http.yml bbl-gcp-concourse/cluster/operations/no-auth.yml bbl-gcp-concourse/cluster/operations/tls.yml bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-gcp-concourse/cluster/operations/privileged-https.yml bbl-gcp-concourse/cluster/operations/privilieged-http.yml bbl-gcp-concourse/cluster/operations/no-auth.yml bbl-gcp-concourse/cluster/operations/tls.yml bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
