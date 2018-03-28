@@ -6,6 +6,7 @@ groups:
   - acceptance-azure
   - acceptance-gcp
   - acceptance-vsphere
+  - releasable
   - build-release
   - bump-brew-tap
 
@@ -117,6 +118,17 @@ jobs:
       BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
       BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
 
+- name: releasable
+  plan:
+  - aggregate:
+    - get: leftovers
+      trigger: true
+      passed:
+      - acceptance-gcp
+      - acceptance-aws
+      - acceptance-azure
+      - acceptance-vsphere
+
 - name: build-release
   plan:
   - aggregate:
@@ -124,7 +136,7 @@ jobs:
       resource: infrastructure-ci
     - get: release
     - get: leftovers
-      passed: [acceptance-gcp, acceptance-aws]
+      passed: [releasable]
   - task: build-release-with-minor-bump
     file: ci/scripts/leftovers/build-release/task.yml
   - put: release
