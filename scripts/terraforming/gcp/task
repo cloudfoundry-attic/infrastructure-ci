@@ -13,6 +13,7 @@ pushd terraforming-gcp > /dev/null
   echo 'opsman_image_url = "https://storage.googleapis.com/ops-manager-us/pcf-gcp-2.0-build.264.tar.gz"' >> terraform.tfvars
   echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> terraform.tfvars
   echo 'isolation_segment = true' >> terraform.tfvars
+  echo 'external_database = 1' >> terraform.tfvars
 
   set +x
     echo "service_account_key = <<SERVICE_ACCOUNT_KEY" >> terraform.tfvars
