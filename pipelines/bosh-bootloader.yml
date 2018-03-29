@@ -528,50 +528,17 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-  - task: bbl-up
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: bbl
-      RUN_TEST: bbl-up
-  - task: upgrade
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: bbl
-      RUN_TEST: upgrade
-  - task: plan
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: bbl
-      RUN_TEST: plan
-  - task: latest-error
-    file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    params:
-      BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
-      BBL_TEST_ENV_ID_PREFIX: bbl-ci
-      BBL_TEST_PACKAGES: bbl
-      RUN_TEST: latest-error
+  - aggregate:
+    - task: bbl-tests
+      file: ci/scripts/bosh-bootloader/acceptance/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_ZONE: {{bbl_gcp_zone}}
+        BBL_TEST_ENV_ID_PREFIX: bbl-ci
+        BBL_TEST_PACKAGES: bbl
 
 # Smoke-tests
 - name: test-with-latest-terraform
