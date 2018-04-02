@@ -25,14 +25,6 @@ function upload_stemcell() {
   local os
   os="ubuntu-trusty"
 
-  # Hardcode a couple of stable stemcell paramaters
-  local stemcells_url
-  stemcells_url="https://bosh.io/d/stemcells"
-  local bosh_agent
-  bosh_agent="go_agent"
-
-  # Ask bosh if it already has our OS / version stemcell combination
-  # As of this writing, the new bosh cli doesn't have --skip-if-exists
   set +e
   local existing_stemcell
   existing_stemcell=$(bosh stemcells | grep "${os}" | awk '{print $2}' | tr -d "\*" | grep ^"${version}"$ )
@@ -55,8 +47,8 @@ function upload_stemcell() {
     stemcell_name="${stemcell_name}-azure-hyperv"
   fi
 
-  stemcell_name="${stemcell_name}-${os}-${bosh_agent}"
-  full_stemcell_url="${stemcells_url}/${stemcell_name}"
+  stemcell_name="${stemcell_name}-${os}-go_agent"
+  full_stemcell_url="https://bosh.io/d/stemcells/${stemcell_name}"
 
   # If bosh already has our stemcell, exit 0
   if [ "${existing_stemcell}" ]; then
@@ -65,11 +57,7 @@ function upload_stemcell() {
     return
   fi
 
-  # ... otherwise, begin the upload process
-  bosh \
-    -n \
-    upload-stemcell \
-    "${full_stemcell_url}"
+  bosh -n upload-stemcell "${full_stemcell_url}"
   set -x
 }
 
@@ -81,7 +69,6 @@ function main() {
   popd
   set -ux
   upload_stemcell
-  pkill ssh || true
 }
 
 main
