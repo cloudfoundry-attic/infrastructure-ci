@@ -43,6 +43,8 @@ groups:
   - bbl-state-resource-acceptance
   - bbl-up
   - bbl-check-down
+  - bbl-pool-up
+  - bbl-pool-down
   - bbl-state-resource-tag-latest
 
 resource_types:
@@ -56,10 +58,18 @@ resources:
 - name: test-bbl-state
   type: bbl-state-resource
   source:
-    name: test-bbl-state-env
+    bucket: test-bbl-state-resource
     iaas: gcp
     gcp-region: us-east1
     gcp-service-account-key: {{bbl_gcp_service_account_key}}
+
+- name: bbl-state-pool
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
+    branch: master
+    pool: bbl-states
+    private_key: {{cf_infra_bot_user_github_private_key}}
 
 - name: bbl-state-resource-src
   type: git
@@ -292,6 +302,46 @@ jobs:
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
 
+- name: bbl-pool-up
+  public: false
+  serial_groups:
+  - bbl-pool-state
+  plan:
+  - aggregate:
+    - get: bbl-state-resource-src
+      passed:
+        - build-bbl-state-docker
+    - get: bbl-state-resource-docker
+      trigger: true
+      passed:
+        - build-bbl-state-docker
+  - put: test-bbl-state
+    params:
+      command: "up"
+    on_failure:
+      put: test-bbl-state
+      params:
+        state_dir: bbl-state
+        command: "down"
+  - put: bbl-state-pool
+    add: bbl-state
+
+- name: bbl-pool-down
+  public: false
+  serial_groups:
+  - bbl-pool-state
+  plan:
+  - aggregate:
+    - get: bbl-state-resource-docker
+      passed: [bbl-pool-up]
+    - get: bbl-state-pool
+      trigger: true
+      passed: [bbl-pool-up]
+  - put: test-bbl-state
+    params:
+      name_file: bbl-state-pool/name
+      command: "down"
+
 - name: bbl-up
   public: false
   serial_groups:
@@ -305,13 +355,13 @@ jobs:
       trigger: true
       passed:
         - build-bbl-state-docker
-    - get: test-bbl-state
   - put: test-bbl-state
     params:
       command: "up"
     on_failure:
       put: test-bbl-state
       params:
+        state_dir: bbl-state
         command: "down"
 
 - name: bbl-check-down
@@ -338,6 +388,7 @@ jobs:
     trigger: true
     passed:
       - bbl-check-down
+      - bbl-pool-down
       - bbl-state-resource-acceptance
     params:
       save: true
