@@ -325,7 +325,7 @@ jobs:
         command: "down"
   - put: bbl-state-pool
     params:
-      add: bbl-state
+      add: test-bbl-state
 
 - name: bbl-pool-down
   public: false
@@ -342,6 +342,10 @@ jobs:
     params:
       name_file: bbl-state-pool/name
       command: "down"
+    on_success:
+      put: bbl-state-pool
+      params:
+        remove: bbl-state-pool/name
 
 - name: bbl-up
   public: false
