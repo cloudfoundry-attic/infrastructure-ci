@@ -1847,6 +1847,11 @@ jobs:
       passed: [releasable]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+  - put: bosh-bootloader
+    params:
+      repository: bosh-bootloader
+      tag: builds/name
+      only_tag: true
   - put: bbl-release
     params:
       name: builds/name
