@@ -5,6 +5,7 @@ groups:
   - minimal-docker-image
   - golang-docker-image
   - deployment-docker-image
+  - mkdocs-docker-image
   - terraform-image
   - cf-deployment-concourse-tasks-w-gcloud-image
   - cf-deployment-concourse-tasks-w-gcloud-bbl4-image
@@ -41,6 +42,14 @@ resources:
     branch: master
     paths:
     - dockerfiles/minimal
+
+- name: mkdocs-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/mkdocs
 
 - name: cf-deployment-concourse-tasks-w-gcloud-dockerfile
   type: git
@@ -118,6 +127,14 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: mkdocs-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/mkdocs
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: bbl-release
   type: github-release
   source:
@@ -141,6 +158,23 @@ jobs:
     - put: minimal-docker-image
       params:
         build: infrastructure-ci/dockerfiles/minimal
+        cache: false
+
+- name: mkdocs-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: ubuntu-docker-image
+        trigger: true
+        params:
+          skip_download: true
+      - get: infrastructure-ci
+        resource: mkdocs-dockerfile
+        trigger: true
+    - put: mkdocs-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/mkdocs
         cache: false
 
 - name: golang-docker-image
