@@ -2,7 +2,10 @@
 
 ROOT="${PWD}"
 function main() {
-  pushd "${ROOT}/bosh-bootloader"
+  pushd "${ROOT}/bbl-release-official"
+    mkdir src
+    tar -xf source.tar.gz -C src --strip-components=1
+    cd src
     mkdocs build
     mv site "${ROOT}/bbl-docs"
   popd > /dev/null

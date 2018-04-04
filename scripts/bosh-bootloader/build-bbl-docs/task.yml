@@ -7,7 +7,7 @@ image_resource:
     repository: cfinfrastructure/mkdocs
 
 inputs:
-  - name: bosh-bootloader
+  - name: bbl-release-official
   - name: ci
 
 outputs:
