@@ -317,15 +317,15 @@ jobs:
         - build-bbl-state-docker
   - put: test-bbl-state
     params:
-      command: "up"
+      command: up
     on_failure:
       put: test-bbl-state
       params:
         state_dir: bbl-state
-        command: "down"
+        command: down
   - put: bbl-state-pool
     params:
-      add: test-bbl-state
+      add_claimed: test-bbl-state
 
 - name: bbl-pool-down
   public: false
@@ -335,17 +335,18 @@ jobs:
   - aggregate:
     - get: bbl-state-resource-docker
       passed: [bbl-pool-up]
-    - get: bbl-state-pool
+    - get: bbl-state-lock
+      resource: bbl-state-pool
       trigger: true
       passed: [bbl-pool-up]
   - put: test-bbl-state
     params:
-      name_file: bbl-state-pool/name
+      name_file: bbl-state-lock/name
       command: "down"
     on_success:
       put: bbl-state-pool
       params:
-        remove: bbl-state-pool/name
+        remove: bbl-state-lock
 
 - name: bbl-up
   public: false
