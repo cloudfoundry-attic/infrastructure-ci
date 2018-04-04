@@ -10,3 +10,5 @@ function main() {
     mv site "${ROOT}/bbl-docs"
   popd > /dev/null
 }
+
+main
