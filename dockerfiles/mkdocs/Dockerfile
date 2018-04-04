@@ -3,7 +3,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 RUN \
       apt-get update && \
-      apt-get install -y python3-pip && \
+      apt-get install -y python3-pip git && \
       pip3 install --upgrade pip && \
       pip3 install mkdocs-material
 
