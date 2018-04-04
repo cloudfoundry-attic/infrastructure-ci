@@ -2,13 +2,13 @@
 
 ROOT="${PWD}"
 function main() {
-  cp -R "${ROOT}/bbl-docs-repo/" "${ROOT}/bbl-docs"
+  cp -a "${ROOT}/bbl-docs-repo/.git" "${ROOT}/bbl-docs/.git"
   pushd "${ROOT}/bbl-release-official"
     mkdir src
     tar -xf source.tar.gz -C src --strip-components=1
     pushd src
       mkdocs build
-      mv site "${ROOT}/bbl-docs"
+      cp -a site/. "${ROOT}/bbl-docs"
     popd > /dev/null
   popd > /dev/null
 }
