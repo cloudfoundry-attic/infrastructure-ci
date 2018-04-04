@@ -15,7 +15,11 @@ function main() {
 
   pushd "${ROOT}/bbl-docs"
     git add .
-    git commit -m "update docs for bbl v${BBL_VERSION}"
+
+    git config user.email "cf-infrastructure@pivotal.io"
+    git config user.name "cf-infra-bot"
+
+    git commit -am "update docs for bbl v${BBL_VERSION}"
   popd > /dev/null
 }
 
