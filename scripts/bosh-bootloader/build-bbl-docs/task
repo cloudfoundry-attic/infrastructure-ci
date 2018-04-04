@@ -1,0 +1,9 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+function main() {
+  pushd "${ROOT}/bosh-bootloader"
+    mkdocs build
+    mv site "${ROOT}/bbl-docs"
+  popd > /dev/null
+}
