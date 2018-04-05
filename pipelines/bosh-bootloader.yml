@@ -22,6 +22,7 @@ groups:
 
 - name: homebrew-tap
   jobs:
+  - bump-bbl-docs
   - bump-brew-tap
   - bump-nat-amis
 
@@ -90,6 +91,13 @@ resources:
     ignore_paths:
       - docs/**
       - README.md
+
+- name: bbl-docs
+  type: git
+  source:
+    branch: gh-pages
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
 
 - name: infrastructure-ci
   type: git
@@ -1914,3 +1922,22 @@ jobs:
     - put: homebrew-tap
       params:
         repository: updated-brew-tap/homebrew-tap
+
+- name: bump-bbl-docs
+  plan:
+   - aggregate:
+     - get: bbl-release-official
+       trigger: true
+       params:
+         include_source_tarball: true
+         version: { tag: bbl-release/number }
+     - get: ci
+       resource: infrastructure-ci
+     - get: bbl-docs-repo
+       resource: bbl-docs
+   - task: build-bbl-docs
+     file: ci/scripts/bosh-bootloader/build-bbl-docs/task.yml
+   - put: bbl-docs
+     params:
+       rebase: true
+       repository: bbl-docs
