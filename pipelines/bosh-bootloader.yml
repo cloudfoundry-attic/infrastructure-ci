@@ -43,11 +43,7 @@ groups:
   - build-bbl-state-docker
   - bbl-state-resource-acceptance
   - bbl-up
-  - bbl-deploy
-  - bbl-check-down
   - bbl-pool-up
-  - bbl-pool-deploy
-  - bbl-pool-down
   - bbl-state-resource-tag-latest
 
 resource_types:
@@ -273,9 +269,6 @@ jobs:
 
 - name: build-bbl-state-docker
   public: false
-  serial_groups:
-  - test-bbl-state
-  - test-bbl-state-pool
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -344,8 +337,6 @@ jobs:
 
 - name: bbl-pool-up
   public: false
-  serial_groups:
-  - test-bbl-state-pool
   plan:
   - aggregate:
     - get: bbl-state-resource-src
@@ -355,7 +346,10 @@ jobs:
       trigger: true
       passed:
         - build-bbl-state-docker
-  - put: test-bbl-state
+    - get: cfcr-compiled-git
+    - get: ubuntu-trusty-stemcell
+  - put: bbl-state-up
+    resource: test-bbl-state
     params:
       command: up
     on_failure:
@@ -365,60 +359,29 @@ jobs:
         command: down
   - put: bbl-state-pool
     params:
-      add_claimed: test-bbl-state
-
-- name: bbl-pool-deploy
-  public: false
-  serial_groups:
-  - test-bbl-state-pool
-  plan:
-  - aggregate:
-    - get: lock
-      trigger: true
-      resource: bbl-state-pool
-      passed: [ bbl-pool-up ]
-    - get: bbl-state-resource-docker
-      passed:
-        - bbl-pool-up
-    - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell
+      add_claimed: bbl-state-up
   - put: cfcr-bosh-deployment
     params:
-      source_file: lock/metadata
+      source_file: bbl-state-pool/metadata
       manifest: cfcr-compiled-git/cfcr.yml
       stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
-
-- name: bbl-pool-down
-  public: false
-  serial_groups:
-  - test-bbl-state-pool
-  plan:
-  - aggregate:
-    - get: bbl-state-resource-docker
-      passed: [bbl-pool-deploy]
-    - get: bbl-state-lock
-      resource: bbl-state-pool
-      trigger: true
-      passed: [bbl-pool-deploy]
   - put: cfcr-bosh-deployment
     params:
-      source_file: bbl-state-lock/metadata
+      source_file: bbl-state-pool/metadata
       delete:
         enabled: true
         force: true
   - put: test-bbl-state
     params:
-      name_file: bbl-state-lock/name
+      name_file: bbl-state-pool/name
       command: "down"
     on_success:
       put: bbl-state-pool
       params:
-        remove: bbl-state-lock
+        remove: bbl-state-up
 
 - name: bbl-up
   public: false
-  serial_groups:
-  - test-bbl-state
   plan:
   - aggregate:
     - get: bbl-state-resource-src
@@ -428,6 +391,8 @@ jobs:
       trigger: true
       passed:
         - build-bbl-state-docker
+    - get: cfcr-compiled-git
+    - get: ubuntu-trusty-stemcell
   - put: test-bbl-state
     params:
       command: "up"
@@ -436,47 +401,20 @@ jobs:
       params:
         state_dir: bbl-state
         command: "down"
-
-- name: bbl-deploy
-  public: false
-  serial_groups:
-  - test-bbl-state
-  plan:
-  - aggregate:
-    - get: bbl-state-resource-docker
-      passed: [bbl-up]
-    - get: test-bbl-state
-      trigger: true
-      passed: [bbl-up]
-    - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell
   - put: cfcr-bosh-deployment
     params:
       source_file: test-bbl-state/bdr-source-file
       manifest: cfcr-compiled-git/cfcr.yml
       stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
-
-- name: bbl-check-down
-  public: false
-  serial_groups:
-  - test-bbl-state
-  plan:
-  - aggregate:
-    - get: bbl-state-resource-docker
-      passed: [bbl-deploy]
-    - get: renamed-test-bbl-state # test that we don't inadvertantly break resource rename capabilities
-      resource: test-bbl-state
-      trigger: true
-      passed: [bbl-deploy]
   - put: cfcr-bosh-deployment
     params:
-      source_file: renamed-test-bbl-state/bdr-source-file
+      source_file: test-bbl-state/bdr-source-file
       delete:
         enabled: true
         force: true
   - put: test-bbl-state
     params:
-      state_dir: renamed-test-bbl-state # test that configuring state dir behaves appropriately
+      state_dir: test-bbl-state # test that configuring state dir behaves appropriately
       command: "down"
 
 - name: bbl-state-resource-tag-latest
@@ -485,8 +423,8 @@ jobs:
   - get: bbl-state-resource-docker
     trigger: true
     passed:
-      - bbl-check-down
-      - bbl-pool-down
+      - bbl-up
+      - bbl-pool-up
       - bbl-state-resource-acceptance
     params:
       save: true
