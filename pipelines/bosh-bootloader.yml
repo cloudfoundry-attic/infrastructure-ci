@@ -43,8 +43,10 @@ groups:
   - build-bbl-state-docker
   - bbl-state-resource-acceptance
   - bbl-up
+  - bbl-deploy
   - bbl-check-down
   - bbl-pool-up
+  - bbl-pool-deploy
   - bbl-pool-down
   - bbl-state-resource-tag-latest
 
@@ -55,14 +57,25 @@ resource_types:
     repository: cfinfrastructure/bbl-state-resource
     tag: ci
 
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
 resources:
+- name: ubuntu-trusty-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+    version_family: 3541.latest
+
 - name: test-bbl-state
   type: bbl-state-resource
   source:
     bucket: test-bbl-state-resource
     iaas: gcp
-    gcp-region: us-east1
-    gcp-service-account-key: {{bbl_gcp_service_account_key}}
+    gcp_region: us-east1
+    gcp_service_account_key: {{bbl_gcp_service_account_key}}
 
 - name: bbl-state-pool
   type: pool
@@ -71,6 +84,17 @@ resources:
     branch: master
     pool: bbl-states
     private_key: {{cf_infra_bot_user_github_private_key}}
+
+- name: cfcr-bosh-deployment
+  type: bosh-deployment
+  source:
+    deployment: cfcr
+
+- name: cfcr-compiled-git
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/starkandwayne/cfcr-compiled-deployment.git
 
 - name: bbl-state-resource-src
   type: git
@@ -251,6 +275,7 @@ jobs:
   public: false
   serial_groups:
   - test-bbl-state
+  - test-bbl-state-pool
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -285,6 +310,13 @@ jobs:
       build: bbl-state-resource-src
       build_args_file: docker-build-args/json
       tag: bbl-state-resource-docker/tag
+  - task: sleep-so-that-concourse-uses-our-new-image
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      run:
+        path: sleep
+        args: [ 100 ]
 
 - name: bbl-state-resource-acceptance
   public: false
@@ -313,7 +345,7 @@ jobs:
 - name: bbl-pool-up
   public: false
   serial_groups:
-  - bbl-pool-state
+  - test-bbl-state-pool
   plan:
   - aggregate:
     - get: bbl-state-resource-src
@@ -335,18 +367,45 @@ jobs:
     params:
       add_claimed: test-bbl-state
 
+- name: bbl-pool-deploy
+  public: false
+  serial_groups:
+  - test-bbl-state-pool
+  plan:
+  - aggregate:
+    - get: lock
+      trigger: true
+      resource: bbl-state-pool
+      passed: [ bbl-pool-up ]
+    - get: bbl-state-resource-docker
+      passed:
+        - bbl-pool-up
+    - get: cfcr-compiled-git
+    - get: ubuntu-trusty-stemcell
+  - put: cfcr-bosh-deployment
+    params:
+      source_file: lock/metadata
+      manifest: cfcr-compiled-git/cfcr.yml
+      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+
 - name: bbl-pool-down
   public: false
   serial_groups:
-  - bbl-pool-state
+  - test-bbl-state-pool
   plan:
   - aggregate:
     - get: bbl-state-resource-docker
-      passed: [bbl-pool-up]
+      passed: [bbl-pool-deploy]
     - get: bbl-state-lock
       resource: bbl-state-pool
       trigger: true
-      passed: [bbl-pool-up]
+      passed: [bbl-pool-deploy]
+  - put: cfcr-bosh-deployment
+    params:
+      source_file: bbl-state-lock/metadata
+      delete:
+        enabled: true
+        force: true
   - put: test-bbl-state
     params:
       name_file: bbl-state-lock/name
@@ -378,7 +437,7 @@ jobs:
         state_dir: bbl-state
         command: "down"
 
-- name: bbl-check-down
+- name: bbl-deploy
   public: false
   serial_groups:
   - test-bbl-state
@@ -386,10 +445,35 @@ jobs:
   - aggregate:
     - get: bbl-state-resource-docker
       passed: [bbl-up]
+    - get: test-bbl-state
+      trigger: true
+      passed: [bbl-up]
+    - get: cfcr-compiled-git
+    - get: ubuntu-trusty-stemcell
+  - put: cfcr-bosh-deployment
+    params:
+      source_file: test-bbl-state/bdr-source-file
+      manifest: cfcr-compiled-git/cfcr.yml
+      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+
+- name: bbl-check-down
+  public: false
+  serial_groups:
+  - test-bbl-state
+  plan:
+  - aggregate:
+    - get: bbl-state-resource-docker
+      passed: [bbl-deploy]
     - get: renamed-test-bbl-state # test that we don't inadvertantly break resource rename capabilities
       resource: test-bbl-state
       trigger: true
-      passed: [bbl-up]
+      passed: [bbl-deploy]
+  - put: cfcr-bosh-deployment
+    params:
+      source_file: renamed-test-bbl-state/bdr-source-file
+      delete:
+        enabled: true
+        force: true
   - put: test-bbl-state
     params:
       state_dir: renamed-test-bbl-state # test that configuring state dir behaves appropriately
