@@ -17,6 +17,8 @@ pushd terraforming-aws > /dev/null
     echo 'dns_suffix = "terraforming-aws-env.example.com"'  >> terraform.tfvars
   set -x
 
+  terraform validate
+
   terraform plan -out=plan
 
   terraform apply plan
