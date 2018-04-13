@@ -34,7 +34,7 @@ pushd terraforming-gcp > /dev/null
 
   terraform plan -out=plan
 
-  terraform apply plan
+  TF_LOG=TRACE TF_LOG_PATH=tf-logs.txt terraform apply plan
 
   terraform destroy -force
 
