@@ -8,6 +8,13 @@ groups:
   - github-release
   - merge-bump-deployments-change
 
+resource_types:
+- name: latest-git-resource
+  type: docker-image
+  source:
+    repository: concourse/git-resource
+    tag: latest
+
 resources:
 - name: bosh-deployment
   type: git
@@ -22,7 +29,7 @@ resources:
     uri: https://github.com/cppforlife/jumpbox-deployment.git
 
 - name: bosh-bootloader
-  type: git
+  type: latest-git-resource
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
