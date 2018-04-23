@@ -3,9 +3,10 @@
 - bosh-bootloader
 - bbl-latest
 - socks5-proxy
-- consul-release
+- leftovers
+- az-automation (cli for creating an azure service principal)
 
 ## Reconfigure
 
-Use the `./reconfigure PIPELINE` to `fly set-pipeline` with the
+Use the `./reconfigure PIPELINE_NAME` to `fly set-pipeline` with the
 necessary environment variables.
