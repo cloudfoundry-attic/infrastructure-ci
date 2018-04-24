@@ -10,19 +10,19 @@ pushd "${PWD}/bbl-state" > /dev/null
   if [ -n "${BBL_LB_TYPE}" ]; then
     set +x
     bbl_lb_cert_flag=""
-    if [ ! -z "${BBL_LB_CERT}" ]; then
+    if [ -n "${BBL_LB_CERT}" ]; then
       echo "${BBL_LB_CERT}" > /tmp/bbl-cert
       bbl_lb_cert_flag="--lb-cert=/tmp/bbl-cert"
     fi
 
     bbl_lb_key_flag=""
-    if [ ! -z "${BBL_LB_KEY}" ]; then
+    if [ -n "${BBL_LB_KEY}" ]; then
       echo "${BBL_LB_KEY}" > /tmp/bbl-key
       bbl_lb_key_flag="--lb-key=/tmp/bbl-key"
     fi
 
     bbl_lb_domain_flag=""
-    if [ ! -z "${BBL_LB_DOMAIN}" ]; then
+    if [ -n "${BBL_LB_DOMAIN}" ]; then
       bbl_lb_domain_flag="--lb-domain=${BBL_LB_DOMAIN}"
     fi
 
@@ -31,6 +31,13 @@ pushd "${PWD}/bbl-state" > /dev/null
   fi
 
   bbl plan ${lb_flags}
+
+  if [ -n "${TF_VARS}" ]; then
+    set +x
+    echo "${TF_VARS}" > "${ROOT}/bbl-state/vars/plan-patch.tfvars"
+    set -x
+  fi
+
   cp -R ${ROOT}/bosh-bootloader/plan-patches/${PLAN_PATCH_DIR}/* .
   bbl validate
 popd > /dev/null

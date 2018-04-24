@@ -30,3 +30,4 @@ params:
   BBL_LB_KEY:
   BBL_LB_DOMAIN:
   PLAN_PATCH_DIR:
+  TF_VARS:
