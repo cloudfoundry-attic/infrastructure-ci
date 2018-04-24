@@ -14,6 +14,7 @@ groups:
   - bbl-gcp-concourse
   - bbl-aws-concourse
   - bbl-azure-concourse
+  - validate-plan-patches
   - major
   - minor
   - passed-acceptance-tests
@@ -1340,6 +1341,123 @@ jobs:
       - vsphere-acceptance-tests
       - openstack-acceptance-tests
 
+- name: validate-plan-patches
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      trigger: true
+      passed: [bbl-downstream-docker-image]
+    - get: ci
+      resource: infrastructure-ci
+  - aggregate:
+    - task: 1-az-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        PLAN_PATCH_DIR: 1-az-aws
+    - task: acm-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        PLAN_PATCH_DIR: acm-aws
+    - task: alb-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        PLAN_PATCH_DIR: alb-aws
+    - task: bosh-lite-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        PLAN_PATCH_DIR: bosh-lite-gcp
+    - task: byobastion-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        PLAN_PATCH_DIR: byobastion-gcp
+    - task: colocate-gorouter-ssh-proxy-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        PLAN_PATCH_DIR: colocate-gorouter-ssh-proxy-gcp
+    - task: iso-segs-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
+        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        PLAN_PATCH_DIR: iso-segs-aws
+        TF_VARS: isolation_segments=1
+    - task: iso-segs-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        PLAN_PATCH_DIR: iso-segs-gcp
+    - task: restricted-instance-groups-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_LB_TYPE: cf
+        BBL_LB_DOMAIN: example.com
+        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
+        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        PLAN_PATCH_DIR: restricted-instance-groups-gcp
+    - task: tf-backend-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: gcp
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_REGION: {{bbl_gcp_region}}
+        PLAN_PATCH_DIR: tf-backend-gcp
+    - task: tf-backend-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_IAAS: aws
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        PLAN_PATCH_DIR: tf-backend-aws
+
 - name: bbl-aws-cf
   serial: true
   build_logs_to_retain: 100
@@ -1871,6 +1989,7 @@ jobs:
       - bbl-aws-concourse
       - bbl-gcp-concourse
       - bbl-lite-gcp
+      - validate-plan-patches
 
 - name: github-release
   plan:
