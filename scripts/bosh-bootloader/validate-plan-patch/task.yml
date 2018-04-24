@@ -1,0 +1,32 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+
+inputs:
+- name: bosh-bootloader
+- name: ci
+
+run:
+  path: ci/scripts/bosh-bootloader/validate-plan-patch/task
+
+params:
+  BBL_IAAS:
+  BBL_AWS_REGION:
+  BBL_AWS_ACCESS_KEY_ID:
+  BBL_AWS_SECRET_ACCESS_KEY:
+  BBL_AZURE_SUBSCRIPTION_ID:
+  BBL_AZURE_TENANT_ID:
+  BBL_AZURE_CLIENT_ID:
+  BBL_AZURE_CLIENT_SECRET:
+  BBL_AZURE_REGION:
+  BBL_GCP_SERVICE_ACCOUNT_KEY:
+  BBL_GCP_REGION:
+  BBL_LB_TYPE:
+  BBL_LB_CERT:
+  BBL_LB_KEY:
+  BBL_LB_DOMAIN:
+  PLAN_PATCH_DIR:

@@ -1,0 +1,36 @@
+#!/bin/bash -exu
+
+ROOT="${PWD}"
+
+mkdir -p "${PWD}/bbl-state"
+
+pushd "${PWD}/bbl-state" > /dev/null
+  lb_flags=""
+
+  if [ -n "${BBL_LB_TYPE}" ]; then
+    set +x
+    bbl_lb_cert_flag=""
+    if [ ! -z "${BBL_LB_CERT}" ]; then
+      echo "${BBL_LB_CERT}" > /tmp/bbl-cert
+      bbl_lb_cert_flag="--lb-cert=/tmp/bbl-cert"
+    fi
+
+    bbl_lb_key_flag=""
+    if [ ! -z "${BBL_LB_KEY}" ]; then
+      echo "${BBL_LB_KEY}" > /tmp/bbl-key
+      bbl_lb_key_flag="--lb-key=/tmp/bbl-key"
+    fi
+
+    bbl_lb_domain_flag=""
+    if [ ! -z "${BBL_LB_DOMAIN}" ]; then
+      bbl_lb_domain_flag="--lb-domain=${BBL_LB_DOMAIN}"
+    fi
+
+    lb_flags="--lb-type=${BBL_LB_TYPE} ${bbl_lb_cert_flag} ${bbl_lb_key_flag} ${bbl_lb_domain_flag}"
+    set -x
+  fi
+
+  bbl plan ${lb_flags}
+  cp -R ${ROOT}/bosh-bootloader/plan-patches/${PLAN_PATCH_DIR}/* .
+  bbl validate
+popd > /dev/null
