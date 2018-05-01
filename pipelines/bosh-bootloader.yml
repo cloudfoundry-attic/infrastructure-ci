@@ -1407,6 +1407,21 @@ jobs:
         BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
         BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
         PLAN_PATCH_DIR: colocate-gorouter-ssh-proxy-gcp
+    - task: cfcr-aws
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_REGION: us-west-2
+        BBL_IAAS: aws
+        PLAN_PATCH_DIR: cfcr-aws
+    - task: cfcr-gcp
+      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
+      params:
+        BBL_GCP_REGION: us-central1
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_IAAS: gcp
+        PLAN_PATCH_DIR: cfcr-gcp
     - task: iso-segs-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
