@@ -2001,6 +2001,7 @@ jobs:
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
+      - bbl-azure-concourse
       - bbl-aws-concourse
       - bbl-gcp-concourse
       - bbl-lite-gcp
