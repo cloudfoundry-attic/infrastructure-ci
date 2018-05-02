@@ -25,15 +25,17 @@ function main() {
   pushd "${GOPATH}/src/github.com/genevieve/leftovers/cmd/leftovers" > /dev/null
 
     echo "Building 64-bit Linux"
-
     CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
-      go build -a -tags netgo -installsuffix netgo \
+      go build \
+      -a -tags netgo -installsuffix netgo \
+      -ldflags "-X main.Version=v${VERSION}" \
       -o "${ROOT}/builds/bin/leftovers-v${VERSION}-linux-amd64" .
 
     echo "Building 64-bit Darwin"
-
     GOARCH=amd64 GOOS=darwin \
-      go build -o "${ROOT}/builds/bin/leftovers-v${VERSION}-darwin-amd64" .
+      go build \
+      -ldflags "-X main.Version=v${VERSION}" \
+      -o "${ROOT}/builds/bin/leftovers-v${VERSION}-darwin-amd64" .
 
   popd > /dev/null
 
