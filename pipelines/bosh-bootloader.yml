@@ -1457,21 +1457,6 @@ jobs:
         BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
         BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
         PLAN_PATCH_DIR: restricted-instance-groups-gcp
-    - task: tf-backend-gcp
-      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
-      params:
-        BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
-        PLAN_PATCH_DIR: tf-backend-gcp
-    - task: tf-backend-aws
-      file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
-      params:
-        BBL_IAAS: aws
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_REGION: us-west-2
-        PLAN_PATCH_DIR: tf-backend-aws
 
 - name: bbl-aws-cf
   serial: true

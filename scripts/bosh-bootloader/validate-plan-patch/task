@@ -39,5 +39,6 @@ pushd "${PWD}/bbl-state" > /dev/null
   fi
 
   cp -R ${ROOT}/bosh-bootloader/plan-patches/${PLAN_PATCH_DIR}/* .
+
   bbl validate
 popd > /dev/null
