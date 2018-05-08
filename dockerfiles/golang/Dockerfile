@@ -1,7 +1,7 @@
 FROM cfinfrastructure/minimal
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
-ENV GO_VERSION 1.9
+ENV GO_VERSION 1.10
 
 # Install go
 RUN wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && \
