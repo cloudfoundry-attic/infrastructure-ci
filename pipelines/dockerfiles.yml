@@ -179,7 +179,7 @@ jobs:
         cache: false
 
 - name: deployment-docker-image
-  public: true
+  public: false
   plan:
   - do:
     - aggregate:
@@ -196,6 +196,8 @@ jobs:
     - put: deployment-docker-image
       params:
         build: infrastructure-ci/dockerfiles/deployment
+        build_args:
+          GITHUB_TOKEN: {{cf_infra_bot_user_github_access_token}}
         cache: false
 
 - name: terraform-image

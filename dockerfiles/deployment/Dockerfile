@@ -1,6 +1,7 @@
 FROM cfinfrastructure/golang
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
+ARG GITHUB_TOKEN
 ENV TERRAFORM_VERSION 0.11.0
 ENV BOSH_CLI_VERSION 2.0.48
 
@@ -59,7 +60,7 @@ RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   chmod +x /usr/local/bin/jq
 
 # Install bbl
-RUN curl -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
+RUN curl -H "Authorization: token ${GITHUB_TOKEN}" -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
   jq -r '.assets[] | .browser_download_url | select(contains("linux"))' | \
   xargs wget && \
   mv bbl-* /usr/local/bin/bbl && \
