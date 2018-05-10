@@ -179,7 +179,7 @@ jobs:
         cache: false
 
 - name: deployment-docker-image
-  public: false
+  public: true
   plan:
   - do:
     - aggregate:
