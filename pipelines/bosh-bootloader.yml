@@ -18,7 +18,7 @@ groups:
   - major
   - minor
   - passed-acceptance-tests
-  - releasable
+  - bbl-up-concourse-director
   - github-release
 
 - name: homebrew-tap
@@ -1999,7 +1999,7 @@ jobs:
             rebase: true
             repository: updated-bbl-state
 
-- name: releasable
+- name: bbl-up-concourse-director
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -2012,6 +2012,21 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
+    - get: infrastructure-ci-bbl-states
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed: [bbl-downstream-docker-image]
+  - task: bbl-up-concourse-bosh-director
+    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: infrastructure-ci-bbl-states
 
 - name: github-release
   plan:
@@ -2021,7 +2036,7 @@ jobs:
     - get: bbl-version
       resource: version
     - get: bosh-bootloader
-      passed: [releasable]
+      passed: [bbl-up-concourse-director]
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bosh-bootloader
