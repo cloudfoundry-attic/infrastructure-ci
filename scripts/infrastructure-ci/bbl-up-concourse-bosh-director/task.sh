@@ -9,7 +9,6 @@ function main() {
     bbl up
   popd > /dev/null
 
-  trap 'commit_bbl_state ${root_dir}' EXIT
 }
 
 function commit_bbl_state() {
@@ -28,5 +27,7 @@ function commit_bbl_state() {
   popd > /dev/null
 
 }
+
+trap 'commit_bbl_state "${root_dir}"' EXIT
 
 main ${PWD}
