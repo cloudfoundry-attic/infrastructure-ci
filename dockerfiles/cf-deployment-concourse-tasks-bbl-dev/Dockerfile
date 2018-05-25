@@ -19,10 +19,13 @@ RUN \
       && \
       apt-get clean
 
-# go install latest bosh-bootloader develop
+# go install latest bosh-bootloader develop with packaged terraform
 ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
 RUN cd /go/src/github.com/cloudfoundry/bosh-bootloader > /dev/null && \
-  git rev-parse HEAD && go install github.com/cloudfoundry/bosh-bootloader/bbl
+    git rev-parse HEAD && \
+    scripts/update_terraform_binaries && \
+    rm -f $(which terraform) && \
+    go install -tags includeTerraform github.com/cloudfoundry/bosh-bootloader/bbl
 
 RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader /var/repos
 

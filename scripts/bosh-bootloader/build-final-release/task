@@ -17,6 +17,9 @@ function main() {
   deployment_versions=$(cat "${ROOT}/bosh-bootloader/deployment-versions.txt")
 
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/bbl" > /dev/null
+    echo "Downloading terraform binaries"
+    scripts/update_terraform_binaries
+    TF_URL=$(cat terraform/binary_dist/tf_binaries_fetched_from.txt)
     build_bbl
   popd > /dev/null
 
@@ -29,6 +32,8 @@ function main() {
       echo "This release only includes changes to deployment manifests." > body
     fi
     echo "${deployment_versions}" >> body
+
+    echo "- Included terraform binaries from ${TF_URL}"
 
     linux_sha=$(shasum -a 256 "${BBL_LINUX_BUILD_PATH}" | cut -d ' ' -f 1)
     osx_sha=$(shasum -a 256 "${BBL_OSX_BUILD_PATH}" | cut -d ' ' -f 1)
@@ -44,25 +49,29 @@ function main() {
 function build_bbl() {
   echo "Building 64-bit Linux"
   CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
-    go build -a -tags netgo -installsuffix netgo \
+    go build -a \
+    -tags includeTerraform,netgo -installsuffix netgo \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_LINUX_BUILD_PATH}" .
 
   echo "Building 64-bit Darwin"
   GOARCH=amd64 GOOS=darwin \
     go build \
+    -tags includeTerraform \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_OSX_BUILD_PATH}" .
 
   echo "Building 64-bit Windows"
   CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
     go build \
+    -tags includeTerraform \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_WINDOWS_BUILD_PATH}" .
 
   echo "Testing 32-bit platform"
   CGO_ENABLED=0 GOARCH=386 GOOS=freebsd \
     go build \
+    -tags includeTerraform \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "/tmp/test-compile-32" .
 }
