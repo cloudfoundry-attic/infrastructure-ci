@@ -19,7 +19,7 @@ RUN \
       && \
       apt-get clean
 
-RUN go install github.com/jteeuwen/go-bindata
+RUN go get github.com/jteeuwen/go-bindata
 
 # go install latest bosh-bootloader develop with packaged terraform
 ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
