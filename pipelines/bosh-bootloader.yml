@@ -2021,7 +2021,7 @@ jobs:
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_REGION: us-east1
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
     ensure:
       put: infrastructure-ci-bbl-states
