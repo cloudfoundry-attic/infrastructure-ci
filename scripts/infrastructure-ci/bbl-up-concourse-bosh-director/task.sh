@@ -22,6 +22,10 @@ function commit_bbl_state() {
   popd > /dev/null
 
   pushd "${root_dir}/infrastructure-ci-bbl-states/infra-ci" > /dev/null
+
+    git config --global user.email "ifra@pivotal.io"
+    git config --global user.name "Infra CI Bot"
+
     git add .
     git commit -m "update concourse bbl director to bbl commit ${bbl_commit}"
   popd > /dev/null
