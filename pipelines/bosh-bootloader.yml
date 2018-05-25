@@ -2022,7 +2022,7 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{infrastructure_ci_gcp_service_account_key}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
