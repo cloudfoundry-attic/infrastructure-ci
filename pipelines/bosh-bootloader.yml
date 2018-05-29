@@ -2026,7 +2026,7 @@ jobs:
     ensure:
       put: infrastructure-ci-bbl-states
       params:
-        repository: infrastructure-ci-bbl-states
+        repository: updated-bbl-states
 
 - name: github-release
   plan:

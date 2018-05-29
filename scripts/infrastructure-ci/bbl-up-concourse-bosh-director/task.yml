@@ -6,6 +6,9 @@ inputs:
 - name: infrastructure-ci-bbl-states
 - name: bosh-bootloader
 
+outputs:
+- name: updated-bbl-states
+
 run:
   path: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task.sh
 
