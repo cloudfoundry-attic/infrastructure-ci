@@ -40,9 +40,7 @@ function main() {
   pushd "${ROOT}/bosh-bootloader" > /dev/null
     go get -u github.com/a-urth/go-bindata/...
 
-    go-bindata -o bosh/deployment_files.go vendor/github.com/cppforlife/jumpbox-deployment/... vendor/github.com/cloudfoundry/bosh-deployment/...
-
-    sed -i -- 's/^package main$/package bosh/g' bosh/deployment_files.go
+    go-bindata -pkg bosh -o bosh/deployment_files.go vendor/github.com/cppforlife/jumpbox-deployment/... vendor/github.com/cloudfoundry/bosh-deployment/...
 
     git config user.email "cf-infrastructure@pivotal.io"
     git config user.name "cf-infra-bot"
