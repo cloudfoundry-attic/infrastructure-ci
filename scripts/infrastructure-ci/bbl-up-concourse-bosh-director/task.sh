@@ -23,7 +23,7 @@ function commit_bbl_state() {
 
   cp -r "${root_dir}/infrastructure-ci-bbl-states/." "${root_dir}/updated-bbl-states"
 
-  pushd "${root_dir}/infrastructure-ci-bbl-states/updated-bbl-states" > /dev/null
+  pushd "${root_dir}/updated-bbl-states" > /dev/null
 
     git config --global user.email "ifra@pivotal.io"
     git config --global user.name "Infra CI Bot"
