@@ -35,7 +35,7 @@ function main() {
     fi
     echo "${deployment_versions}" >> body
 
-    echo "- Included terraform binaries from ${TF_URL}"
+    echo "- Includes terraform binaries from ${TF_URL}" >> body
 
     linux_sha=$(shasum -a 256 "${BBL_LINUX_BUILD_PATH}" | cut -d ' ' -f 1)
     osx_sha=$(shasum -a 256 "${BBL_OSX_BUILD_PATH}" | cut -d ' ' -f 1)
