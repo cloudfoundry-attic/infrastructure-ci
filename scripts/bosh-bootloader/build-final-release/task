@@ -10,17 +10,19 @@ function main() {
   local bosh_bootloader_commit_sha
   local deployment_versions
 
-  mkdir -p "${GOPATH}/src/github.com/cloudfoundry/"
+  rm -rf "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader"
   ln -s "${ROOT}/bosh-bootloader" "${GOPATH}/src/github.com/cloudfoundry/"
 
   bosh_bootloader_commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
   deployment_versions=$(cat "${ROOT}/bosh-bootloader/deployment-versions.txt")
 
-  pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/bbl" > /dev/null
+  pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/" > /dev/null
     echo "Downloading terraform binaries"
     scripts/update_terraform_binaries
     TF_URL=$(cat terraform/binary_dist/tf_binaries_fetched_from.txt)
-    build_bbl
+    pushd "bbl/" > /dev/null
+      build_bbl
+    popd > /dev/null
   popd > /dev/null
 
   pushd "${ROOT}/builds" > /dev/null
@@ -50,7 +52,7 @@ function build_bbl() {
   echo "Building 64-bit Linux"
   CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
     go build -a \
-    -tags includeTerraform,netgo -installsuffix netgo \
+    -tags includeTerraform \
     -ldflags "-X main.Version=${BBL_VERSION}" \
     -o "${BBL_LINUX_BUILD_PATH}" .
 
