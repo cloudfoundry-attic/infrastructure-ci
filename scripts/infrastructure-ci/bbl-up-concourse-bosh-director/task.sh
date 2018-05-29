@@ -32,6 +32,6 @@ function commit_bbl_state() {
 
 }
 
-trap 'commit_bbl_state "${root_dir}"' EXIT
+trap 'commit_bbl_state "${PWD}"' EXIT
 
 main ${PWD}
