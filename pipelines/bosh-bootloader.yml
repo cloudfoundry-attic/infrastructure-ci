@@ -721,6 +721,15 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+  - task: bbl-leftovers
+    file: ci/scripts/bosh-bootloader/leftovers/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_ENV_NAME: bbl-gcp-concourse
+      BBL_STATE_DIR: bbl-gcp-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -921,6 +930,18 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+  - task: bbl-leftovers
+    file: ci/scripts/bosh-bootloader/leftovers/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: azure
+      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
+      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
+      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
+      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
+      BBL_AZURE_REGION: {{azure_location}}
+      BBL_ENV_NAME: bbl-azure-concourse
+      BBL_STATE_DIR: bbl-azure-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1147,6 +1168,16 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+  - task: bbl-leftovers
+    file: ci/scripts/bosh-bootloader/leftovers/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    params:
+      BBL_IAAS: aws
+      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
+      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_REGION: us-west-2
+      BBL_STATE_DIR: bbl-aws-concourse
+      BBL_ENV_NAME: bbl-aws-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
