@@ -27,12 +27,6 @@ groups:
   - bump-brew-tap
   - bump-nat-amis
 
-- name: cf-deployment
-  jobs:
-  - bbl-downstream-docker-image
-  - bbl-aws-cf
-  - bbl-gcp-cf
-
 - name: smoke-tests
   jobs:
   - test-with-latest-terraform
