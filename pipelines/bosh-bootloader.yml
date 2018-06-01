@@ -753,7 +753,7 @@ jobs:
         BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       input_mapping:
         env-repo: updated-env-repo
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -970,7 +970,7 @@ jobs:
         BBL_AZURE_REGION: {{azure_location}}
       input_mapping:
         env-repo: updated-env-repo
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1201,7 +1201,7 @@ jobs:
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
         env-repo: updated-env-repo
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1543,7 +1543,7 @@ jobs:
         BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       input_mapping:
         bbl-state: updated-bbl-state
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1671,7 +1671,7 @@ jobs:
         GIT_COMMIT_USERNAME: CI Infra Bot
       input_mapping:
         bbl-state: updated-bbl-state
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
@@ -1840,7 +1840,7 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       input_mapping:
         bbl-state: updated-bbl-state
-      on_failure:
+      ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
