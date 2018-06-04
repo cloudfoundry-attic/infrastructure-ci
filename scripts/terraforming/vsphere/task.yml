@@ -1,0 +1,33 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/terraform
+
+inputs:
+- name: terraforming-vsphere
+- name: ci
+
+run:
+  path: ci/scripts/terraforming/vsphere/task
+
+params:
+  VSPHERE_NETWORK:
+  VSPHERE_OM_IP:
+  VSPHERE_OM_DNS:
+  VSPHERE_OM_NTP:
+  VSPHERE_OM_TEMPLATE:
+  VSPHERE_OM_ADMIN_PASSWORD:
+  VSPHERE_GW_IP:
+  VSPHERE_VCENTER_IP:
+  VSPHERE_VCENTER_USER:
+  VSPHERE_VCENTER_PASSWORD:
+  VSPHERE_VCENTER_DC:
+  VSPHERE_VCENTER_CLUSTER:
+  VSPHERE_VCENTER_RP:
+  VSPHERE_VCENTER_DS:
+  VSPHERE_VCENTER_DISKS:
+  VSPHERE_VCENTER_VMS:
+  VSPHERE_VCENTER_TEMPLATES:
