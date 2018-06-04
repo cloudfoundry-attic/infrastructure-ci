@@ -15,7 +15,7 @@ pushd terraforming-vsphere > /dev/null
     echo "om_dns = \"${VSPHERE_OM_DNS}\"" >> terraform.tfvars
     echo "om_ntp_servers = \"${VSPHERE_OM_NTP}\"" >> terraform.tfvars
     echo "om_template = \"${VSPHERE_VCENTER_TEMPLATES}/${VSPHERE_OM_TEMPLATE}\"" >> terraform.tfvars
-    echo "om_admin_password = \"${VSPHERE_OM_PASSWORD}\"" >> terraform.tfvars
+    echo "om_admin_password = \"${VSPHERE_OM_ADMIN_PASSWORD}\"" >> terraform.tfvars
 
     echo "vcenter_user = \"${VSPHERE_VCENTER_USER}\"" >> terraform.tfvars
     echo "vcenter_password = \"${VSPHERE_VCENTER_PASSWORD}\"" >> terraform.tfvars
@@ -24,7 +24,7 @@ pushd terraforming-vsphere > /dev/null
     echo "vcenter_cluster = \"${VSPHERE_VCENTER_CLUSTER}\"" >> terraform.tfvars
     echo "vcenter_rp = \"${VSPHERE_VCENTER_RP}\"" >> terraform.tfvars
     echo "vcenter_ds = \"${VSPHERE_VCENTER_DS}\"" >> terraform.tfvars
-    echo "vcenter_network = \"${VSPHERE_VCENTER_NETWORK}\"" >> terraform.tfvars
+    echo "vcenter_network = \"${VSPHERE_NETWORK}\"" >> terraform.tfvars
     echo "vcenter_vms = \"${VSPHERE_VCENTER_VMS}\"" >> terraform.tfvars
 
     echo "allow_unverified_ssl = true" >> terraform.tfvars
