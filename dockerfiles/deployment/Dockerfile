@@ -3,7 +3,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ARG GITHUB_TOKEN
 ENV TERRAFORM_VERSION 0.11.0
-ENV BOSH_CLI_VERSION 2.0.48
+ENV BOSH_CLI_VERSION 4.0.1
 
 RUN \
       apt-get update && \
