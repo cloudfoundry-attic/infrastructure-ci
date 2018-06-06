@@ -16,8 +16,24 @@ resources:
 - name: concourse-deployment
   type: git
   source:
-    branch: master
+    branch: v3.12.0
     uri: https://github.com/concourse/concourse-bosh-deployment.git
+
+- name: cf-deployment-concourse-tasks-bbl-dev-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+# Fork of cf-deployment-concourse-tasks that has features
+# we need that are not yet merged into upstream
+- name: cf-deployment-concourse-tasks-infrastructure
+  type: git
+  source:
+    branch: infrastructure
+    uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
 
 jobs:
 - name: update-concourse-gcp
@@ -27,7 +43,11 @@ jobs:
       resource: infrastructure-ci
     - get: infrastructure-ci-bbl-states
     - get: concourse-deployment
-    - get: gcp-stemcell
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    - get: cf-deployment-concourse-tasks
+      resource: cf-deployment-concourse-tasks-infrastructure
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -74,11 +94,5 @@ jobs:
       SYSTEM_DOMAIN: infra.ci.cf-app.com
       VARS_STORE_FILE: infra-ci/deployment-vars.yml
       VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
-      OPS_FILES: |
-        infra-ci/cluster/operations/privileged-https.yml
-        infra-ci/cluster/operations/privileged-http.yml
-        infra-ci/cluster/operations/github-auth.yml
-        infra-ci/cluster/operations/tls.yml
-        infra-ci/cluster/operations/web-network-extension.yml
-
+      OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml"
       MANIFEST_FILE: cluster/concourse.yml
