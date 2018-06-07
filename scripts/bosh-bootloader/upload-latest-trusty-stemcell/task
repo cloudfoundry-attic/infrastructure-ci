@@ -27,7 +27,7 @@ function upload_stemcell() {
 
   set +e
   local existing_stemcell
-  existing_stemcell=$(bosh stemcells | grep "${os}" | awk '{print $2}' | tr -d "\*" | grep ^"${version}"$ )
+  existing_stemcell=$(bosh stemcells | grep "${os}" | awk '{print $2}' | tr -d "\*" | grep ^"${VERSION}"$ )
   set -e
 
   local stemcell_name
@@ -53,7 +53,7 @@ function upload_stemcell() {
   # If bosh already has our stemcell, exit 0
   if [ "${existing_stemcell}" ]; then
     echo "Task upload-latest-trusty-stemcell:"
-    echo "Stemcell '${stemcell_name}/${version}' already exists.  Exiting..."
+    echo "Stemcell '${stemcell_name}/${VERSION}' already exists.  Exiting..."
     return
   fi
 
