@@ -58,7 +58,7 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
-    version_family: 3586.16
+    version_family: 3586.latest
 
 - name: test-bbl-state
   type: bbl-state-resource
@@ -360,20 +360,22 @@ jobs:
       source_file: bbl-state-pool/metadata
       manifest: cfcr-compiled-git/cfcr.yml
       stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
-  - put: cfcr-bosh-deployment
-    params:
-      source_file: bbl-state-pool/metadata
-      delete:
-        enabled: true
-        force: true
-  - put: test-bbl-state
-    params:
-      name_file: bbl-state-pool/name
-      command: "down"
-    on_success:
-      put: bbl-state-pool
-      params:
-        remove: bbl-state-up
+    ensure:
+      do:
+      - put: cfcr-bosh-deployment
+        params:
+          source_file: bbl-state-pool/metadata
+          delete:
+            enabled: true
+            force: true
+      - put: test-bbl-state
+        params:
+          name_file: bbl-state-pool/name
+          command: "down"
+        on_success:
+          put: bbl-state-pool
+          params:
+            remove: bbl-state-up
 
 - name: bbl-up
   public: false
@@ -388,29 +390,26 @@ jobs:
         - build-bbl-state-docker
     - get: cfcr-compiled-git
     - get: ubuntu-trusty-stemcell
-  - put: test-bbl-state
-    params:
-      command: "up"
-    on_failure:
+  - do:
+    - put: test-bbl-state
+      params:
+        command: "up"
+    - put: cfcr-bosh-deployment
+      params:
+        source_file: test-bbl-state/bdr-source-file
+        manifest: cfcr-compiled-git/cfcr.yml
+        stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+    - put: cfcr-bosh-deployment
+      params:
+        source_file: test-bbl-state/bdr-source-file
+        delete:
+          enabled: true
+          force: true
+    ensure:
       put: test-bbl-state
       params:
-        state_dir: bbl-state
+        state_dir: test-bbl-state # test that configuring state dir behaves appropriately
         command: "down"
-  - put: cfcr-bosh-deployment
-    params:
-      source_file: test-bbl-state/bdr-source-file
-      manifest: cfcr-compiled-git/cfcr.yml
-      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
-  - put: cfcr-bosh-deployment
-    params:
-      source_file: test-bbl-state/bdr-source-file
-      delete:
-        enabled: true
-        force: true
-  - put: test-bbl-state
-    params:
-      state_dir: test-bbl-state # test that configuring state dir behaves appropriately
-      command: "down"
 
 - name: bbl-state-resource-tag-latest
   public: false
@@ -768,7 +767,7 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       INFRASTRUCTURE: google
-      VERSION: 3568.16
+      VERSION: 3586.16
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
