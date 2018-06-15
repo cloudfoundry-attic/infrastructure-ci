@@ -9,6 +9,7 @@ RUN \
       apt-get -qqy install --fix-missing \
             apt-transport-https \
             unzip \
+            wget \
       && \
       apt-get clean
 
