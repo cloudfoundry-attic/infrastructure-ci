@@ -58,6 +58,14 @@ resources:
     paths:
     - dockerfiles/cf-deployment-concourse-tasks-w-gcloud
 
+- name: releng-tools-dockerfile
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+    paths:
+    - dockerfiles/releng-tools
+
 - name: ubuntu-docker-image
   type: docker-image
   source:
@@ -118,6 +126,14 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: releng-tools-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/releng-tools
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: bbl-release
   type: github-release
   source:
@@ -158,6 +174,19 @@ jobs:
     - put: mkdocs-docker-image
       params:
         build: infrastructure-ci/dockerfiles/mkdocs
+        cache: false
+
+- name: releng-tools-docker-image
+  public: true
+  plan:
+  - do:
+    - aggregate:
+      - get: infrastructure-ci
+        resource: releng-tools-dockerfile
+        trigger: true
+    - put: releng-tools-docker-image
+      params:
+        build: infrastructure-ci/dockerfiles/releng-tools
         cache: false
 
 - name: golang-docker-image
