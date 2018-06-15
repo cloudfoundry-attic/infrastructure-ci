@@ -1,4 +1,4 @@
-FROM python:3.6.5-jessie
+FROM debian:latest
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ENV OM_VERSION 0.37.0
@@ -33,5 +33,3 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
   rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
   mv terraform /usr/local/bin/terraform
 
-# Install yq
-RUN pip install yq
