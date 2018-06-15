@@ -6,6 +6,7 @@ groups:
   - golang-docker-image
   - deployment-docker-image
   - mkdocs-docker-image
+  - releng-tools-docker-image
   - terraform-image
   - cf-deployment-concourse-tasks-w-gcloud-image
 
