@@ -1,0 +1,33 @@
+#!/bin/bash -exu
+
+vars_file="${PWD}/tfvars/terraform.tfvars"
+opsman_image_file=$(ls -1 "${PWD}"/opsman_image/*.yml)
+opsman_image_url=$(awk '$1 == "us:" { print $2 }' "${opsman_image_file}")
+echo "opsman_image_url: https://storage.googleapis.com/${opsman_image_url}" > "${vars_file}"
+
+pushd terraforming-gcp > /dev/null
+
+  echo 'env_name = "terraforming-gcp-env"' > "${vars_file}"
+  echo "project = \"${GCP_PROJECT_ID}\"" >> "${vars_file}"
+  echo 'region = "us-central1"' >> "${vars_file}"
+  echo 'zones = ["us-central1-a", "us-central1-b", "us-central1-c"]' >> "${vars_file}"
+  echo 'dns_suffix = "terraforming-gcp-env.cf-app.com"' >> "${vars_file}"
+  echo 'isolation_segment = true' >> "${vars_file}"
+  echo 'external_database = 1' >> "${vars_file}"
+
+  set +x
+    echo "service_account_key = <<SERVICE_ACCOUNT_KEY" >> "${vars_file}"
+    echo "${GCP_SERVICE_ACCOUNT_KEY}" >> "${vars_file}"
+    echo "SERVICE_ACCOUNT_KEY" >> "${vars_file}"
+
+    cert="$(echo "${GCP_SSL_CERT}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
+    echo -e "ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> "${vars_file}"
+
+    key="$(echo "${GCP_SSL_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
+    echo -e "ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> "${vars_file}"
+
+    echo -e "iso_seg_ssl_cert = <<SSL_CERT\n${cert}SSL_CERT" >> "${vars_file}"
+    echo -e "iso_seg_ssl_private_key = <<SSL_KEY\n${key}SSL_KEY" >> "${vars_file}"
+  set -x
+
+popd > /dev/null

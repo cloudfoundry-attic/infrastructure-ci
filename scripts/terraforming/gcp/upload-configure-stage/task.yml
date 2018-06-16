@@ -7,13 +7,14 @@ image_resource:
     repository: cfinfrastructure/releng-tools
 
 inputs:
-- name: terraform-state-gcp
+- name: env-state-gcp
 - name: ci
+- name: stemcell
+- name: srt
 
 run:
   path: ci/scripts/terraforming/configure-om/task
 
 params:
-  GCP_SERVICE_ACCOUNT_KEY:
   OM_USERNAME:
   OM_PASSWORD:

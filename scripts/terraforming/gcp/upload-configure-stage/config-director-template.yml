@@ -5,23 +5,22 @@ az-configuration:
 director-configuration:
   ntp_servers_string: 169.254.169.254
 iaas-configuration:
-  associated_service_account: |
-{{indent 4 (env "GCP_SERVICE_ACCOUNT_KEY")}}
+  associated_service_account: {{.service_account_email}}
   default_deployment_tag: {{.vm_tag}}
   project: {{.project}}
 network-assignment:
   network:
-    name: management
+    name: {{.management_subnet_name}}
   singleton_availability_zone:
     name: {{index .azs 0}}
 networks-configuration:
   icmp_checks_enabled: false
   networks:
-  - name: management
+  - name: {{.management_subnet_name}}
     subnets:
     - availability_zone_names:
       {{range .azs}}
-      - name: {{.}}
+      - {{.}}
       {{end}}
       cidr: {{index .management_subnet_cidrs 0}}
       dns: 169.254.169.254
@@ -32,7 +31,7 @@ networks-configuration:
     subnets:
     - availability_zone_names:
       {{range .azs}}
-      - name: {{.}}
+      - {{.}}
       {{end}}
       cidr: {{index .pas_subnet_cidrs 0}}
       dns: 169.254.169.254

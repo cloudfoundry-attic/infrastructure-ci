@@ -39,3 +39,4 @@ pushd terraforming-gcp > /dev/null
   terraform destroy -force
 
 popd > /dev/null
+texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/tfoutput.json" -o yaml > "${cwd}/director-config.yml"
