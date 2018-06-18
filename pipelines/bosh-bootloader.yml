@@ -2052,6 +2052,7 @@ jobs:
       put: infrastructure-ci-bbl-states
       params:
         repository: updated-bbl-states
+        rebase: true
 
 - name: github-release
   plan:
