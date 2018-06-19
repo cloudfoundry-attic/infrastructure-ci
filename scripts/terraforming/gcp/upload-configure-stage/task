@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
 cwd=${PWD}
-configure_om_dir="${PWD}/ci/scripts/terraforming/configure-om"
+configure_om_dir="${PWD}/ci/scripts/terraforming/gcp/upload-configure-stage"
 
 terraform output -state "${cwd}/terraform-state-gcp/terraform.tfstate" --json | \
   jq '[. | to_entries[] | {"key": .key, "value": .value.value}] | from_entries' \
