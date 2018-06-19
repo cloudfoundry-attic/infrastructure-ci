@@ -129,6 +129,7 @@ jobs:
     - get: terraforming-gcp
       passed: [create-env-gcp]
     - get: env-state-gcp
+      passed: [create-env-gcp]
       trigger: true
     - get: ci
       resource: infrastructure-ci
