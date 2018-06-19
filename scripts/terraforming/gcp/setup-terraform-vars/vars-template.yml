@@ -7,8 +7,7 @@ zones: ["us-central1-a", "us-central1-b", "us-central1-c"]
 dns_suffix : "terraforming-gcp-env.cf-app.com"
 isolation_segment: true
 external_database: 1
-service_account_key: |
-{{ indent 4 (env "GCP_SERVICE_ACCOUNT_KEY") }}
+service_account_key: {{ env "GCP_SERVICE_ACCOUNT_KEY" }}
 ssl_cert: {{ env "ssl_cert" }}
 ssl_private_key: {{ env "ssl_private_key" }}
 iso_seg_ssl_cert: {{ env "ssl_cert" }}
