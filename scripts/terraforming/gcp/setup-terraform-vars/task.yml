@@ -9,7 +9,7 @@ image_resource:
 inputs:
 - name: terraforming-gcp
 - name: ci
-- name: opsman_image
+- name: opsman-image
 
 outputs:
 - name: tfvars

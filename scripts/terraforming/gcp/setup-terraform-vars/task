@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
 vars_file="${PWD}/tfvars/terraform.tfvars"
-opsman_image_file=$(ls -1 "${PWD}"/opsman_image/*.yml)
+opsman_image_file=$(ls -1 "${PWD}"/opsman-image/*.yml)
 opsman_image_url=$(awk '$1 == "us:" { print $2 }' "${opsman_image_file}")
 echo "opsman_image_url: https://storage.googleapis.com/${opsman_image_url}" > "${vars_file}"
 
