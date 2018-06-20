@@ -3,6 +3,7 @@ groups:
   jobs:
   - create-env-gcp
   - prepare-gcp
+  - deploy-gcp
 
 - name: terraforming
   jobs:
@@ -162,6 +163,25 @@ jobs:
     timeout: 5m
   - task: upload-configure-stage
     file: ci/scripts/terraforming/gcp/upload-configure-stage/task.yml
+    params:
+      OM_USERNAME: {{om_username}}
+      OM_PASSWORD: {{om_password}}
+    input_mapping:
+      env-state: env-state-gcp
+
+- name: deploy-gcp
+  serial: true
+  plan:
+  - aggregate:
+    - get: terraforming-gcp
+      passed: [prepare-gcp]
+    - get: env-state-gcp
+      passed: [prepare-gcp]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+  - task: deploy-srt
+    file: ci/scripts/terraforming/gcp/deploy-srt/task.yml
     params:
       OM_USERNAME: {{om_username}}
       OM_PASSWORD: {{om_password}}
