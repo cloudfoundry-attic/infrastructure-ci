@@ -3,10 +3,6 @@
 cwd=${PWD}
 configure_om_dir="${PWD}/ci/scripts/terraforming/gcp/upload-configure-stage"
 
-terraform output -state "${cwd}/terraform-state-gcp/terraform.tfstate" --json | \
-  jq '[. | to_entries[] | {"key": .key, "value": .value.value}] | from_entries' \
-  > "${cwd}/tfoutput.json"
-
 pushd srt
   version="$(unzip -p srt*.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
 popd
@@ -15,8 +11,8 @@ stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/tfoutput.json")
 
 # generate-config
-texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/tfoutput.json" -o yaml > "${cwd}/director-config.yml"
-texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/tfoutput.json" -o yaml > "${cwd}/product-config.yml"
+texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/director-config.yml"
+texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # configure authentication
 om -t "https://${opsman_dns}" -k configure-authentication -u ${OM_USERNAME} -p ${OM_PASSWORD} -dp ${OM_PASSWORD}

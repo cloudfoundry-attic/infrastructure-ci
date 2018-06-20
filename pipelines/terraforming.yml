@@ -160,6 +160,8 @@ jobs:
     params:
       OM_USERNAME: {{om_username}}
       OM_PASSWORD: {{om_password}}
+    input_mapping:
+      env-state: env-state-gcp
 
 - name: terraforming-aws
   serial: true
