@@ -69,7 +69,7 @@ resources:
   source:
     api_token: ((pivnet_token))
     product_slug: cf
-    product_version: ^2\.2\.\d+$
+    product_version: ^2\.1\.\d+$
     sort_by: semver
 
 - name: terraforming-vsphere
