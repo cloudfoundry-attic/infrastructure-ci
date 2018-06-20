@@ -155,6 +155,11 @@ jobs:
       ACTION: add
     input_mapping:
       env-state: env-state-gcp
+  - task: check-dns
+    file: pcf-releng-ci/tasks/configuration/check-dns/task.yml
+    input_mapping:
+      terraform-state: env-state-gcp
+    timeout: 5m
   - task: upload-configure-stage
     file: ci/scripts/terraforming/gcp/upload-configure-stage/task.yml
     params:
