@@ -1,5 +1,5 @@
 #!/bin/bash -exu
 
-opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
+opsman_dns=$(jq -r .ops_manager_dns < "${PWD}/env-state/metadata")
 
 om -t "https//${opsman_dns}" -k apply-changes
