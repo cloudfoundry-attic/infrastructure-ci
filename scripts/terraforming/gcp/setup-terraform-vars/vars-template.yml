@@ -8,7 +8,7 @@ dns_suffix : "terraforming-gcp-env.cf-app.com"
 isolation_segment: true
 external_database: 1
 service_account_key: {{ toJson (env "GCP_SERVICE_ACCOUNT_KEY") }}
-ssl_cert: {{ env "ssl_cert" }}
-ssl_private_key: {{ env "ssl_private_key" }}
-iso_seg_ssl_cert: {{ env "ssl_cert" }}
-iso_seg_ssl_private_key: {{ env "ssl_private_key" }}
+ssl_cert: {{ toJson (env "GCP_SSL_CERT") }}
+ssl_private_key: {{ toJson (env "GCP_SSL_PRIVATE_KEY") }}
+iso_seg_ssl_cert: {{ toJson (env "GCP_SSL_CERT") }}
+iso_seg_ssl_private_key: {{ toJson (env "GCP_SSL_PRIVATE_KEY") }}

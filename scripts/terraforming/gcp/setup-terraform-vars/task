@@ -3,7 +3,5 @@
 vars_file="${PWD}/tfvars/terraform.tfvars"
 opsman_image_file=$(ls -1 "${PWD}"/opsman-image/*.yml)
 export opsman_image_url=$(awk '$1 == "us:" { print $2 }' "${opsman_image_file}")
-export ssl_cert="$(echo "${GCP_SSL_CERT}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
-export ssl_private_key="$(echo "${GCP_SSL_PRIVATE_KEY}" | awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}')"
 
 texplate execute "${PWD}/ci/scripts/terraforming/gcp/setup-terraform-vars/vars-template.yml" -o json > "${vars_file}"
