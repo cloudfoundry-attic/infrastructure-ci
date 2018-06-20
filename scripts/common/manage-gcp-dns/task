@@ -34,9 +34,13 @@ function main() {
 
   local dns_servers
   dns_servers=()
-  for dns_server in $(bbl --state-dir "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" lbs --json | jq -r ".cf_system_domain_dns_servers[] | ."); do
-    dns_servers+=("${dns_server}")
-  done
+  if [[ -d "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" ]]; then
+    for dns_server in $(bbl --state-dir "${ROOT}/bbl-states-repo/${BBL_STATE_DIR}" lbs --json | jq -r ".cf_system_domain_dns_servers[] | ."); do
+      dns_servers+=("${dns_server}")
+    done
+  else
+    dns_servers=($(jq -r ".env_dns_zone_name_servers | map(\"--name-server \" + .) | join(\" \")" env-state/metadata))
+  fi
 
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction "${ACTION}" -z "${GCP_DNS_ZONE_NAME}" \

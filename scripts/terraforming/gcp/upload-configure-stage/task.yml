@@ -13,7 +13,7 @@ inputs:
 - name: srt
 
 run:
-  path: ci/scripts/terraforming/configure-om/task
+  path: ci/scripts/terraforming/gcp/upload-configure-stage/task
 
 params:
   OM_USERNAME:
