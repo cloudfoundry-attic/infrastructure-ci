@@ -7,6 +7,7 @@ pushd srt
   version="$(unzip -p srt*.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
 popd
 
+product="$(ls -1 "${cwd}/srt/srt*.pivotal")"
 stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
@@ -15,13 +16,13 @@ texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/e
 texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # configure authentication
-om -t "https://${opsman_dns}" -k configure-authentication -u ${OM_USERNAME} -p ${OM_PASSWORD} -dp ${OM_PASSWORD}
+om -t "https://${opsman_dns}" -k configure-authentication -dp ${OM_PASSWORD}
 
 # upload and stage product
-om -t "https://${opsman_dns}" -k -u ${OM_USERNAME} -p ${OM_PASSWORD} upload-stemcell --stemcell "${stemcell}"
-om -t "https://${opsman_dns}" -k -u ${OM_USERNAME} -p ${OM_PASSWORD} upload-product --product "${product}"
-om -t "https://${opsman_dns}" -k -u ${OM_USERNAME} -p ${OM_PASSWORD} stage-product --product-name cf --product-version "${version}"
+om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
+om -t "https://${opsman_dns}" -k upload-product --product "${product}"
+om -t "https://${opsman_dns}" -k stage-product --product-name cf --product-version "${version}"
 
 # configure-product
-om -t "https://${opsman_dns}" -k -u ${OM_USERNAME} -p ${OM_PASSWORD} configure-director --config "${cwd}/director-config.yml"
-om -t "https://${opsman_dns}" -k -u ${OM_USERNAME} -p ${OM_PASSWORD} configure-product -n cf --config "${cwd}/product-config.yml"
+om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.yml"
+om -t "https://${opsman_dns}" -k configure-product -n cf --config "${cwd}/product-config.yml"
