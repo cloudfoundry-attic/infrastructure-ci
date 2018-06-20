@@ -146,7 +146,6 @@ jobs:
       IAAS_TYPE: gcp
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task-terraforming.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-w-gcloud
     params:
       GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
       GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
