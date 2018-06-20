@@ -4,7 +4,7 @@ env_name: terraforming-gcp-env
 project: {{ env "GCP_PROJECT_ID" }}
 region: us-central1
 zones: ["us-central1-a", "us-central1-b", "us-central1-c"]
-dns_suffix : "terraforming-gcp-env.cf-app.com"
+dns_suffix : "gcp.infrastructure.cf-app.com"
 isolation_segment: true
 service_account_key: {{ toJson (env "GCP_SERVICE_ACCOUNT_KEY") }}
 ssl_cert: {{ toJson (env "GCP_SSL_CERT") }}
