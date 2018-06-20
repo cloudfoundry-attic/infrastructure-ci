@@ -151,7 +151,7 @@ jobs:
       GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
       GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
       GCP_DNS_ZONE_NAME: infrastructure
-      GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
+      GCP_DNS_SUFFIX: gcp.infrastructure.cf-app.com
       ACTION: add
     input_mapping:
       env-state: env-state-gcp
