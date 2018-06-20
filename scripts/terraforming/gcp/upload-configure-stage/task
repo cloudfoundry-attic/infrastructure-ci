@@ -7,7 +7,7 @@ pushd srt
   version="$(unzip -p srt*.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
 popd
 
-product="$(ls -1 "${cwd}/srt/srt*.pivotal")"
+product="$(ls -1 "${cwd}"/srt/srt*.pivotal)"
 stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
