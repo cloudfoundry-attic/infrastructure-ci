@@ -200,6 +200,10 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: opsman-image
+      params:
+        globs:
+        - '*GCP.yml'
   - task: setup-terraform-vars
     file: ci/scripts/terraforming/gcp/setup-terraform-vars/task.yml
     params:
