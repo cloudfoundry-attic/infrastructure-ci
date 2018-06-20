@@ -17,8 +17,6 @@ product-properties:
     value: true
   .mysql_monitor.recipient_email:
     value: cf-infra@pivotal.io
-  .properties.cf_networking_search_domains:
-    value: apps.internal
   .properties.credhub_key_encryption_passwords:
     value:
     - key:
