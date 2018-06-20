@@ -39,7 +39,7 @@ function main() {
       dns_servers+=("${dns_server}")
     done
   else
-    dns_servers=($(jq -r ".env_dns_zone_name_servers | map(\"--name-server \" + .) | join(\" \")" env-state/metadata))
+    dns_servers=($(jq -r ".env_dns_zone_name_servers | join(\" \")" env-state/metadata))
   fi
 
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
