@@ -16,7 +16,9 @@ texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/e
 texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # configure authentication
-om -t "https://${opsman_dns}" -k configure-authentication -dp ${OM_PASSWORD}
+set +x
+  om -t "https://${opsman_dns}" -k configure-authentication -u "${OM_USERNAME}" -p "${OM_PASSWORD}" -dp "${OM_PASSWORD}"
+set -x
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
