@@ -82,6 +82,14 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
+- name: gate-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
+    branch: master
+    pool: terraforming
+    private_key: {{cf_infra_bot_user_github_private_key}}
+
 jobs:
 - name: create-env-gcp
   serial: true
@@ -96,6 +104,10 @@ jobs:
       params:
         globs:
         - '*GCP.yml'
+  - put: gate-lock
+    params:
+      claim: gcp
+    timeout: 5h
   - task: setup-terraform-vars
     file: ci/scripts/terraforming/gcp/setup-terraform-vars/task.yml
     params:
@@ -126,6 +138,8 @@ jobs:
       params:
         globs:
         - srt-*.pivotal
+    - get: gate-lock
+      passed: [create-env-gcp]
   - task: download-stemcell
     file: pcf-releng-ci/tasks/configuration/download-bosh-io-stemcell/task.yml
     input_mapping:
@@ -167,6 +181,8 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: gate-lock
+      passed: [prepare-gcp]
   - task: deploy-srt
     file: ci/scripts/terraforming/gcp/deploy-srt/task.yml
     params:
@@ -191,6 +207,8 @@ jobs:
       params:
         globs:
         - '*GCP.yml'
+    - get: gate-lock
+      passed: [deploy-gcp]
   - task: setup-terraform-vars
     file: ci/scripts/terraforming/gcp/setup-terraform-vars/task.yml
     params:
@@ -225,6 +243,9 @@ jobs:
       action: destroy
     get_params:
       action: destroy
+  - put: gate-lock
+    params:
+      release: gate-lock
 
 - name: terraforming-aws
   serial: true
