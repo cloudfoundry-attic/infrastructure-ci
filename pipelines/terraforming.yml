@@ -1,17 +1,3 @@
-groups:
-- name: terraforming-gcp
-  jobs:
-  - create-env-gcp
-  - prepare-gcp
-  - deploy-gcp
-  - destroy-gcp
-
-- name: terraforming
-  jobs:
-  - terraforming-aws
-  - terraforming-azure
-  - terraforming-vsphere
-
 resource_types:
 - name: terraform
   type: docker-image
