@@ -231,6 +231,7 @@ jobs:
       env-state: env-state-gcp
   - put: env-state-gcp
     params:
+      env_name_file: env-state-gcp/name
       var_files: [tfvars/terraform.tfvars]
       terraform_source: terraforming-gcp
       action: destroy
