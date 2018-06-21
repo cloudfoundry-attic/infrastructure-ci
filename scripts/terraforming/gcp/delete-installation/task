@@ -1,5 +1,0 @@
-#!/bin/bash -exu
-
-opsman_dns=$(jq -r .ops_manager_dns < "${PWD}/env-state/metadata")
-
-om -t "https://${opsman_dns}" -k delete-installation

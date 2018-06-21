@@ -200,6 +200,7 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: pcf-releng-ci
     - get: opsman-image
       params:
         globs:
@@ -212,12 +213,13 @@ jobs:
       GCP_SSL_CERT: {{ssl_cert}}
       GCP_SSL_PRIVATE_KEY: {{ssl_private_key}}
   - task: delete-installation
-    file: ci/scripts/terraforming/gcp/delete-installation/task.yml
+    file: pcf-releng-ci/tasks/environment/delete-installation/task.yml
     params:
       OM_USERNAME: {{om_username}}
       OM_PASSWORD: {{om_password}}
+      OPSMAN_URL_SUFFIX: gcp.infrastructure.cf-app.com
     input_mapping:
-      env-state: env-state-gcp
+      environment: env-state-gcp
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task-terraforming.yml
     params:
