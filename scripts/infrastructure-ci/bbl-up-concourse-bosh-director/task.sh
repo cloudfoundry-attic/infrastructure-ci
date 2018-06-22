@@ -4,9 +4,23 @@ function main() {
   local root_dir
   root_dir=${1}
 
-  pushd "${root_dir}/infrastructure-ci-bbl-states/infra-ci" > /dev/null
-    bbl plan --lb-type concourse
+  local bbl_state_dir
+  if [[ "${BBL_IAAS}" == "gcp" ]]; then
+    bbl_state_dir="infra-ci"
+  else
+    bbl_state_dir="vsphere-concourse"
+  fi
+
+  pushd "${root_dir}/infrastructure-ci-bbl-states/${bbl_state_dir}" > /dev/null
+
+    if [[ "${BBL_IAAS}" == "gcp" ]]; then
+      bbl plan --lb-type concourse
+    else
+      bbl plan
+    fi
+
     bbl up
+
   popd > /dev/null
 
 }

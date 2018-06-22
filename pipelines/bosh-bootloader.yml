@@ -18,7 +18,8 @@ groups:
   - major
   - minor
   - passed-acceptance-tests
-  - bbl-up-concourse-director
+  - bbl-up-gcp-concourse-director
+  - bbl-up-vsphere-concourse-director
   - github-release
 
 - name: homebrew-tap
@@ -2024,7 +2025,7 @@ jobs:
             rebase: true
             repository: updated-bbl-state
 
-- name: bbl-up-concourse-director
+- name: bbl-up-gcp-concourse-director
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -2042,12 +2043,53 @@ jobs:
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
       passed: [bbl-downstream-docker-image]
-  - task: bbl-up-concourse-bosh-director
-    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task.yml
+  - task: bbl-up-gcp-concourse-bosh-director
+    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-gcp.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     params:
       BBL_GCP_REGION: us-east1
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{infrastructure_ci_gcp_service_account_key}}
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-bbl-states
+        rebase: true
+
+- name: bbl-up-vsphere-concourse-director
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      trigger: true
+      passed:
+      - bbl-aws-cf
+      - bbl-gcp-cf
+      - bbl-azure-concourse
+      - bbl-aws-concourse
+      - bbl-gcp-concourse
+      - bbl-lite-gcp
+      - validate-plan-patches
+    - get: infrastructure-ci-bbl-states
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      tags:
+      - {{vsphere_network_name}}
+      passed: [bbl-downstream-docker-image]
+  - task: bbl-up-vsphere-concourse-bosh-director
+    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    tags:
+    - {{vsphere_network_name}}
+    params:
+      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
+      BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
+      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
+      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
+      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
+      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
+      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
+      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
+      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -2062,7 +2104,9 @@ jobs:
     - get: bbl-version
       resource: version
     - get: bosh-bootloader
-      passed: [bbl-up-concourse-director]
+      passed:
+      - bbl-up-gcp-concourse-director
+      - bbl-up-vsphere-concourse-director
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bosh-bootloader
