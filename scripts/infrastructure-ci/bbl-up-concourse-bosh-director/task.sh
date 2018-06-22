@@ -45,7 +45,7 @@ function commit_bbl_state() {
     git checkout master
 
     git add .
-    git commit -m "update concourse bbl director to bbl commit ${bbl_commit}"
+    git commit -m "update ${BBL_IAAS} concourse bbl director to bbl commit ${bbl_commit}"
   popd > /dev/null
 
 }
