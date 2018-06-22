@@ -4,6 +4,8 @@ function main() {
   local root_dir
   root_dir=${1}
 
+  trap 'commit_bbl_state "${root_dir}"' EXIT
+
   local bbl_state_dir
   if [[ "${BBL_IAAS}" == "gcp" ]]; then
     bbl_state_dir="infra-ci"
@@ -49,7 +51,5 @@ function commit_bbl_state() {
   popd > /dev/null
 
 }
-
-trap 'commit_bbl_state "${PWD}"' EXIT
 
 main ${PWD}
