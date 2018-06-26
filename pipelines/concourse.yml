@@ -58,7 +58,6 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       INFRASTRUCTURE: google
-      VERSION: 3586.16
   - task: copy-bosh-files
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
@@ -97,3 +96,81 @@ jobs:
       VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
       OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml"
       MANIFEST_FILE: cluster/concourse.yml
+
+- name: update-concourse-vsphere-worker
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+      tags:
+      - {{vsphere_network_name}}
+    - get: infrastructure-ci-bbl-states
+      tags:
+      - {{vsphere_network_name}}
+    - get: concourse-deployment
+      tags:
+      - {{vsphere_network_name}}
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      tags:
+      - {{vsphere_network_name}}
+    - get: cf-deployment-concourse-tasks
+      resource: cf-deployment-concourse-tasks-infrastructure
+      tags:
+      - {{vsphere_network_name}}
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+      tags:
+      - {{vsphere_network_name}}
+  - task: upload-concourse-stemcell
+    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
+    tags:
+    - {{vsphere_network_name}}
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    input_mapping:
+      env-repo: infrastructure-ci-bbl-states
+    params:
+      BBL_STATE_DIR: vsphere-concourse
+      INFRASTRUCTURE: vsphere
+      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
+      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
+  - task: copy-bosh-files
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    tags:
+    - {{vsphere_network_name}}
+    input_mapping:
+      source: concourse-deployment
+      destination: infrastructure-ci-bbl-states
+    config:
+      platform: linux
+      inputs:
+      - name: source
+      - name: destination
+      outputs:
+      - name: updated-env-repo
+      params:
+        BBL_STATE_DIR: vsphere-concourse
+      run:
+        path: bash
+        args:
+          - "-c"
+          - >-
+            cp -r source/* destination/${BBL_STATE_DIR}/
+            && cp -r destination/* updated-env-repo
+  - task: deploy-concourse
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    tags:
+    - {{vsphere_network_name}}
+    input_mapping:
+      env-repo: updated-env-repo
+      cf-deployment: concourse-deployment
+      ops-files: updated-env-repo
+      vars-files: updated-env-repo
+    params:
+      BBL_STATE_DIR: vsphere-concourse
+      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
+      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
+      SYSTEM_DOMAIN: infra.ci.cf-app.com
+      VARS_STORE_FILE: infra-ci/deployment-vars.yml
+      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
+      MANIFEST_FILE: cluster/external-worker.yml
