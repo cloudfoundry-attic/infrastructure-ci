@@ -95,5 +95,5 @@ jobs:
       SYSTEM_DOMAIN: infra.ci.cf-app.com
       VARS_STORE_FILE: infra-ci/deployment-vars.yml
       VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
-      OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml infra-ci/add-khaleesi-worker.yml"
+      OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml"
       MANIFEST_FILE: cluster/concourse.yml
