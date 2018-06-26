@@ -768,7 +768,6 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       INFRASTRUCTURE: google
-      VERSION: 3586.16
     on_failure:
       task: upload-stemcell-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
