@@ -148,7 +148,7 @@ jobs:
       outputs:
       - name: updated-env-repo
       params:
-        BBL_STATE_DIR: vsphere-concourse
+        BBL_STATE_DIR: infra-ci
       run:
         path: bash
         args:
