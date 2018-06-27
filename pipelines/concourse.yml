@@ -16,7 +16,7 @@ resources:
 - name: concourse-deployment
   type: git
   source:
-    branch: v3.12.0
+    branch: v3.14.1
     uri: https://github.com/concourse/concourse-bosh-deployment.git
 
 - name: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -37,6 +37,7 @@ resources:
 
 jobs:
 - name: update-concourse-gcp
+  interruptible: true
   plan:
   - aggregate:
     - get: ci
@@ -98,6 +99,7 @@ jobs:
       MANIFEST_FILE: cluster/concourse.yml
 
 - name: update-concourse-vsphere-worker
+  interruptible: true
   plan:
   - aggregate:
     - get: ci
