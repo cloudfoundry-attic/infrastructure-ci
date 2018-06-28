@@ -2,6 +2,7 @@ groups:
 - name: bosh-bootloader
   jobs:
   - test-bosh-bootloader
+  - bump-leftovers
   - aws-acceptance-tests
   - azure-acceptance-tests
   - gcp-acceptance-tests
@@ -107,6 +108,19 @@ resources:
     ignore_paths:
       - docs/**
       - README.md
+
+- name: bosh-bootloader-including-docs
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+
+- name: leftovers-release
+  type: github-release
+  source:
+    user: genevieve
+    repository: leftovers
 
 - name: bbl-docs
   type: git
@@ -438,6 +452,23 @@ jobs:
       trigger: true
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
+
+- name: bump-leftovers
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-including-docs
+    - get: leftovers-release
+      trigger: true
+  - task: bump-leftovers
+    file: ci/scripts/bosh-bootloader/bump-leftovers/task.yml
+  - put: bosh-bootloader
+    resource: bosh-bootloader-including-docs
+    params:
+      repository: bosh-bootloader-updated
 
 - name: aws-acceptance-tests
   serial: true
