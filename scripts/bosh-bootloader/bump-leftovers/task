@@ -15,6 +15,9 @@ function main() {
 
     dep ensure -update github.com/genevieve/leftovers
 
+    git config user.email "cf-infrastructure@pivotal.io"
+    git config user.name "cf-infra-bot"
+
     git commit -am 'bump leftovers'
 
     cp -r . ${ROOT}/bosh-bootloader-updated
