@@ -1,0 +1,23 @@
+---
+resources:
+- name: terraform-provider-vsphereovf
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/rowanjacobs/terraform-provider-vsphereovf.git
+
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+jobs:
+- name: test-ovf-provider
+  plan:
+  - aggregate:
+    - get: terraform-provider-vsphereovf
+    - get: ci
+      resource: infrastructure-ci
+  - task: unit-tests
+    file: ci/scripts/ovf-provider/unit-tests/task.yml
