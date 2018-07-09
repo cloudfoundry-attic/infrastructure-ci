@@ -17,6 +17,7 @@ jobs:
   plan:
   - aggregate:
     - get: terraform-provider-vsphereovf
+      trigger: true
     - get: ci
       resource: infrastructure-ci
   - task: unit-tests
