@@ -1,0 +1,26 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/terraform
+
+inputs:
+- name: terraform-provider-vsphereovf
+  path: go/src/github.com/rowanjacobs/terraform-provider-vsphereovf
+- name: ci
+- name: core-os-ovf
+- name: core-os-ova
+
+run:
+  path: ci/scripts/ovf-provider/acceptance-tests/task
+
+params:
+  VSPHERE_FOLDER:
+  VSPHERE_DATACENTER:
+  VSPHERE_RESOURCE_POOL:
+  VSPHERE_DATASTORE:
+  VSPHERE_NETWORK:
+  VSPHERE_USERNAME:
+  VSPHERE_PASSWORD:

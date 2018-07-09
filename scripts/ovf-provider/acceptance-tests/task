@@ -1,0 +1,10 @@
+#!/bin/bash -eux
+
+GOPATH="${PWD}/go"
+
+COREOS_OVA_PATH="${PWD}/core-os-ova/core-os.ova"
+COREOS_OVF_PATH="${PWD}/core-os-ovf/core-os.ovf"
+
+pushd "${GOPATH}/src/github.com/rowanjacobs/terraform-provider-vsphereovf" > /dev/null
+  TF_ACC="1" go test -v -timeout=3h
+popd
