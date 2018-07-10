@@ -1,16 +1,36 @@
 FROM cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev as bbl-dev
 
-RUN which bbl
+FROM golang:alpine as golang
+WORKDIR /go/src/github.com/cloudfoundry/
+COPY . .
 
-RUN bbl version
+ENV CGO_ENABLED 0
+ENV GOBIN /go/bin/
 
-FROM cfinfrastructure/bbl-state-resource
-MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
+RUN go install bbl-state-resource/cmd/check/check.go
+RUN go install bbl-state-resource/cmd/out/out.go
+RUN go install bbl-state-resource/cmd/in/in.go
 
-RUN which bbl
+FROM relintdockerhubpushbot/bosh-cli
+MAINTAINER https://github.com/cloudfoundry/bbl-state-resource
 
-RUN bbl version
+# install (or reinstall?) bosh-cli dependencies.
+# we'd love for this to work in a small alpine container, but the cli
+# and cpis seem to need ubuntu packages
+RUN apt-get update && apt-get -y install software-properties-common && \
+    add-apt-repository ppa:brightbox/ruby-ng -y && \
+    apt-get update && \
+    apt-get -y install ruby2.3 ruby2.3-dev \
+                       build-essential \
+                       libreadline6 libreadline6-dev \
+                       libsqlite3-dev libssl-dev \
+                       libxml2-dev libxslt-dev \
+                       libyaml-dev openssl \
+                       sqlite unzip wget curl zlib1g-dev zlibc && \
+    apt-get remove -y --purge software-properties-common
+
+COPY --from=golang /go/bin/check /opt/resource/check
+COPY --from=golang /go/bin/in /opt/resource/in
+COPY --from=golang /go/bin/out /opt/resource/out
 
 COPY --from=bbl-dev /go/bin/bbl /usr/local/bin/bbl
-
-RUN bbl version
