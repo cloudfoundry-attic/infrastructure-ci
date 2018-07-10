@@ -2,8 +2,8 @@
 
 GOPATH="${PWD}/go"
 
-export VSPHERE_OVA_PATH="${PWD}/core-os-ova/core-os.ova"
-export VSPHERE_OVF_PATH="${PWD}/core-os-ovf/core-os.ovf"
+export VSPHERE_OVA_PATH="${PWD}/core-os-ova/coreos_production_vmware_ova.ova"
+export VSPHERE_OVF_PATH="${PWD}/core-os-ovf/coreos_production_vmware_ova.ovf"
 
 bzip2 -d "${PWD}/core-os-vmdk/coreos_production_vmware_ova_image.vmdk.bz2"
 
