@@ -31,6 +31,12 @@ resources:
     url: https://stable.release.core-os.net/amd64-usr/current/coreos_production_vmware_ova.ova
     filename: core-os.ova
 
+- name: core-os-vmdk
+  type: file-url
+  source:
+    url: https://stable.release.core-os.net/amd64-usr/current/coreos_production_vmware_ova_image.vmdk.bz2
+    filename: coreos_production_vmware_ova_image.vmdk.bz2
+
 jobs:
 - name: test-ovf-provider
   plan:
@@ -60,6 +66,9 @@ jobs:
     - get: core-os-ovf
       tags:
       - {{vsphere_network_name}}
+    - get: core-os-vmdk
+      tags:
+      - {{vsphere_network_name}}
   - task: run-acceptance-tests
     file: ci/scripts/ovf-provider/acceptance-tests/task.yml
     tags:
@@ -73,3 +82,4 @@ jobs:
       VSPHERE_USER: {{vsphere_vcenter_user}}
       VSPHERE_PASSWORD: {{vsphere_vcenter_password}}
       VSPHERE_SERVER: {{vsphere_vcenter_ip}}
+      VSPHERE_ALLOW_UNVERIFIED_SSL: true

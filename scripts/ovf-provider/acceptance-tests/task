@@ -2,8 +2,12 @@
 
 GOPATH="${PWD}/go"
 
-VSPHERE_OVA_PATH="${PWD}/core-os-ova/core-os.ova"
-VSPHERE_OVF_PATH="${PWD}/core-os-ovf/core-os.ovf"
+export VSPHERE_OVA_PATH="${PWD}/core-os-ova/core-os.ova"
+export VSPHERE_OVF_PATH="${PWD}/core-os-ovf/core-os.ovf"
+
+bzip2 -d "${PWD}/core-os-vmdk/coreos_production_vmware_ova_image.vmdk.bz2"
+
+mv "${PWD}/core-os-vmdk/coreos_production_vmware_ova_image.vmdk" "${PWD}/core-os-ovf/"
 
 pushd "${GOPATH}/src/github.com/rowanjacobs/terraform-provider-vsphereovf/vsphereovf" > /dev/null
   TF_ACC="1" go test -v -timeout=3h

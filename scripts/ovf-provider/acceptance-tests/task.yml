@@ -12,6 +12,7 @@ inputs:
 - name: ci
 - name: core-os-ovf
 - name: core-os-ova
+- name: core-os-vmdk
 
 run:
   path: ci/scripts/ovf-provider/acceptance-tests/task
@@ -24,3 +25,4 @@ params:
   VSPHERE_NETWORK:
   VSPHERE_USERNAME:
   VSPHERE_PASSWORD:
+  VSPHERE_ALLOW_UNVERIFIED_SSL:
