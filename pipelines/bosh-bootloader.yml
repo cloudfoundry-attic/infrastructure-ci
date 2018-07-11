@@ -42,6 +42,7 @@ groups:
   - bbl-up-gcp-concourse-director-bump-deployments
   - bbl-up-vsphere-concourse-director-bump-deployments
   - github-release-bump-deployments
+  - merge-bump-deployments-change
 
 - name: homebrew-tap
   jobs:
@@ -3800,6 +3801,23 @@ jobs:
       body: builds/body
       globs:
       - builds/bin/bbl-*
+
+- name: merge-bump-deployments-change
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader-bumped
+      resource: bosh-bootloader-bump-deployments-ci
+      passed: [github-release-bump-deployments]
+      trigger: true
+  - task: merge-bosh-deployment-change
+    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
+  - put: bosh-bootloader
+    params:
+      repository: bosh-bootloader
 
 - name: major
   plan:
