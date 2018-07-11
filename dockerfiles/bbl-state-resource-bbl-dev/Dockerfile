@@ -7,9 +7,9 @@ COPY . .
 ENV CGO_ENABLED 0
 ENV GOBIN /go/bin/
 
-RUN go install bbl-state-resource/cmd/check/check.go
-RUN go install bbl-state-resource/cmd/out/out.go
-RUN go install bbl-state-resource/cmd/in/in.go
+RUN go install cmd/check/check.go
+RUN go install cmd/out/out.go
+RUN go install cmd/in/in.go
 
 FROM relintdockerhubpushbot/bosh-cli
 MAINTAINER https://github.com/cloudfoundry/bbl-state-resource
