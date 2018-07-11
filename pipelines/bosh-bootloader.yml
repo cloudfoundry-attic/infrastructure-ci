@@ -58,6 +58,7 @@ groups:
   jobs:
   - bbl-state-resource-units
   - build-bbl-state-docker
+  - build-bbl-state-release-docker
   - bbl-state-resource-acceptance
   - bbl-up
   - bbl-pool-up
@@ -263,6 +264,15 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: bbl-state-resource-release-docker
+  type: docker-image
+  source:
+    tag: pre-release
+    repository: cfinfrastructure/bbl-state-resource
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
   source:
@@ -316,12 +326,11 @@ jobs:
   - task: run-units
     file: bbl-state-resource-src/ci/run-units-task.yml
 
-- name: build-bbl-state-docker
+- name: build-bbl-state-release-docker
   public: false
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    - get: bbl-state-resource-docker
     - get: bbl-state-resource-src
       trigger: true
       passed:
@@ -347,11 +356,37 @@ jobs:
           - "-c"
           - >-
             printf '{"bbl_version": "%s"}' $(cat bbl-release/version) > docker-build-args/json
-  - put: bbl-state-resource-docker
+  - put: bbl-state-resource-release-docker
     params:
       build: bbl-state-resource-src
       build_args_file: docker-build-args/json
-      tag: bbl-state-resource-docker/tag
+  - task: sleep-so-that-concourse-uses-our-new-image
+    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
+    config:
+      platform: linux
+      run:
+        path: sleep
+        args: [ 100 ]
+
+- name: build-bbl-state-docker
+  public: false
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
+      passed:
+      - bbl-downstream-docker-image
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: bbl-state-resource-src
+      trigger: true
+      passed:
+      - bbl-state-resource-units
+  - put: bbl-state-resource-docker
+    params:
+      build: bbl-state-resource-src
+      dockerfile: ci/dockerfiles/bbl-state-resource-bbl-dev/Dockerfile
+      cache: false
   - task: sleep-so-that-concourse-uses-our-new-image
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     config:
@@ -365,14 +400,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: bbl-release
-      resource: bbl-release-official
-      passed: [build-bbl-state-docker]
-      trigger: true
-      params:
-        version: { tag: bbl-release/number }
-        globs:
-        - bbl-*_linux_x86-64
     - get: bbl-state-resource-docker
       passed: [build-bbl-state-docker]
     - get: bbl-state-resource-src
@@ -465,11 +492,12 @@ jobs:
         state_dir: test-bbl-state # test that configuring state dir behaves appropriately
         command: "down"
 
+# TODO: use latest bbl release rather than bbl-dev
 - name: bbl-state-resource-tag-latest
   public: false
   plan:
   - get: bbl-state-resource-docker
-    trigger: true
+    # trigger: true
     passed:
       - bbl-up
       - bbl-pool-up
