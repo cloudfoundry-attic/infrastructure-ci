@@ -1,7 +1,7 @@
 FROM cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev as bbl-dev
 
 FROM golang:alpine as golang
-WORKDIR /go/src/github.com/cloudfoundry/
+WORKDIR /go/src/github.com/cloudfoundry/bbl-state-resource
 COPY . .
 
 ENV CGO_ENABLED 0
