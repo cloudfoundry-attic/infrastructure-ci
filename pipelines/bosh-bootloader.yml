@@ -1261,7 +1261,7 @@ jobs:
           BBL_STATE_DIR: bbl-gcp-concourse
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
           BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -1499,7 +1499,7 @@ jobs:
           BBL_AZURE_CLIENT_ID: {{azure_client_id}}
           BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
           BBL_AZURE_REGION: {{azure_location}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -1709,7 +1709,7 @@ jobs:
           BBL_STATE_DIR: bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -1977,7 +1977,7 @@ jobs:
           BBL_STATE_DIR: bbl-aws-cf
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -2137,7 +2137,7 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-lite-gcp
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -2379,7 +2379,7 @@ jobs:
         params:
           BBL_STATE_DIR: bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -2660,7 +2660,7 @@ jobs:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
           BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -2899,7 +2899,7 @@ jobs:
           BBL_AZURE_CLIENT_ID: {{azure_client_id}}
           BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
           BBL_AZURE_REGION: {{azure_location}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -3110,7 +3110,7 @@ jobs:
           BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -3250,7 +3250,7 @@ jobs:
           BBL_STATE_DIR: bump-deployments/bbl-aws-cf
           BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
           BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -3411,7 +3411,7 @@ jobs:
         params:
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
@@ -3654,7 +3654,7 @@ jobs:
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        ensure:
+        on_failure:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
