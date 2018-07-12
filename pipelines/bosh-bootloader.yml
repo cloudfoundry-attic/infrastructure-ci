@@ -476,6 +476,8 @@ jobs:
     - put: test-bbl-state
       params:
         command: "up"
+        plan_patches:
+        - bosh-bootloader/plan-patches/cfcr-gcp
     - put: cfcr-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
