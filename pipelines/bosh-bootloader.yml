@@ -641,6 +641,7 @@ jobs:
 
 - name: vsphere-acceptance-tests
   serial: true
+  serial_groups: [vsphere-acceptance]
   plan:
   - aggregate:
     - get: bosh-bootloader
@@ -861,6 +862,7 @@ jobs:
         RUN_TEST: plan
 
 - name: vsphere-acceptance-tests-bump-deployments
+  serial_groups: [vsphere-acceptance]
   serial: true
   plan:
   - aggregate:
