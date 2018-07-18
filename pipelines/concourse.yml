@@ -35,6 +35,15 @@ resources:
     branch: infrastructure
     uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
 
+- name: concourse-secrets
+  type: s3
+  source:
+    bucket: infra-concourse-secrets
+    versioned_file: concourse-secrets.yml
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
+    region_name: us-west-2
+
 jobs:
 - name: update-concourse-gcp
   interruptible: true
@@ -49,6 +58,7 @@ jobs:
       resource: cf-deployment-concourse-tasks-infrastructure
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -69,6 +79,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -80,6 +91,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -94,7 +106,7 @@ jobs:
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}
       SYSTEM_DOMAIN: infra.ci.cf-app.com
       VARS_STORE_FILE: infra-ci/deployment-vars.yml
-      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
+      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/concourse-secrets.yml infra-ci/versions.yml"
       OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml"
       MANIFEST_FILE: cluster/concourse.yml
 
@@ -123,6 +135,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
       tags:
       - {{vsphere_network_name}}
+    - get: concourse-secrets
+      tags:
+      - {{vsphere_network_name}}
   - task: upload-concourse-stemcell
     file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
     tags:
@@ -147,6 +162,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -158,6 +174,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -174,5 +191,5 @@ jobs:
       BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
       SYSTEM_DOMAIN: infra.ci.cf-app.com
       VARS_STORE_FILE: infra-ci/deployment-vars.yml
-      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/vars/concourse-secrets.yml infra-ci/versions.yml"
+      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/concourse-secrets.yml infra-ci/versions.yml"
       MANIFEST_FILE: cluster/external-worker.yml
