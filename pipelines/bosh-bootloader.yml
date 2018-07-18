@@ -78,6 +78,15 @@ resource_types:
     repository: cloudfoundry/bosh-deployment-resource
 
 resources:
+- name: concourse-secrets
+  type: s3
+  source:
+    bucket: infra-concourse-secrets
+    versioned_file: concourse-secrets.yml
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
+    region_name: us-west-2
+
 - name: ubuntu-trusty-stemcell
   type: bosh-io-stemcell
   source:
@@ -1081,6 +1090,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1160,6 +1170,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -1171,6 +1182,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1185,7 +1197,7 @@ jobs:
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       SYSTEM_DOMAIN: bbl-gcp-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-gcp-concourse/deployment-vars.yml
-      VARS_FILES: "bbl-gcp-concourse/concourse-defaults.yml bbl-gcp-concourse/concourse-secrets.yml bbl-gcp-concourse/versions.yml"
+      VARS_FILES: "bbl-gcp-concourse/concourse-defaults.yml bbl-gcp-concourse/concourse-secrets.yml bbl-gcp-concourse/concourse-secrets-vars.yml bbl-gcp-concourse/versions.yml"
       OPS_FILES: "bbl-gcp-concourse/cluster/operations/privileged-https.yml bbl-gcp-concourse/cluster/operations/privileged-http.yml bbl-gcp-concourse/cluster/operations/no-auth.yml bbl-gcp-concourse/cluster/operations/tls.yml bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
@@ -1290,6 +1302,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1383,6 +1396,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -1394,6 +1408,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1411,7 +1426,7 @@ jobs:
       BBL_AZURE_REGION: {{azure_location}}
       SYSTEM_DOMAIN: bbl-azure-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbl-azure-concourse/versions.yml"
+      VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbbl-azure-concourse/concourse-secrets-vars.yml bl-azure-concourse/versions.yml"
       OPS_FILES: "bbl-azure-concourse/cluster/operations/no-auth.yml bbl-azure-concourse/cluster/operations/privileged-http.yml bbl-azure-concourse/cluster/operations/privileged-https.yml bbl-azure-concourse/cluster/operations/tls.yml bbl-azure-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
@@ -1528,6 +1543,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1608,6 +1624,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -1619,6 +1636,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -1633,7 +1651,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/versions.yml"
+      VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/concourse-secrets-vars.yml bbl-aws-concourse/versions.yml"
       OPS_FILES: "bbl-aws-concourse/cluster/operations/no-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
@@ -2480,6 +2498,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -2559,6 +2578,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -2570,6 +2590,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -2584,7 +2605,7 @@ jobs:
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       SYSTEM_DOMAIN: bbl-gcp-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-gcp-concourse/deployment-vars.yml
-      VARS_FILES: "bump-deployments/bbl-gcp-concourse/concourse-defaults.yml bump-deployments/bbl-gcp-concourse/concourse-secrets.yml bump-deployments/bbl-gcp-concourse/versions.yml"
+      VARS_FILES: "bump-deployments/bbl-gcp-concourse/concourse-defaults.yml bump-deployments/bbl-gcp-concourse/concourse-secrets.yml bump-deployments/bbl-gcp-concourse/concourse-secrets-vars.yml bump-deployments/bbl-gcp-concourse/versions.yml"
       OPS_FILES: "bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-gcp-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-gcp-concourse/cluster/operations/tls.yml bump-deployments/bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
@@ -2690,6 +2711,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -2783,6 +2805,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -2794,6 +2817,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -2811,7 +2835,7 @@ jobs:
       BBL_AZURE_REGION: {{azure_location}}
       SYSTEM_DOMAIN: bbl-azure-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bump-deployments/bbl-azure-concourse/concourse-defaults.yml bump-deployments/bbl-azure-concourse/concourse-secrets.yml bump-deployments/bbl-azure-concourse/versions.yml"
+      VARS_FILES: "bump-deployments/bbl-azure-concourse/concourse-defaults.yml bump-deployments/bbl-azure-concourse/concourse-secrets.yml bump-deployments/bbl-azure-concourse/concourse-secrets-vars.yml bump-deployments/bbl-azure-concourse/versions.yml"
       OPS_FILES: "bump-deployments/bbl-azure-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-azure-concourse/cluster/operations/tls.yml bump-deployments/bbl-azure-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
@@ -2929,6 +2953,7 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: concourse-secrets
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -3009,6 +3034,7 @@ jobs:
       inputs:
       - name: source
       - name: destination
+      - name: concourse-secrets
       outputs:
       - name: updated-env-repo
       params:
@@ -3020,6 +3046,7 @@ jobs:
           - >-
             cp -r source/* destination/${BBL_STATE_DIR}/
             && cp -r destination/* updated-env-repo
+            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
   - task: deploy-concourse
     file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -3034,7 +3061,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       SYSTEM_DOMAIN: bbl-aws-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-aws-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bump-deployments/bbl-aws-concourse/concourse-defaults.yml bump-deployments/bbl-aws-concourse/concourse-secrets.yml bump-deployments/bbl-aws-concourse/versions.yml"
+      VARS_FILES: "bump-deployments/bbl-aws-concourse/concourse-defaults.yml bump-deployments/bbl-aws-concourse/concourse-secrets.yml bump-deployments/bbl-aws-concourse/concourse-secrets-vars.yml bump-deployments/bbl-aws-concourse/versions.yml"
       OPS_FILES: "bump-deployments/bbl-aws-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-aws-concourse/cluster/operations/tls.yml bump-deployments/bbl-aws-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
