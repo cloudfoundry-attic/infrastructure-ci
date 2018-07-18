@@ -9,6 +9,7 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: bbl-version
+  - name: bbl-version-final
   - name: ci
 
 outputs:

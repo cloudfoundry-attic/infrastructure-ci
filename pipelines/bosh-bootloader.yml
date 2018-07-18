@@ -194,6 +194,30 @@ resources:
     access_key_id: {{bbl_version_s3_access_key_id}}
     secret_access_key: {{bbl_version_s3_secret_access_key}}
 
+- name: bbl-dev-darwin
+  type: s3
+  source:
+    bucket: bbl-dev
+    regexp: darwin/bbl-(.*)_osx
+    access_key_id: {{bbl_version_s3_access_key_id}}
+    secret_access_key: {{bbl_version_s3_secret_access_key}}
+
+- name: bbl-dev-windows
+  type: s3
+  source:
+    bucket: bbl-dev
+    regexp: windows/bbl-(.*)_windows.exe
+    access_key_id: {{bbl_version_s3_access_key_id}}
+    secret_access_key: {{bbl_version_s3_secret_access_key}}
+
+- name: bbl-dev-linux
+  type: s3
+  source:
+    bucket: bbl-dev
+    regexp: linux/bbl-(.*)_linux_x86-64
+    access_key_id: {{bbl_version_s3_access_key_id}}
+    secret_access_key: {{bbl_version_s3_secret_access_key}}
+
 - name: bbl-release
   type: github-release
   source:
@@ -760,16 +784,58 @@ jobs:
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
+- name: bbl-release-candidate-bump-deployments
+  serial: true
+  planm:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-deployments-ci
+      passed: [test-bosh-bootloader-bump-deployments]
+      trigger: true
+  - put: bbl-version
+    resource: version
+    params:
+      pre: rc
+  - get: bbl-version-final
+    resource: version
+    params:
+      bump: final
+  - task: create-bbl-rc
+    file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+    params:
+      BUMP_DEPLOYMENTS: true
+  - aggregate:
+    - put: bbl-dev-darwin
+      params:
+        file: build/bin/bbl-*osx
+    - put: bbl-dev-linux
+      params:
+        file: build/bin/bbl-*linux_x86-64
+    - put: bbl-dev-windows
+      params:
+        file: build/bin/bbl-*windows.exe
+
 - name: aws-acceptance-tests-bump-deployments
   serial: true
   plan:
   - aggregate:
     - get: bosh-bootloader
       resource: bosh-bootloader-bump-deployments-ci
-      passed: [test-bosh-bootloader-bump-deployments]
+      passed: [bbl-release-candidate-bump-deployments]
       trigger: true
     - get: ci
       resource: infrastructure-ci
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-version
+      resource: version
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -823,6 +889,15 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-version
+      resource: version
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -872,6 +947,15 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-version
+      resource: version
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
@@ -904,6 +988,15 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-version
+      resource: version
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
@@ -937,6 +1030,15 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: bbl-version
+      resource: version
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: bbl-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -972,6 +1074,37 @@ jobs:
       - get: bbl-dev-w-gcloud
         resource: cf-deployment-concourse-tasks-bbl-dev-w-gcloud-dockerfile
         trigger: true
+      - get: bbl-version
+        resource: version
+        params:
+          bump: final
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
+      - get: bbl-dev-darwin
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
+      - get: bbl-dev-linux
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
+      - get: bbl-dev-windows
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
     - task: prepare-bbl-dev-docker-workspace
       file: ci/scripts/bosh-bootloader/prepare-docker-workspace/task.yml
       input_mapping:
@@ -2480,6 +2613,15 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: bbl-version
+      resource: version
+      passed: [bbl-]
+    - get: bbl-dev-darwin
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-linux
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bbl-dev-windows
+      passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
@@ -3789,10 +3931,10 @@ jobs:
       - bbl-up-gcp-concourse-director-bump-deployments
       - bbl-up-vsphere-concourse-director-bump-deployments
       trigger: true
-  - put: bbl-version
+  - get: bbl-version
     resource: version
     params:
-      bump: patch
+      bump: final
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
     params:
@@ -3805,6 +3947,10 @@ jobs:
       body: builds/body
       globs:
       - builds/bin/bbl-*
+  - put: bbl-version
+    resource: version
+    params:
+      bump: patch
 
 - name: merge-bump-deployments-change
   serial: true
