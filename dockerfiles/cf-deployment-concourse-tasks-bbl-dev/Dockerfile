@@ -24,6 +24,8 @@ RUN go get -u github.com/jteeuwen/go-bindata/...
 # add bbl from latest commit
 ADD bbl /usr/local/bin/
 
+ADD bosh-bootloader /go/src/github.com/cloudfoundry/bosh-bootloader
+
 RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader /var/repos
 
 RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 && \
