@@ -2582,6 +2582,8 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image-bump-deployments]
+      params:
+        unpack: true
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
