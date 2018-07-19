@@ -209,8 +209,8 @@ resources:
   source:
     bucket: bbl-cli-dev
     regexp: bbl-(.*).tgz
-    access_key_id: {{bbl_version_s3_access_key_id}}
-    secret_access_key: {{bbl_version_s3_secret_access_key}}
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
 
 - name: bbl-release
   type: github-release
@@ -815,9 +815,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-      passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-version
       resource: version
+      passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
@@ -873,9 +873,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
-      passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-version
       resource: version
+      passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
