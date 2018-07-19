@@ -49,6 +49,8 @@ function main() {
     echo "- *Windows sha256: \`${windows_sha}\`*" >> body
     echo "*Known Issues:* Windows support is incomplete." >> body
   popd > /dev/null
+
+  tar -zcvf "${ROOT}/tarred-builds/bbl-${BBL_VERSION}.tgz" -C "${BUILDS_PATH}" .
 }
 
 function build_bbl() {
@@ -80,7 +82,6 @@ function build_bbl() {
     -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "/tmp/test-compile-32" .
 
-  tar -zcvf "${ROOT}/tarred-builds/bbl-${BBL_VERSION}.tgz" -C "${BUILDS_PATH}" .
 }
 
 main
