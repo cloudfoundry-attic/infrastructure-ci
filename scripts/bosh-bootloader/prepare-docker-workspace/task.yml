@@ -9,6 +9,7 @@ image_resource:
 inputs:
 - name: bosh-bootloader
 - name: dockerfiles
+- name: bbl-cli-dev
 
 outputs:
 - name: docker-workspace
@@ -23,3 +24,4 @@ run:
   - |
     cp -R ./bosh-bootloader docker-workspace/
     cp "./dockerfiles/${DOCKERFILE}" docker-workspace/
+    cp ./bbl-cli-dev/bin/bbl-*linux* docker-workspace/bbl
