@@ -33,4 +33,4 @@ COPY --from=golang /go/bin/check /opt/resource/check
 COPY --from=golang /go/bin/in /opt/resource/in
 COPY --from=golang /go/bin/out /opt/resource/out
 
-COPY --from=bbl-dev /go/bin/bbl /usr/local/bin/bbl
+COPY --from=bbl-dev /usr/local/bin/bbl /usr/local/bin/bbl
