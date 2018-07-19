@@ -9,10 +9,11 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: bbl-version
+  - name: bbl-version-final
   - name: ci
 
 outputs:
-  - name: builds
+  - name: tarred-builds
 
 params:
   BUMP_DEPLOYMENTS: false

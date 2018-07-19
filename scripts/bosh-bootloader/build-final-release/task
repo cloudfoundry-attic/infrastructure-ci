@@ -2,9 +2,11 @@
 
 ROOT="${PWD}"
 BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
-BBL_LINUX_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_linux_x86-64"
-BBL_OSX_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_osx"
-BBL_WINDOWS_BUILD_PATH="${ROOT}/builds/bin/bbl-v${BBL_VERSION}_windows.exe"
+BUILDS_PATH="${ROOT}/builds"
+BBL_VERSION_FINAL=$(cat "${ROOT}/bbl-version-final/number")
+BBL_LINUX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION}_linux_x86-64"
+BBL_OSX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION}_osx"
+BBL_WINDOWS_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION}_windows.exe"
 
 function main() {
   local bosh_bootloader_commit_sha
@@ -16,6 +18,7 @@ function main() {
   bosh_bootloader_commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
   deployment_versions=$(cat "${ROOT}/bosh-bootloader/deployment-versions.txt")
 
+  mkdir "${BUILDS_PATH}"
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/" > /dev/null
     echo "Downloading terraform binaries"
     scripts/update_terraform_binaries
@@ -25,7 +28,7 @@ function main() {
     popd > /dev/null
   popd > /dev/null
 
-  pushd "${ROOT}/builds" > /dev/null
+  pushd "${BUILDS_PATH}" > /dev/null
     echo -n "v${BBL_VERSION}" > name
     echo -n "${bosh_bootloader_commit_sha}" > commitish
 
@@ -53,29 +56,31 @@ function build_bbl() {
   CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
     go build -a \
     -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "${BBL_LINUX_BUILD_PATH}" .
 
   echo "Building 64-bit Darwin"
   GOARCH=amd64 GOOS=darwin \
     go build \
     -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "${BBL_OSX_BUILD_PATH}" .
 
   echo "Building 64-bit Windows"
   CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
     go build \
     -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "${BBL_WINDOWS_BUILD_PATH}" .
 
   echo "Testing 32-bit platform"
   CGO_ENABLED=0 GOARCH=386 GOOS=freebsd \
     go build \
     -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION}" \
+    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "/tmp/test-compile-32" .
+
+  tar -zcvf tarred-builds/builds.tgz -C "${BUILDS_PATH}" .
 }
 
 main
