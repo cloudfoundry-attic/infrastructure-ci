@@ -6,7 +6,7 @@ BBL_VERSION=$(cat "${ROOT}/bbl-version/number")
 BBL_VERSION_FINAL=$(cat "${ROOT}/bbl-version-final/number")
 BBL_LINUX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_linux_x86-64"
 BBL_OSX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_osx"
-BBL_WINDOWS_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION}_windows.exe"
+BBL_WINDOWS_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_windows.exe"
 
 function main() {
   local bosh_bootloader_commit_sha
