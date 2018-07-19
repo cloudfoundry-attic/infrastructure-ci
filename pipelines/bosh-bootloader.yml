@@ -1614,7 +1614,7 @@ jobs:
       BBL_AZURE_REGION: {{azure_location}}
       SYSTEM_DOMAIN: bbl-azure-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbbl-azure-concourse/concourse-secrets-vars.yml bl-azure-concourse/versions.yml"
+      VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbl-azure-concourse/concourse-secrets-vars.yml bbl-azure-concourse/versions.yml"
       OPS_FILES: "bbl-azure-concourse/cluster/operations/no-auth.yml bbl-azure-concourse/cluster/operations/privileged-http.yml bbl-azure-concourse/cluster/operations/privileged-https.yml bbl-azure-concourse/cluster/operations/tls.yml bbl-azure-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
