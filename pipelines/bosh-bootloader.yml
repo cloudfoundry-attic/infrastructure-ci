@@ -1059,6 +1059,8 @@ jobs:
         - gcp-acceptance-tests-bump-deployments
         - vsphere-acceptance-tests-bump-deployments
         - openstack-acceptance-tests-bump-deployments
+        params:
+          unpack: true
     - task: prepare-bbl-dev-docker-workspace
       file: ci/scripts/bosh-bootloader/prepare-docker-workspace/task.yml
       input_mapping:
@@ -2582,8 +2584,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image-bump-deployments]
-      params:
-        unpack: true
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev-docker-image
