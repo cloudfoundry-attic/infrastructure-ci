@@ -80,7 +80,7 @@ function build_bbl() {
     -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "/tmp/test-compile-32" .
 
-  tar -zcvf tarred-builds/builds.tgz -C "${BUILDS_PATH}" .
+  tar -zcvf ${ROOT}/tarred-builds/builds.tgz -C "${BUILDS_PATH}" .
 }
 
 main
