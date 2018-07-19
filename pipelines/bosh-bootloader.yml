@@ -17,7 +17,6 @@ groups:
   - bbl-azure-concourse
   - validate-plan-patches
   - major
-  - minor
   - passed-acceptance-tests
   - bbl-up-gcp-concourse-director
   - bbl-up-vsphere-concourse-director
@@ -3975,12 +3974,12 @@ jobs:
     - bbl-up-vsphere-concourse-director-bump-deployments
   - put: bbl-release-official
     params:
-      name: tarred-builds/name
-      tag: tarred-builds/name
-      commitish: tarred-builds/commitish
-      body: tarred-builds/body
+      name: bbl-cli-dev/name
+      tag: bbl-cli-dev/name
+      commitish: bbl-cli-dev/commitish
+      body: bbl-cli-dev/body
       globs:
-      - tarred-builds/bin/bbl-*
+      - bbl-cli-dev/bin/bbl-*
   - put: bbl-version
     resource: version
     params:
@@ -4008,12 +4007,6 @@ jobs:
   - get: version
   - put: version
     params: {bump: major}
-
-- name: minor
-  plan:
-  - get: version
-  - put: version
-    params: {bump: minor}
 
 - name: bump-nat-amis
   plan:
