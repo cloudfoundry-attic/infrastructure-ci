@@ -207,7 +207,7 @@ resources:
 - name: bbl-cli-dev
   type: s3
   source:
-    bucket: bbl-dev
+    bucket: bbl-cli-dev
     regexp: bbl-(.*).tgz
     access_key_id: {{bbl_version_s3_access_key_id}}
     secret_access_key: {{bbl_version_s3_secret_access_key}}
@@ -803,7 +803,7 @@ jobs:
   - aggregate:
     - put: bbl-cli-dev
       params:
-        file: tarred-builds/builds.tgz
+        file: tarred-builds/bbl-*.tgz
 
 - name: aws-acceptance-tests-bump-deployments
   serial: true
@@ -3973,12 +3973,12 @@ jobs:
     - bbl-up-vsphere-concourse-director-bump-deployments
   - put: bbl-release-official
     params:
-      name: bbl-dev/name
-      tag: bbl-dev/name
-      commitish: bbl-dev/commitish
-      body: bbl-dev/body
+      name: tarred-builds/name
+      tag: tarred-builds/name
+      commitish: tarred-builds/commitish
+      body: tarred-builds/body
       globs:
-      - bbl-dev/bin/bbl-*
+      - tarred-builds/bin/bbl-*
   - put: bbl-version
     resource: version
     params:
