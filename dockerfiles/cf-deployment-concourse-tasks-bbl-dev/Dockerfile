@@ -22,7 +22,7 @@ RUN \
 RUN go get -u github.com/jteeuwen/go-bindata/...
 
 # add bbl from latest commit
-ADD bbl-cli-dev/bin/bbl-*linux_x86_64 /usr/local/bin/bbl
+ADD bbl-cli-dev/bin/bbl-*linux* /usr/local/bin/bbl
 
 RUN cp -r /go/src/github.com/cloudfoundry/bosh-bootloader /var/repos
 
