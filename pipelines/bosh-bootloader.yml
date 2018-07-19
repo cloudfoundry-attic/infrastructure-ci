@@ -821,6 +821,9 @@ jobs:
       trigger: true
     - get: jumpbox-deployment
       trigger: true
+  - put: version
+    params:
+      bump: patch
   - task: bump-deployments
     file: ci/scripts/bosh-deployment/bump-deployments/task.yml
     input_mapping:
@@ -841,6 +844,9 @@ jobs:
       resource: bosh-bootloader-bump-deployments-ci
       passed: [bump-deployments]
       trigger: true
+    - get: bbl-version
+      resource: version
+      passed: [bump-deployments]
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
@@ -854,6 +860,9 @@ jobs:
       resource: bosh-bootloader-bump-deployments-ci
       passed: [test-bosh-bootloader-bump-deployments]
       trigger: true
+    - get: bbl-version
+      resource: version
+      passed: [test-bosh-bootloader-bump-deployments]
   - put: bbl-version
     resource: version
     params:
@@ -4166,10 +4175,6 @@ jobs:
       body: bbl-cli-dev/body
       globs:
       - bbl-cli-dev/bin/bbl-*
-  - put: bbl-version
-    resource: version
-    params:
-      bump: patch
 
 - name: merge-bump-deployments-change
   serial: true
