@@ -56,8 +56,8 @@ resources:
   type: pivnet
   source:
     api_token: ((pivnet_token))
-    product_slug: cf
-    product_version: ^d+\.d+\.\d+$
+    product_slug: elastic-runtime
+    product_version: ^\d+\.\d+\.\d+
     sort_by: semver
 
 - name: terraforming-vsphere
@@ -141,11 +141,12 @@ jobs:
     - get: gate-lock
       passed: [create-env-gcp]
   - task: download-stemcell
-    file: pcf-releng-ci/tasks/configuration/download-bosh-io-stemcell/task.yml
+    file: pcf-releng-ci/tasks/configuration/download-pivnet-stemcell/task.yml
     input_mapping:
       ert-product: srt
     params:
       IAAS_TYPE: gcp
+      PIVNET_TOKEN: ((pivnet_token))
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task-terraforming.yml
     params:

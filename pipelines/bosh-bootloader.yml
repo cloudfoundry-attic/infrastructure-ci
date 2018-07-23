@@ -695,6 +695,7 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
+        BBL_DOWN_TIMEOUT: 20m
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -800,6 +801,7 @@ jobs:
     - task: bbl-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
+        BBL_DOWN_TIMEOUT: 20m
         BBL_IAAS: gcp
         BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
         BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
