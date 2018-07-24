@@ -8,7 +8,6 @@ groups:
   - mkdocs-docker-image
   - releng-tools-docker-image
   - terraform-image
-  - cf-deployment-concourse-tasks-w-gcloud-image
 
 resources:
 - name: terraform-dockerfile
@@ -51,13 +50,6 @@ resources:
     paths:
     - dockerfiles/mkdocs
 
-- name: cf-deployment-concourse-tasks-w-gcloud-dockerfile
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/infrastructure-ci
-    branch: master
-    paths:
-    - dockerfiles/cf-deployment-concourse-tasks-w-gcloud
 
 - name: releng-tools-dockerfile
   type: git
@@ -72,20 +64,6 @@ resources:
   source:
     repository: ubuntu
     tag: "14.04"
-
-- name: cf-deployment-concourse-tasks-image
-  type: docker-image
-  source:
-    repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
-    tag: v3.15.0
-
-- name: cf-deployment-concourse-tasks-w-gcloud-image
-  type: docker-image
-  source:
-    repository: cfinfrastructure/cf-deployment-concourse-tasks-w-gcloud
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
 
 - name: minimal-docker-image
   type: docker-image
@@ -246,19 +224,4 @@ jobs:
     - put: terraform-docker-image
       params:
         build: infrastructure-ci/dockerfiles/terraform
-        cache: false
-
-- name: cf-deployment-concourse-tasks-w-gcloud-image
-  public: true
-  plan:
-  - do:
-    - aggregate:
-      - get: cf-deployment-concourse-tasks-image
-        trigger: true
-      - get: infrastructure-ci
-        resource: cf-deployment-concourse-tasks-w-gcloud-dockerfile
-        trigger: true
-    - put: cf-deployment-concourse-tasks-w-gcloud-image
-      params:
-        build: infrastructure-ci/dockerfiles/cf-deployment-concourse-tasks-w-gcloud
         cache: false
