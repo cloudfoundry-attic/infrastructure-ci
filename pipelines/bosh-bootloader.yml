@@ -1271,6 +1271,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+    - get: test-concourse-vars
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1322,121 +1323,25 @@ jobs:
         params:
           rebase: true
           repository: updated-env-repo
-  - task: upload-concourse-stemcell
-    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      env-repo: updated-env-repo
+  - task: create-bosh-source-file
+    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
-      BBL_STATE_DIR: bbl-azure-concourse
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
-      INFRASTRUCTURE: azure
-    on_failure:
-      task: upload-stemcell-destroy-infrastructure
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev
-      input_mapping:
-        env-repo: updated-env-repo
-      params:
-        BBL_IAAS: azure
         BBL_STATE_DIR: bbl-azure-concourse
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
-      ensure:
-        put: infrastructure-ci-bbl-states
-        params:
-          rebase: true
-          repository: updated-env-repo
-  - task: copy-bosh-files
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      source: concourse-deployment
-      destination: updated-env-repo
-    config:
-      platform: linux
-      inputs:
-      - name: source
-      - name: destination
-      - name: concourse-secrets
-      outputs:
-      - name: updated-env-repo
-      params:
-        BBL_STATE_DIR: bbl-azure-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - >-
-            cp -r source/* destination/${BBL_STATE_DIR}/
-            && cp -r destination/* updated-env-repo
-            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
-  - task: deploy-concourse
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      env-repo: updated-env-repo
-      cf-deployment: concourse-deployment
-      ops-files: updated-env-repo
-      vars-files: updated-env-repo
+  - put: concourse-bosh-deployment
     params:
-      BBL_STATE_DIR: bbl-azure-concourse
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
-      SYSTEM_DOMAIN: bbl-azure-concourse.bbl-test.ci.cf-app.com
-      VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bbl-azure-concourse/concourse-defaults.yml bbl-azure-concourse/concourse-secrets.yml bbl-azure-concourse/concourse-secrets-vars.yml bbl-azure-concourse/versions.yml"
-      OPS_FILES: "bbl-azure-concourse/cluster/operations/no-auth.yml bbl-azure-concourse/cluster/operations/privileged-http.yml bbl-azure-concourse/cluster/operations/privileged-https.yml bbl-azure-concourse/cluster/operations/tls.yml bbl-azure-concourse/cluster/operations/web-network-extension.yml"
-      MANIFEST_FILE: cluster/concourse.yml
-    on_failure:
-      do:
-      - task: delete-concourse-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-azure-concourse
-          DEPLOYMENT_NAME: concourse
-      - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          CLEAN_ALL: true
-          BBL_STATE_DIR: bbl-azure-concourse
-          BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-          BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-          BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-          BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-          BBL_AZURE_REGION: {{azure_location}}
-      - task: destroy-infrastructure
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-azure-concourse
-          BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-          BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-          BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-          BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-          BBL_AZURE_REGION: {{azure_location}}
-        ensure:
-          put: infrastructure-ci-bbl-states
-          params:
-            rebase: true
-            repository: updated-env-repo
+      source_file: source-file/bosh-source.json
+      manifest: concourse-deployment/cluster/concourse.yml
+      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+      vars_files:
+        - concourse-deployment/versions.yml
+        - concourse-secrets/concourse-secrets.yml
+        - test-concourse-vars/test-concourse-vars.yml
+      ops_files:
+        - concourse-deployment/cluster/operations/privileged-https.yml
+        - concourse-deployment/cluster/operations/privileged-http.yml
+        - concourse-deployment/cluster/operations/no-auth.yml
+        - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
@@ -1454,27 +1359,12 @@ jobs:
           - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | cut -d '(' -f 2 | tr -d ')') | grep '<title>Concourse</title>'"
     ensure:
       do:
-      - task: delete-concourse-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
+      - put: concourse-bosh-deployment
         params:
-          BBL_STATE_DIR: bbl-azure-concourse
-          DEPLOYMENT_NAME: concourse
-      - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          CLEAN_ALL: true
-          BBL_STATE_DIR: bbl-azure-concourse
-          BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-          BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-          BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-          BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-          BBL_AZURE_REGION: {{azure_location}}
+          source_file: source-file/bosh-source.json
+          delete:
+            enabled: true
+            force: true
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev

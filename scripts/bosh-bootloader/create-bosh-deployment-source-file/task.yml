@@ -1,0 +1,21 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/golang
+
+inputs:
+- name: ci
+- name: bosh-bootloader
+- name: infrastructure-ci-bbl-states
+
+outputs:
+- name: source-file
+
+params:
+  BBL_STATE_DIR:
+
+run:
+  path: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task
