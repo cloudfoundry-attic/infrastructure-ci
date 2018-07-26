@@ -97,11 +97,16 @@ resources:
     secret_access_key: {{aws_secret_access_key}}
     region_name: us-west-2
 
-- name: ubuntu-trusty-stemcell
+- name: ubuntu-trusty-stemcell-gcp
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
     version_family: 3586.latest
+
+- name: ubuntu-trusty-stemcell-azure
+  type: bosh-io-stemcell
+  source:
+    name: bosh-azure-hyperv-ubuntu-trusty-go_agent
 
 - name: test-bbl-state
   type: bbl-state-resource
@@ -466,7 +471,7 @@ jobs:
       passed:
         - build-bbl-state-docker
     - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell
+    - get: ubuntu-trusty-stemcell-gcp
   - put: bbl-state-up
     resource: test-bbl-state
     params:
@@ -483,7 +488,7 @@ jobs:
     params:
       source_file: bbl-state-pool/metadata
       manifest: cfcr-compiled-git/cfcr.yml
-      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+      stemcells: [ ubuntu-trusty-stemcell-gcp/stemcell.tgz ]
     ensure:
       do:
       - put: cfcr-bosh-deployment
@@ -513,7 +518,7 @@ jobs:
       passed:
         - build-bbl-state-docker
     - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell
+    - get: ubuntu-trusty-stemcell-gcp
   - do:
     - put: test-bbl-state
       params:
@@ -524,7 +529,7 @@ jobs:
       params:
         source_file: test-bbl-state/bdr-source-file
         manifest: cfcr-compiled-git/cfcr.yml
-        stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+        stemcells: [ ubuntu-trusty-stemcell-gcp/stemcell.tgz ]
     - put: cfcr-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
@@ -1271,6 +1276,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+    - get: ubuntu-trusty-stemcell-azure
     - get: test-concourse-vars
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
@@ -1331,7 +1337,7 @@ jobs:
     params:
       source_file: source-file/bosh-source.json
       manifest: concourse-deployment/cluster/concourse.yml
-      stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+      stemcells: [ ubuntu-trusty-stemcell-azure/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
         - concourse-secrets/concourse-secrets.yml
@@ -1391,7 +1397,7 @@ jobs:
     - get: bosh-bootloader
       passed: [build-bbl-state-docker]
       trigger: true
-    - get: ubuntu-trusty-stemcell
+    - get: ubuntu-trusty-stemcell-gcp
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [build-bbl-state-docker]
@@ -1423,7 +1429,7 @@ jobs:
       params:
         source_file: test-bbl-state/bdr-source-file
         manifest: concourse-deployment/cluster/concourse.yml
-        stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
+        stemcells: [ ubuntu-trusty-stemcell-gcp/stemcell.tgz ]
         vars_files:
           - concourse-deployment/versions.yml
           - concourse-secrets/concourse-secrets.yml
