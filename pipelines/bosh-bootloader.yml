@@ -1339,7 +1339,7 @@ jobs:
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
-        - concourse-deployment/cluster/operations/no-auth.yml
+        - concourse-deployment/cluster/operations/basic-auth.yml
         - concourse-deployment/cluster/operations/tls.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
@@ -1431,7 +1431,7 @@ jobs:
         ops_files:
           - concourse-deployment/cluster/operations/privileged-https.yml
           - concourse-deployment/cluster/operations/privileged-http.yml
-          - concourse-deployment/cluster/operations/no-auth.yml
+          - concourse-deployment/cluster/operations/basic-auth.yml
           - concourse-deployment/cluster/operations/tls.yml
           - concourse-deployment/cluster/operations/web-network-extension.yml
     - task: curl-concourse
@@ -1590,7 +1590,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/concourse-secrets-vars.yml bbl-aws-concourse/versions.yml"
-      OPS_FILES: "bbl-aws-concourse/cluster/operations/no-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bbl-aws-concourse/cluster/operations/basic-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -2610,7 +2610,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-gcp-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-gcp-concourse/deployment-vars.yml
       VARS_FILES: "bump-deployments/bbl-gcp-concourse/concourse-defaults.yml bump-deployments/bbl-gcp-concourse/concourse-secrets.yml bump-deployments/bbl-gcp-concourse/concourse-secrets-vars.yml bump-deployments/bbl-gcp-concourse/versions.yml"
-      OPS_FILES: "bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-gcp-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-gcp-concourse/cluster/operations/tls.yml bump-deployments/bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-gcp-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-gcp-concourse/cluster/operations/basic-auth.yml bump-deployments/bbl-gcp-concourse/cluster/operations/tls.yml bump-deployments/bbl-gcp-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -2845,7 +2845,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-azure-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bbl-azure-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bump-deployments/bbl-azure-concourse/concourse-defaults.yml bump-deployments/bbl-azure-concourse/concourse-secrets.yml bump-deployments/bbl-azure-concourse/concourse-secrets-vars.yml bump-deployments/bbl-azure-concourse/versions.yml"
-      OPS_FILES: "bump-deployments/bbl-azure-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-azure-concourse/cluster/operations/tls.yml bump-deployments/bbl-azure-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bump-deployments/bbl-azure-concourse/cluster/operations/basic-auth.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-azure-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-azure-concourse/cluster/operations/tls.yml bump-deployments/bbl-azure-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
@@ -3076,7 +3076,7 @@ jobs:
       SYSTEM_DOMAIN: bbl-aws-concourse-bump-deployments.bbl-test.ci.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-aws-concourse/vars/bosh-deployment-vars.yml
       VARS_FILES: "bump-deployments/bbl-aws-concourse/concourse-defaults.yml bump-deployments/bbl-aws-concourse/concourse-secrets.yml bump-deployments/bbl-aws-concourse/concourse-secrets-vars.yml bump-deployments/bbl-aws-concourse/versions.yml"
-      OPS_FILES: "bump-deployments/bbl-aws-concourse/cluster/operations/no-auth.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-aws-concourse/cluster/operations/tls.yml bump-deployments/bbl-aws-concourse/cluster/operations/web-network-extension.yml"
+      OPS_FILES: "bump-deployments/bbl-aws-concourse/cluster/operations/basic-auth.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-http.yml bump-deployments/bbl-aws-concourse/cluster/operations/privileged-https.yml bump-deployments/bbl-aws-concourse/cluster/operations/tls.yml bump-deployments/bbl-aws-concourse/cluster/operations/web-network-extension.yml"
       MANIFEST_FILE: cluster/concourse.yml
     on_failure:
       do:
