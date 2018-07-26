@@ -117,6 +117,7 @@ jobs:
       BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
       BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
       BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
+      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
 
 - name: releasable
   plan:
