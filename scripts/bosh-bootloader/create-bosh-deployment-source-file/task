@@ -6,7 +6,7 @@ function main() {
   local source_file
   source_file="${ROOT}/source-file/bosh-source.json"
 
-  pushd "${ROOT}/infrastructure-ci-bbl-states/{${BBL_STATE_DIR}" > /dev/null
+  pushd "${ROOT}/infrastructure-ci-bbl-states/${BBL_STATE_DIR}" > /dev/null
     export TARGET="$(bbl director-address)"
     export CLIENT="$(bbl director-username)"
     export CLIENT_SECRET="$(bbl director-password)"
