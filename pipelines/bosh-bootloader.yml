@@ -1501,6 +1501,7 @@ jobs:
       passed: [build-bbl-state-docker]
     - get: bbl-cli-dev
       passed: [build-bbl-state-docker]
+    - get: concourse-secrets
   - do:
     - put: test-bbl-state
       params:
@@ -1527,6 +1528,7 @@ jobs:
           - infrastructure-ci-bbl-states/bbl-gcp-concourse/concourse-defaults.yml
           - infrastructure-ci-bbl-states/bbl-gcp-concourse/concourse-secrets-vars.yml
           - concourse-deployment/versions.yml
+          - concourse-secrets/concourse-secrets.yml
         ops_files:
           - concourse-deployment/cluster/operations/privileged-https.yml
           - concourse-deployment/cluster/operations/privileged-http.yml
