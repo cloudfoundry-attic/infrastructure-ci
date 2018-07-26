@@ -1525,8 +1525,6 @@ jobs:
         manifest: concourse-deployment/cluster/concourse.yml
         stemcells: [ ubuntu-trusty-stemcell/stemcell.tgz ]
         vars_files:
-          - infrastructure-ci-bbl-states/bbl-gcp-concourse/concourse-defaults.yml
-          - infrastructure-ci-bbl-states/bbl-gcp-concourse/concourse-secrets-vars.yml
           - concourse-deployment/versions.yml
           - concourse-secrets/concourse-secrets.yml
         ops_files:
