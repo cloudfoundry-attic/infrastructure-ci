@@ -1168,6 +1168,7 @@ jobs:
       BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
       BBL_GCP_ZONE: {{bbl_gcp_zone}}
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
+      BBL_DOWN_TIMEOUT: 20m
 
 - name: test-with-latest-bosh-cli
   serial: true
