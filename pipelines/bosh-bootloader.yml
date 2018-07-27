@@ -113,6 +113,11 @@ resources:
   source:
     name: bosh-azure-hyperv-ubuntu-xenial-go_agent
 
+- name: ubuntu-xenial-stemcell-aws
+  type: bosh-io-stemcell
+  source:
+    name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+
 - name: test-bbl-state
   type: bbl-state-resource
   source:
@@ -1337,7 +1342,7 @@ jobs:
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
-        BBL_STATE_DIR: bbl-azure-concourse
+      BBL_STATE_DIR: bbl-azure-concourse
     input_mapping:
       bbl-states: updated-env-repo
   - put: concourse-bosh-deployment
@@ -1495,6 +1500,8 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+    - get: ubuntu-xenial-stemcell-aws
+    - get: test-concourse-vars
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1539,106 +1546,27 @@ jobs:
         params:
           rebase: true
           repository: updated-env-repo
-  - task: upload-concourse-stemcell
-    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      env-repo: updated-env-repo
+  - task: create-bosh-source-file
+    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-concourse
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      INFRASTRUCTURE: aws
-    on_failure:
-      task: upload-stemcell-destroy-infrastructure
-      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-      image: cf-deployment-concourse-tasks-bbl-dev
-      input_mapping:
-        env-repo: updated-env-repo
-      params:
-        BBL_IAAS: aws
-        BBL_STATE_DIR: bbl-aws-concourse
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      ensure:
-        put: infrastructure-ci-bbl-states
-        params:
-          rebase: true
-          repository: updated-env-repo
-  - task: copy-bosh-files
-    image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      source: concourse-deployment
-      destination: updated-env-repo
-    config:
-      platform: linux
-      inputs:
-      - name: source
-      - name: destination
-      - name: concourse-secrets
-      outputs:
-      - name: updated-env-repo
-      params:
-        BBL_STATE_DIR: bbl-aws-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - >-
-            cp -r source/* destination/${BBL_STATE_DIR}/
-            && cp -r destination/* updated-env-repo
-            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
-  - task: deploy-concourse
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      env-repo: updated-env-repo
-      cf-deployment: concourse-deployment
-      ops-files: updated-env-repo
-      vars-files: updated-env-repo
+      bbl-states: updated-env-repo
+  - put: concourse-bosh-deployment
     params:
-      BBL_STATE_DIR: bbl-aws-concourse
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      SYSTEM_DOMAIN: bbl-aws-concourse.bbl-test.ci.cf-app.com
-      VARS_STORE_FILE: bbl-aws-concourse/vars/bosh-deployment-vars.yml
-      VARS_FILES: "bbl-aws-concourse/concourse-defaults.yml bbl-aws-concourse/concourse-secrets.yml bbl-aws-concourse/concourse-secrets-vars.yml bbl-aws-concourse/versions.yml"
-      OPS_FILES: "bbl-aws-concourse/cluster/operations/basic-auth.yml bbl-aws-concourse/cluster/operations/privileged-http.yml bbl-aws-concourse/cluster/operations/privileged-https.yml bbl-aws-concourse/cluster/operations/tls.yml bbl-aws-concourse/cluster/operations/web-network-extension.yml"
-      MANIFEST_FILE: cluster/concourse.yml
-    on_failure:
-      do:
-      - task: delete-concourse-deployment
-        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-aws-concourse
-          DEPLOYMENT_NAME: concourse
-      - task: bosh-cleanup
-        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          CLEAN_ALL: true
-          BBL_STATE_DIR: bbl-aws-concourse
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      - task: destroy-infrastructure
-        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-        image: cf-deployment-concourse-tasks-bbl-dev
-        input_mapping:
-          env-repo: updated-env-repo
-        params:
-          BBL_STATE_DIR: bbl-aws-concourse
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        ensure:
-          put: infrastructure-ci-bbl-states
-          params:
-            rebase: true
-            repository: updated-env-repo
+      source_file: source-file/bosh-source.json
+      manifest: concourse-deployment/cluster/concourse.yml
+      stemcells: [ ubuntu-xenial-stemcell-aws/stemcell.tgz ]
+      vars_files:
+        - concourse-deployment/versions.yml
+        - concourse-secrets/concourse-secrets.yml
+        - test-concourse-vars/test-concourse-vars.yml
+      ops_files:
+        - concourse-deployment/cluster/operations/privileged-https.yml
+        - concourse-deployment/cluster/operations/privileged-http.yml
+        - concourse-deployment/cluster/operations/basic-auth.yml
+        - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
