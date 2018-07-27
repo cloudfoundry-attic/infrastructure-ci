@@ -11,7 +11,7 @@ function main() {
     export CLIENT="$(bbl director-username)"
     export CLIENT_SECRET="$(bbl director-password)"
     export CA_CERT="$(bbl director-ca-cert)"
-    export JUMPBOX_URL="$(bbl jumbox-address)"
+    export JUMPBOX_URL="$(bbl jumpbox-address)"
     export JUMPBOX_SSH_KEY="$(bbl ssh-key)"
   popd > /dev/null
 
