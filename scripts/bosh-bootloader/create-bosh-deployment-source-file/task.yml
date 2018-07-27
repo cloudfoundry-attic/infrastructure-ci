@@ -9,7 +9,7 @@ image_resource:
 inputs:
 - name: ci
 - name: bosh-bootloader
-- name: infrastructure-ci-bbl-states
+- name: bbl-states
 
 outputs:
 - name: source-file

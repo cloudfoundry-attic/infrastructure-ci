@@ -1338,6 +1338,8 @@ jobs:
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
         BBL_STATE_DIR: bbl-azure-concourse
+    input_mapping:
+      bbl-states: updated-env-repo
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
