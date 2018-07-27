@@ -64,6 +64,11 @@ resources:
   source:
     name: bosh-google-kvm-ubuntu-xenial-go_agent
 
+- name: ubuntu-xenial-stemcell-vsphere
+  type: bosh-io-stemcell
+  source:
+    name: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+
 - name: concourse-bosh-deployment
   type: bosh-deployment
   source:
@@ -95,7 +100,7 @@ jobs:
       vars_files:
         - concourse-deployment/versions.yml
         - concourse-secrets/concourse-secrets.yml
-        - prod-concourse-vars/test-concourse-vars.yml
+        - prod-concourse-vars/prod-concourse-vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
@@ -133,58 +138,32 @@ jobs:
     - get: concourse-secrets
       tags:
       - {{vsphere_network_name}}
-  - task: upload-concourse-stemcell
-    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
-    tags:
-    - {{vsphere_network_name}}
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      env-repo: infrastructure-ci-bbl-states
+    - get: ubuntu-xenial-stemcell-vsphere
+      tags:
+      - {{vsphere_network_name}}
+    - get: prod-concourse-vars
+      tags:
+      - {{vsphere_network_name}}
+  - task: create-bosh-source-file
+    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
-      BBL_STATE_DIR: vsphere-concourse
-      INFRASTRUCTURE: vsphere
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-  - task: copy-bosh-files
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    tags:
-    - {{vsphere_network_name}}
+      BBL_STATE_DIR: infra-ci
     input_mapping:
-      source: concourse-deployment
-      destination: infrastructure-ci-bbl-states
-    config:
-      platform: linux
-      inputs:
-      - name: source
-      - name: destination
-      - name: concourse-secrets
-      outputs:
-      - name: updated-env-repo
-      params:
-        BBL_STATE_DIR: infra-ci
-      run:
-        path: bash
-        args:
-          - "-c"
-          - >-
-            cp -r source/* destination/${BBL_STATE_DIR}/
-            && cp -r destination/* updated-env-repo
-            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
-  - task: deploy-concourse
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    tags:
-    - {{vsphere_network_name}}
-    input_mapping:
-      env-repo: updated-env-repo
-      cf-deployment: concourse-deployment
-      ops-files: updated-env-repo
-      vars-files: updated-env-repo
+      bbl-states: infrastructure-ci-bbl-states
+  - put: concourse-bosh-deployment
     params:
-      BBL_STATE_DIR: vsphere-concourse
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      SYSTEM_DOMAIN: infra.ci.cf-app.com
-      VARS_STORE_FILE: infra-ci/deployment-vars.yml
-      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/concourse-secrets.yml infra-ci/versions.yml"
-      MANIFEST_FILE: cluster/external-worker.yml
+      source_file: source-file/bosh-source.json
+      manifest: concourse-deployment/cluster/external-worker.yml
+      stemcells: [ ubuntu-xenial-stemcell-vsphere/stemcell.tgz ]
+      vars_files:
+        - concourse-deployment/versions.yml
+        - concourse-secrets/concourse-secrets.yml
+        - prod-concourse-vars/prod-concourse-vars.yml
+      ops_files:
+        - concourse-deployment/cluster/operations/privileged-https.yml
+        - concourse-deployment/cluster/operations/privileged-http.yml
+        - concourse-deployment/cluster/operations/github-auth.yml
+        - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/web-network-extension.yml
+        - concourse-deployment/cluster/operations/worker-ephemeral-disk.yml
+        - concourse-deployment/cluster/operations/scale.yml
