@@ -2750,7 +2750,7 @@ jobs:
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
-      BBL_STATE_DIR: bump-deplopyments/bbl-aws-concourse
+      BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
     input_mapping:
       bbl-states: updated-env-repo
   - put: concourse-bosh-deployment
