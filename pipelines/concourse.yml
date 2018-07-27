@@ -1,4 +1,10 @@
 ---
+resource_types:
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
 resources:
 - name: infrastructure-ci
   type: git
@@ -44,6 +50,25 @@ resources:
     secret_access_key: {{aws_secret_access_key}}
     region_name: us-west-2
 
+- name: prod-concourse-vars
+  type: s3
+  source:
+    bucket: infra-concourse-secrets
+    versioned_file: prod-concourse-vars.yml
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
+    region_name: us-west-2
+
+- name: ubuntu-xenial-stemcell-gcp
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
+
+- name: concourse-bosh-deployment
+  type: bosh-deployment
+  source:
+    deployment: concourse
+
 jobs:
 - name: update-concourse-gcp
   interruptible: true
@@ -53,62 +78,32 @@ jobs:
       resource: infrastructure-ci
     - get: infrastructure-ci-bbl-states
     - get: concourse-deployment
-    - get: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
-  - task: upload-concourse-stemcell
-    file: ci/scripts/bosh-bootloader/upload-latest-trusty-stemcell/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      env-repo: infrastructure-ci-bbl-states
+    - get: ubuntu-xenial-stemcell-gcp
+    - get: prod-concourse-vars
+  - task: create-bosh-source-file
+    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: infra-ci
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      INFRASTRUCTURE: google
-  - task: copy-bosh-files
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
     input_mapping:
-      source: concourse-deployment
-      destination: infrastructure-ci-bbl-states
-    config:
-      platform: linux
-      inputs:
-      - name: source
-      - name: destination
-      - name: concourse-secrets
-      outputs:
-      - name: updated-env-repo
-      params:
-        BBL_STATE_DIR: infra-ci
-      run:
-        path: bash
-        args:
-          - "-c"
-          - >-
-            cp -r source/* destination/${BBL_STATE_DIR}/
-            && cp -r destination/* updated-env-repo
-            && cp concourse-secrets/* updated-env-repo/${BBL_STATE_DIR}/
-  - task: deploy-concourse
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    image: cf-deployment-concourse-tasks-bbl-dev-docker-image
-    input_mapping:
-      env-repo: updated-env-repo
-      cf-deployment: concourse-deployment
-      ops-files: updated-env-repo
-      vars-files: updated-env-repo
+      bbl-states: infrastructure-ci-bbl-states
+  - put: concourse-bosh-deployment
     params:
-      BBL_STATE_DIR: infra-ci
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      SYSTEM_DOMAIN: infra.ci.cf-app.com
-      VARS_STORE_FILE: infra-ci/deployment-vars.yml
-      VARS_FILES: "infra-ci/vars/concourse-vars.yml infra-ci/concourse-secrets.yml infra-ci/versions.yml"
-      OPS_FILES: "infra-ci/cluster/operations/privileged-https.yml infra-ci/cluster/operations/privileged-http.yml infra-ci/cluster/operations/github-auth.yml infra-ci/cluster/operations/tls.yml infra-ci/cluster/operations/web-network-extension.yml infra-ci/cluster/operations/worker-ephemeral-disk.yml infra-ci/cluster/operations/scale.yml"
-      MANIFEST_FILE: cluster/concourse.yml
+      source_file: source-file/bosh-source.json
+      manifest: concourse-deployment/cluster/concourse.yml
+      stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
+      vars_files:
+        - concourse-deployment/versions.yml
+        - concourse-secrets/concourse-secrets.yml
+        - prod-concourse-vars/test-concourse-vars.yml
+      ops_files:
+        - concourse-deployment/cluster/operations/privileged-https.yml
+        - concourse-deployment/cluster/operations/privileged-http.yml
+        - concourse-deployment/cluster/operations/github-auth.yml
+        - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/web-network-extension.yml
+        - concourse-deployment/cluster/operations/worker-ephemeral-disk.yml
+        - concourse-deployment/cluster/operations/scale.yml
 
 - name: update-concourse-vsphere-worker
   interruptible: true
