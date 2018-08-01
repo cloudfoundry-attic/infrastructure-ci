@@ -3498,6 +3498,11 @@ jobs:
         unpack: true
   - get: bbl-version
     resource: dev-version
+    passed:
+      - bbl-up-gcp-concourse-director
+      - bbl-up-vsphere-concourse-director
+  - get: bbl-version-final
+    resource: dev-version
     params:
       bump: final
     passed:
@@ -3508,7 +3513,7 @@ jobs:
   - put: bosh-bootloader
     params:
       repository: bosh-bootloader
-      tag: builds/name
+      tag: bbl-cli-dev/name
       only_tag: true
   - put: bbl-release
     params:
