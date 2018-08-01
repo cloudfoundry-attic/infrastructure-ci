@@ -3587,8 +3587,9 @@ jobs:
 
 - name: major
   plan:
-  - get: version
   - put: version
+    params: {bump: major}
+  - put: dev-version
     params: {bump: major}
 
 - name: bump-nat-amis
