@@ -499,6 +499,8 @@ jobs:
       source_file: bbl-state-pool/metadata
       manifest: cfcr-compiled-git/cfcr.yml
       stemcells: [ ubuntu-trusty-stemcell-gcp/stemcell.tgz ]
+      ops_files:
+        - cfcr-compiled-git/ops-files/use-runtime-config-bosh-dns.yml
     ensure:
       do:
       - put: cfcr-bosh-deployment
@@ -540,6 +542,8 @@ jobs:
         source_file: test-bbl-state/bdr-source-file
         manifest: cfcr-compiled-git/cfcr.yml
         stemcells: [ ubuntu-trusty-stemcell-gcp/stemcell.tgz ]
+        ops_files:
+          - cfcr-compiled-git/ops-files/use-runtime-config-bosh-dns.yml
     - put: cfcr-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
