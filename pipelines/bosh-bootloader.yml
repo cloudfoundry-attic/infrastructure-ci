@@ -995,6 +995,7 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
+        BBL_DOWN_TIMEOUT: 20m
     - task: bbl-up
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -1007,6 +1008,7 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
+        BBL_DOWN_TIMEOUT: 20m
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
@@ -1019,6 +1021,7 @@ jobs:
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
+        BBL_DOWN_TIMEOUT: 20m
 
 - name: vsphere-acceptance-tests-bump-deployments
   serial_groups: [vsphere-acceptance]
