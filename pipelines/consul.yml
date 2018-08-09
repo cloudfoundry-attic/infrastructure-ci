@@ -22,11 +22,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/bosh-deployment.git
 
-- name: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
-  type: docker-image
-  source:
-    repository: cfinfrastructure/cf-deployment-concourse-tasks-w-gcloud-bbl4
-
 - name: consul-release-develop
   type: git
   source:
@@ -91,10 +86,9 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: bosh-deployment
-    - get: bosh-lite-stemcell
+    - get: gcp-stemcell
   - task: deploy-sample-manifest
     file: ci/scripts/common/deploy-sample-manifests/task.yml
-    image: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
     params:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
       BBL_GCP_PROJECT_ID: {{gcp_project_id}}

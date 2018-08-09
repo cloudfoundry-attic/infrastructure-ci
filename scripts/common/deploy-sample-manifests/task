@@ -13,6 +13,7 @@ function main() {
 }
 
 function bbl_up() {
+  mkdir -p "${BBL_STATE_DIR}"
   pushd "${BBL_STATE_DIR}" > /dev/null
     bbl up --iaas gcp
     eval "$(bbl print-env)"
