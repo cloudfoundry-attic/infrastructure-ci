@@ -62,10 +62,10 @@ resources:
     private_key: {{oss-s3-buckets-stack-private-key}}
     uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
 
-- name: bosh-lite-stemcell
+- name: gcp-stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
 
 jobs:
 - name: check-git-submodules
@@ -92,7 +92,6 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-deployment
     - get: bosh-lite-stemcell
-    - get: cf-deployment-concourse-tasks-w-gcloud-bbl4-image
   - task: deploy-sample-manifest
     file: ci/scripts/common/deploy-sample-manifests/task.yml
     image: cf-deployment-concourse-tasks-w-gcloud-bbl4-image

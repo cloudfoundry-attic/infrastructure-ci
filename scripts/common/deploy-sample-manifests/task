@@ -1,10 +1,10 @@
 #!/bin/bash -exu
 
 ROOT=${PWD}
+BBL_STATE_DIR="${ROOT}/bbl-state-dir"
 
 function main() {
-  deploy_boshlite
-  setup_bosh_lite_env_vars
+  bbl_up
   upload_stemcell
   upload_dependencies
   create_and_upload_release
@@ -12,33 +12,15 @@ function main() {
   deploy_manifests
 }
 
-function deploy_boshlite() {
-  bbl up --iaas gcp --no-director
-
-  bosh -n create-env \
-    --vars-store bosh-vars.yml \
-    --state bosh-state.yml \
-    -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
-    -o ${ROOT}/bosh-deployment/bosh-lite.yml \
-    -o ${ROOT}/bosh-deployment/external-ip-not-recommended.yml \
-    -o ${ROOT}/bosh-deployment/gcp/bosh-lite-vm-type.yml \
-    -o ${ROOT}/bosh-deployment/jumpbox-user.yml \
-    -o ${ROOT}/bosh-deployment/bosh-lite-runc.yml \
-    --vars-file <(bbl bosh-deployment-vars) \
-    ${ROOT}/bosh-deployment/bosh.yml
-}
-
-function setup_bosh_lite_env_vars() {
-  set +x
-  export BOSH_ENVIRONMENT=$(bbl director-address)
-  export BOSH_CA_CERT="$(bosh int bosh-vars.yml --path /default_ca/ca)"
-  export BOSH_CLIENT=admin
-  export BOSH_CLIENT_SECRET=$(bosh int bosh-vars.yml --path /admin_password)
-  set -x
+function bbl_up() {
+  pushd "${BBL_STATE_DIR}" > /dev/null
+    bbl up --iaas gcp
+    eval "$(bbl print-env)"
+  popd
 }
 
 function upload_stemcell() {
-  bosh upload-stemcell "${ROOT}/bosh-lite-stemcell/stemcell.tgz"
+  bosh upload-stemcell "${ROOT}/gcp-stemcell/stemcell.tgz"
 }
 
 function upload_dependencies() {
@@ -56,7 +38,7 @@ function create_and_upload_release() {
 
 function update_cloud_config() {
   set +e
-  bosh -n update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
+    bosh -n update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
   set -e
 }
 
@@ -78,20 +60,7 @@ function destroy_boshlite() {
   done
 
   bosh -n clean-up --all
-
-  bosh -n delete-env \
-    --vars-store ${ROOT}/bosh-vars.yml \
-    --state ${ROOT}/bosh-state.yml \
-    -o ${ROOT}/bosh-deployment/gcp/cpi.yml \
-    -o ${ROOT}/bosh-deployment/bosh-lite.yml \
-    -o ${ROOT}/bosh-deployment/external-ip-not-recommended.yml \
-    -o ${ROOT}/bosh-deployment/gcp/bosh-lite-vm-type.yml \
-    -o ${ROOT}/bosh-deployment/jumpbox-user.yml \
-    -o ${ROOT}/bosh-deployment/bosh-lite-runc.yml \
-    --vars-file <(bbl --state-dir ${ROOT} bosh-deployment-vars) \
-    ${ROOT}/bosh-deployment/bosh.yml
-
-  bbl --state-dir ${ROOT} destroy --no-confirm
+  bbl --state-dir ${BBL_STATE_DIR} destroy --no-confirm
 }
 
 trap destroy_boshlite EXIT

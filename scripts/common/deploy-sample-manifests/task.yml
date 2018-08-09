@@ -8,9 +8,8 @@ image_resource:
 
 inputs:
   - name: ci
-  - name: bosh-deployment
   - name: release
-  - name: bosh-lite-stemcell
+  - name: gcp-stemcell
 
 params:
   BBL_GCP_SERVICE_ACCOUNT_KEY:
