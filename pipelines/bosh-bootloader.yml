@@ -771,6 +771,7 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
+      BBL_UP_TIMEOUT: 80m
 
 - name: openstack-acceptance-tests
   serial: true
@@ -1060,6 +1061,7 @@ jobs:
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
+      BBL_UP_TIMEOUT: 80m
 
 - name: openstack-acceptance-tests-bump-deployments
   serial: true
