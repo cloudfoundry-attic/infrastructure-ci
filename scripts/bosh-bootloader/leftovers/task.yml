@@ -7,7 +7,6 @@ image_resource:
     repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
 
 inputs:
-- name: bosh-bootloader
 - name: ci
 
 run:
