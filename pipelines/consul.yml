@@ -4,7 +4,6 @@ groups:
   jobs:
   - check-git-submodules
   - deploy-sample-manifest
-  - deploy-sample-manifest
   - merge-master-into-develop
   - releasable
   - create-final-release
