@@ -8,7 +8,6 @@ function main() {
   upload_stemcell
   upload_dependencies
   create_and_upload_release
-  update_cloud_config
   deploy_manifests
 }
 
@@ -35,12 +34,6 @@ function create_and_upload_release() {
     bosh -n create-release --force
     bosh -n upload-release
   popd > /dev/null
-}
-
-function update_cloud_config() {
-  set +e
-    bosh -n update-cloud-config "${ROOT}/release/${CLOUD_CONFIG}"
-  set -e
 }
 
 function deploy_manifests() {
