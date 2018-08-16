@@ -114,7 +114,6 @@ jobs:
     - get: release-repo
       resource: consul-release-develop
       passed: [releasable]
-      trigger: true
     - get: release-repo-master
       resource: consul-release-master
     - get: oss-s3-buckets-stack
