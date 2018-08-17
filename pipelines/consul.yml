@@ -5,6 +5,7 @@ groups:
   - check-git-submodules
   - deploy-sample-manifest
   - merge-master-into-develop
+  - deploy-cf
   - releasable
   - create-final-release
 
@@ -14,6 +15,27 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+- name: infrastructure-ci-bbl-states
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
+    private_key: {{cf_infra_bot_user_github_private_key}}
+
+- name: cf-deployment-concourse-tasks-bbl-dev
+  type: docker-image
+  source:
+    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: cf-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: bosh-deployment
   type: git
@@ -48,6 +70,12 @@ resources:
     branch: develop
     private_key: {{consul-release-private-key}}
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
+
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
 - name: oss-s3-buckets-stack
   type: git
@@ -95,6 +123,255 @@ jobs:
       BBL_GCP_ZONE: {{gcp_zone}}
       CLOUD_CONFIG: manifests/cloud_config.yml
       MANIFESTS: manifests/multi-az-with-ssl.yml
+
+- name: deploy-cf
+  serial: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: infrastructure-ci-bbl-states
+    - get: cf-deployment-concourse-tasks-bbl-dev
+    - get: ci
+      resource: infrastructure-ci
+    - get: cf-deployment
+    - get: ops-files
+      resource: cf-deployment
+    - get: vars-files
+      resource: infrastructure-ci-bbl-states
+    - get: vars-store
+      resource: infrastructure-ci-bbl-states
+  - task: bbl-leftovers
+    file: ci/scripts/bosh-bootloader/leftovers/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_ENV_NAME: cf-with-consul
+      BBL_STATE_DIR: cf-with-consul
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      BBL_GCP_REGION: {{gcp_region}}
+      BBL_LB_CERT: {{cf_with_consul_lb_cert}}
+      BBL_LB_KEY: {{cf_with_consul_lb_private_key}}
+      LB_DOMAIN: cf-with-consul.infrastructure.cf-app.com
+      BBL_ENV_NAME: cf-with-consul
+      BBL_STATE_DIR: cf-with-consul
+      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
+      GIT_COMMIT_USERNAME: CI Infra Bot
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+      bbl-config: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev
+      params:
+        BBL_STATE_DIR: cf-with-consul
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      input_mapping:
+        bbl-state: updated-bbl-state
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
+  - task: add-to-gcp-dns
+    file: ci/scripts/common/manage-gcp-dns/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    params:
+      BBL_STATE_DIR: cf-with-consul
+      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_ZONE_NAME: infrastructure
+      GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
+      ACTION: add
+    input_mapping:
+      bbl-states-repo: updated-bbl-state
+    on_failure:
+      task: destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+      image: cf-deployment-concourse-tasks-bbl-dev
+      input_mapping:
+        bbl-state: updated-bbl-state
+      params:
+        BBL_STATE_DIR: cf-with-consul
+        BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: cf-with-consul
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      INFRASTRUCTURE: google
+    on_failure:
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+        ensure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-bbl-state
+  - task: deploy-cf
+    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    input_mapping:
+      bbl-state: updated-bbl-state
+    params:
+      BBL_STATE_DIR: cf-with-consul
+      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      SYSTEM_DOMAIN: cf-with-consul.infrastructure.cf-app.com
+      VARS_STORE_FILE: cf-with-consul/deployment-vars.yml
+      OPS_FILES: "operations/use-compiled-releases.yml operations/scale-to-one-az.yml operations/workaround/use-4-azs-for-router.yml"
+    on_failure:
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+        ensure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-bbl-state
+  - task: smoke-tests
+    image: cf-deployment-concourse-tasks-bbl-dev
+    input_mapping:
+      bbl-state: updated-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "cd bbl-state/cf-with-consul/ && eval \"$(bbl print-env)\" && bosh -d cf run-errand smoke-tests"
+    ensure:
+      do:
+      - task: remove-from-gcp-dns
+        file: ci/scripts/common/manage-gcp-dns/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
+          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_ZONE_NAME: infrastructure
+          GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
+          ACTION: remove
+        input_mapping:
+          bbl-states-repo: updated-bbl-state
+      - task: delete-cf-deployment
+        file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      - task: bosh-cleanup
+        file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          CLEAN_ALL: true
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: cf-with-consul
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-bbl-state
+
+# - name: run-cats
+#   serial: true
+#   plan:
+#   - aggregate:
+#     - get: repo
+#       resource: consul-release-develop
+#       passed: [deploy-sample-manifest]
+#       trigger: true
+#     - get: cf-deployment-concourse-tasks
+#   - task: run-cats
+#     file: cf-deployment-concourse-tasks/run-cats/task.yml
+#     params:
 
 - name: releasable
   serial: true
