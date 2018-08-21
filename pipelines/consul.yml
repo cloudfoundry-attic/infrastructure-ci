@@ -140,6 +140,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: release-repo
+      resource: consul-release-develop
+    - get: oss-s3-buckets-stack
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-docker-image
@@ -149,6 +152,10 @@ jobs:
       BBL_GCP_REGION: {{gcp_region}}
       BBL_ENV_NAME: cf-with-consul
       BBL_STATE_DIR: cf-with-consul
+  - task: create-final-release
+    file: ci/scripts/common/create-final-release/task.yml
+    params:
+      RELEASE_NAME: consul
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-docker-image
