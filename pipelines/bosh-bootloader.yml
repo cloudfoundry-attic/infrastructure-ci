@@ -220,8 +220,8 @@ resources:
   source:
     bucket: bbl-nat-amis-list
     versioned_file: bbl-nat-amis/ami-list.json
-    access_key_id: {{bbl_acceptance_tests_s3_access_key_id}}
-    secret_access_key: {{bbl_acceptance_tests_s3_secret_access_key}}
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
 
 - name: version
   type: semver
@@ -230,8 +230,8 @@ resources:
     driver: s3
     bucket: bbl-version
     key: bbl-version
-    access_key_id: {{bbl_version_s3_access_key_id}}
-    secret_access_key: {{bbl_version_s3_secret_access_key}}
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
 
 - name: bbl-cli-dev-bump-deployments
   type: s3
@@ -256,8 +256,8 @@ resources:
     driver: s3
     bucket: bbl-version
     key: bbl-dev-version
-    access_key_id: {{bbl_version_s3_access_key_id}}
-    secret_access_key: {{bbl_version_s3_secret_access_key}}
+    access_key_id: {{aws_access_key_id}}
+    secret_access_key: {{aws_secret_access_key}}
 
 - name: bbl-release
   type: github-release
