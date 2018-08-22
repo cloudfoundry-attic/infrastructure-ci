@@ -6,7 +6,6 @@ groups:
   - deploy-sample-manifest
   - merge-master-into-develop
   - deploy-cf
-  - releasable
   - create-final-release
 
 resources:
@@ -140,9 +139,10 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: release-repo
+    - get: release
       resource: consul-release-develop
-    - get: oss-s3-buckets-stack
+      trigger: true
+      passed: [deploy-sample-manifest]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-docker-image
@@ -152,10 +152,6 @@ jobs:
       BBL_GCP_REGION: {{gcp_region}}
       BBL_ENV_NAME: cf-with-consul
       BBL_STATE_DIR: cf-with-consul
-  - task: create-final-release
-    file: ci/scripts/common/create-final-release/task.yml
-    params:
-      RELEASE_NAME: consul
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-docker-image
@@ -250,7 +246,7 @@ jobs:
             rebase: true
             repository: updated-bbl-state
   - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     image: cf-deployment-concourse-tasks-docker-image
     input_mapping:
       bbl-state: updated-bbl-state
@@ -363,15 +359,6 @@ jobs:
             rebase: true
             repository: updated-bbl-state
 
-- name: releasable
-  serial: true
-  plan:
-  - aggregate:
-    - get: consul-release-develop
-      passed:
-      - deploy-sample-manifest
-      trigger: true
-
 - name: create-final-release
   serial: true
   plan:
@@ -380,7 +367,7 @@ jobs:
       resource: infrastructure-ci
     - get: release-repo
       resource: consul-release-develop
-      passed: [releasable]
+      passed: [deploy-cf]
     - get: release-repo-master
       resource: consul-release-master
     - get: oss-s3-buckets-stack
