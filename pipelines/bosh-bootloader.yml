@@ -2453,7 +2453,7 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_ENV_NAME: bbl-gcp-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
@@ -2466,7 +2466,7 @@ jobs:
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       BBL_LB_TYPE: concourse
-      BBL_ENV_NAME: bbl-gcp-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
@@ -2585,7 +2585,7 @@ jobs:
       BBL_AZURE_CLIENT_ID: {{azure_client_id}}
       BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
       BBL_AZURE_REGION: {{azure_location}}
-      BBL_ENV_NAME: bbl-azure-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
@@ -2600,7 +2600,7 @@ jobs:
       BBL_LB_CERT: {{azure_lb_cert}}
       BBL_LB_KEY: {{azure_lb_key}}
       BBL_LB_TYPE: concourse
-      BBL_ENV_NAME: bbl-azure-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
@@ -2724,7 +2724,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
-      BBL_ENV_NAME: bbl-aws-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-aws-concourse
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2736,7 +2736,7 @@ jobs:
       BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
       BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
       BBL_LB_TYPE: concourse
-      BBL_ENV_NAME: bbl-aws-concourse-bump-deployments
+      BBL_ENV_NAME: bump-deployments-aws-concourse
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
@@ -2855,7 +2855,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-      BBL_ENV_NAME: bbl-aws-cf-bump-deployments
+      BBL_ENV_NAME: bump-deployments-aws-cf
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2865,7 +2865,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-      BBL_ENV_NAME: bbl-aws-cf-bump-deployments
+      BBL_ENV_NAME: bump-deployments-aws-cf
       LB_DOMAIN: bbl-aws-cf-bump-deployments.infrastructure.cf-app.com
       BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
       BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
@@ -2999,7 +2999,7 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_CONFIG_DIR: plan-patches/bosh-lite-gcp
-      BBL_ENV_NAME: bbl-lite-gcp-bump-deployments
+      BBL_ENV_NAME: bump-deployments-lite-gcp
       BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
       SKIP_LB_CREATION: true
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
@@ -3164,7 +3164,7 @@ jobs:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
       BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_ENV_NAME: bbl-downstream-bump-deployments
+      BBL_ENV_NAME: bump-deployments-downstream
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
@@ -3176,7 +3176,7 @@ jobs:
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
       LB_DOMAIN: bbl-downstream-bump-deployments.infrastructure.cf-app.com
-      BBL_ENV_NAME: bbl-downstream-bump-deployments
+      BBL_ENV_NAME: bump-deployments-downstream
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
