@@ -12,13 +12,7 @@ stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
 # generate-config
-texplate execute "${configure_om_dir}/config-director-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/director-config.yml"
 texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
-
-# configure authentication
-set +x
-  om -t "https://${opsman_dns}" -k configure-authentication -u "${OM_USERNAME}" -p "${OM_PASSWORD}" -dp "${OM_PASSWORD}"
-set -x
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
@@ -26,5 +20,4 @@ om -t "https://${opsman_dns}" -k upload-product --product "${product}"
 om -t "https://${opsman_dns}" -k stage-product --product-name cf --product-version "${version}"
 
 # configure-product
-om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.yml"
 om -t "https://${opsman_dns}" -k configure-product -n cf --config "${cwd}/product-config.yml"

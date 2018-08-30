@@ -163,6 +163,11 @@ jobs:
     input_mapping:
       terraform-state: env-state-gcp
     timeout: 5m
+  - task: configure-director
+    file: ci/scripts/terraforming/gcp/configure-bosh-director/task.yml
+    params:
+      OM_USERNAME: {{om_username}}
+      OM_PASSWORD: {{om_password}}
   - task: upload-configure-stage
     file: ci/scripts/terraforming/gcp/upload-configure-stage/task.yml
     params:
