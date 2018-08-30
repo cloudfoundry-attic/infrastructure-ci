@@ -177,7 +177,7 @@ jobs:
       OM_PASSWORD: {{om_password}}
       PRODUCT_FILE_NAME: srt
       PRODUCT_NAME: cf
-      PRODUCT_CONFIG_TEMPLATE: srt-config-template.yml
+      PRODUCT_CONFIG_TEMPLATE: ci/scripts/terraforming/gcp/upload-configure-stage/srt-config-template.yml
     input_mapping:
       env-state: env-state-gcp
 

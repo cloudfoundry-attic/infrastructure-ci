@@ -1,7 +1,6 @@
 #!/bin/bash -exu
 
 cwd=${PWD}
-configure_om_dir="${PWD}/ci/scripts/terraforming/gcp/upload-configure-stage"
 
 pushd "${PRODUCT_FILE_NAME}"
   version="$(unzip -p *.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
@@ -12,7 +11,7 @@ stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
 # generate-config
-texplate execute "${configure_om_dir}/${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
+texplate execute "${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
