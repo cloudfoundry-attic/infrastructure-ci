@@ -1,7 +1,7 @@
 FROM python:3.6.5-jessie
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
-ENV OM_VERSION 0.37.0
+ENV OM_VERSION 0.40.0
 ENV TERRAFORM_VERSION 0.11.7
 
 RUN \
