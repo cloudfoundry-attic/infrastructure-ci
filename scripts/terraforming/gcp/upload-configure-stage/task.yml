@@ -11,7 +11,7 @@ inputs:
 - name: ci
 - name: stemcell
 - name: product
-- name: product-config
+- name: product-config-repo
 
 run:
   path: ci/scripts/terraforming/gcp/upload-configure-stage/task

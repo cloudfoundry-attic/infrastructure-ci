@@ -12,7 +12,7 @@ opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 export ENV_NAME="$(cat env-state/name)"
 
 # generate-config
-texplate execute "${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
+texplate execute "${cwd}/product-config-repo/${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
