@@ -3,21 +3,21 @@
 cwd=${PWD}
 configure_om_dir="${PWD}/ci/scripts/terraforming/gcp/upload-configure-stage"
 
-pushd srt
-  version="$(unzip -p srt*.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
+pushd "${PRODUCT_FILE_NAME}"
+  version="$(unzip -p *.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
 popd
 
-product="$(ls -1 "${cwd}"/srt/srt*.pivotal)"
+product="$(ls -1 "${cwd}"/${PRODUCT_FILE_NAME}/*.pivotal)"
 stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
 # generate-config
-texplate execute "${configure_om_dir}/config-product-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
+texplate execute "${configure_om_dir}/${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
 om -t "https://${opsman_dns}" -k upload-product --product "${product}"
-om -t "https://${opsman_dns}" -k stage-product --product-name cf --product-version "${version}"
+om -t "https://${opsman_dns}" -k stage-product --product-name "${PRODUCT_NAME}" --product-version "${version}"
 
 # configure-product
-om -t "https://${opsman_dns}" -k configure-product -n cf --config "${cwd}/product-config.yml"
+om -t "https://${opsman_dns}" -k configure-product -n "${PRODUCT_NAME}" --config "${cwd}/product-config.yml"
