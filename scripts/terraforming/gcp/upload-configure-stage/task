@@ -2,11 +2,11 @@
 
 cwd=${PWD}
 
-pushd "${PRODUCT_FILE_NAME}"
+pushd product
   version="$(unzip -p *.pivotal 'metadata/*.yml' | grep '^product_version:' | cut -d" " -f2 | sed 's/"//g')"
 popd
 
-product="$(ls -1 "${cwd}"/${PRODUCT_FILE_NAME}/*.pivotal)"
+product="$(ls -1 "${cwd}"/product/*.pivotal)"
 stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 export ENV_NAME="$(cat env-state/name)"

@@ -10,7 +10,7 @@ inputs:
 - name: env-state
 - name: ci
 - name: stemcell
-- name: srt
+- name: product
 
 run:
   path: ci/scripts/terraforming/gcp/upload-configure-stage/task
@@ -18,6 +18,5 @@ run:
 params:
   OM_USERNAME:
   OM_PASSWORD:
-  PRODUCT_FILE_NAME:
   PRODUCT_NAME:
   PRODUCT_CONFIG_TEMPLATE:
