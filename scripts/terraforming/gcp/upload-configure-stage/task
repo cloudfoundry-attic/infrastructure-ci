@@ -11,7 +11,6 @@ stemcell="$(ls -1 "${cwd}"/stemcell/*.tgz)"
 opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 export ENV_NAME="$(cat env-state/name)"
 
-
 # generate-config
 texplate execute "${PRODUCT_CONFIG_TEMPLATE}" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/product-config.yml"
 
