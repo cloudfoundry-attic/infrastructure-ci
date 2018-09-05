@@ -632,7 +632,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-release-candidate]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
@@ -640,6 +639,7 @@ jobs:
       passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
+      trigger: true
   - aggregate:
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -689,7 +689,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-release-candidate]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
@@ -697,6 +696,7 @@ jobs:
       passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
+      trigger: true
   - aggregate:
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -743,7 +743,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-release-candidate]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
@@ -751,6 +750,7 @@ jobs:
       passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
+      trigger: true
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
@@ -781,7 +781,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-release-candidate]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
@@ -789,6 +788,7 @@ jobs:
       passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
+      trigger: true
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
@@ -819,7 +819,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-release-candidate]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: bbl-version
@@ -827,6 +826,7 @@ jobs:
       passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
+      trigger: true
   - aggregate:
     - task: bbl-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -1239,7 +1239,6 @@ jobs:
           - gcp-acceptance-tests
           - vsphere-acceptance-tests
           - openstack-acceptance-tests
-        trigger: true
       - get: bbl-version
         resource: dev-version
         passed:
@@ -1249,6 +1248,7 @@ jobs:
           - vsphere-acceptance-tests
           - openstack-acceptance-tests
       - get: bbl-cli-dev
+        trigger: true
         passed:
           - aws-acceptance-tests
           - azure-acceptance-tests
@@ -1283,7 +1283,6 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-infrastructure
     - get: infrastructure-ci-bbl-states
@@ -1299,6 +1298,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ubuntu-xenial-stemcell-azure
     - get: test-concourse-vars
   - task: bbl-leftovers
@@ -1421,7 +1421,6 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [build-bbl-state-docker]
-      trigger: true
     - get: ubuntu-xenial-stemcell-gcp
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
@@ -1431,6 +1430,7 @@ jobs:
       passed: [build-bbl-state-docker]
     - get: bbl-cli-dev
       passed: [build-bbl-state-docker]
+      trigger: true
     - get: concourse-secrets
     - get: test-concourse-vars
   - do:
@@ -1497,7 +1497,6 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cf-deployment-concourse-tasks-infrastructure
     - get: infrastructure-ci-bbl-states
@@ -1513,6 +1512,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ubuntu-xenial-stemcell-aws
     - get: test-concourse-vars
   - task: bbl-leftovers
@@ -1622,7 +1622,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      trigger: true
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
@@ -1631,6 +1630,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
   - aggregate:
@@ -1749,7 +1749,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
@@ -1769,6 +1768,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1893,7 +1893,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
@@ -1913,6 +1912,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2058,7 +2058,6 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
@@ -2078,6 +2077,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2301,7 +2301,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2333,6 +2332,7 @@ jobs:
       - bbl-lite-gcp
       - validate-plan-patches
     - get: bbl-cli-dev
+      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2357,7 +2357,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2391,6 +2390,7 @@ jobs:
       - bbl-lite-gcp
       - validate-plan-patches
     - get: bbl-cli-dev
+      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
