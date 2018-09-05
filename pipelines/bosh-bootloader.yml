@@ -98,12 +98,6 @@ resources:
     secret_access_key: {{aws_secret_access_key}}
     region_name: us-west-2
 
-- name: ubuntu-trusty-stemcell-gcp
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-trusty-go_agent
-    version_family: 3586.latest
-
 - name: ubuntu-xenial-stemcell-gcp
   type: bosh-io-stemcell
   source:
@@ -482,7 +476,7 @@ jobs:
       passed:
         - build-bbl-state-docker
     - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell-gcp
+    - get: ubuntu-xenial-stemcell-gcp
   - put: bbl-state-up
     resource: test-bbl-state
     params:
@@ -531,7 +525,7 @@ jobs:
       passed:
         - build-bbl-state-docker
     - get: cfcr-compiled-git
-    - get: ubuntu-trusty-stemcell-gcp
+    - get: ubuntu-xenial-stemcell-gcp
   - do:
     - put: test-bbl-state
       params:
