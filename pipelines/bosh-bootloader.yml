@@ -18,6 +18,7 @@ groups:
   - bbl-aws-concourse
   - bbl-azure-concourse
   - validate-plan-patches
+  - minor
   - major
   - bbl-up-gcp-concourse-director
   - bbl-up-vsphere-concourse-director
@@ -3535,13 +3536,6 @@ jobs:
       body: bbl-cli-dev/body
       globs:
       - bbl-cli-dev/bin/bbl-*
-  - put: bbl-version
-    resource: version
-    params:
-      bump: minor
-  - put: dev-version
-    params:
-      bump: minor
 
 - name: github-release-bump-deployments
   serial: true
@@ -3603,6 +3597,13 @@ jobs:
     params: {bump: major}
   - put: dev-version
     params: {bump: major}
+
+- name: minor
+  plan:
+  - put: version
+    params: {bump: minor}
+  - put: dev-version
+    params: {bump: minor}
 
 - name: bump-nat-amis
   plan:
