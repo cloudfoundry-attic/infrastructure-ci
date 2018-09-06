@@ -3170,7 +3170,7 @@ jobs:
       BBL_GCP_REGION: {{bbl_gcp_region}}
       BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
       BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
-      LB_DOMAIN: bbl-downstream-bump-deployments.infrastructure.cf-app.com
+      LB_DOMAIN: bump-deployments-cf.infrastructure.cf-app.com
       BBL_ENV_NAME: bump-deployments-downstream
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
