@@ -33,23 +33,29 @@ function main() {
   local zone_info
   zone_info=$(gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets list -z "${GCP_DNS_ZONE_NAME}" --filter "${GCP_DNS_RECORD_SET_NAME}" 2> /dev/null)
 
-  if [[ "${ACTION}" = "add" && -n "${zone_info}" ]]; then
-    echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" already exists in zone \"${GCP_DNS_ZONE_NAME}\"."
-    return
-  fi
 
-  if [[ "${ACTION}" = "remove" && -z "${zone_info}" ]]; then
-    echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" not found in zone \"${GCP_DNS_ZONE_NAME}\"."
-    return
-  fi
-
+ if [[ "${ACTION}" = "remove" && -z "${zone_info}" ]]; then
+   echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" not found in zone \"${GCP_DNS_ZONE_NAME}\"."
+   return
+ fi
 
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
-  gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction "${ACTION}" -z "${GCP_DNS_ZONE_NAME}" \
+  gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction remove -z "${GCP_DNS_ZONE_NAME}" \
     --name "${GCP_DNS_RECORD_SET_NAME}" \
     --ttl "${GCP_DNS_RECORD_TTL}" \
     --type NS \
     "${dns_servers[@]}"
+
+  if [[ "${ACTION}" = "add" && -n "${zone_info}" ]]; then
+    echo "DNS entry for \"${GCP_DNS_RECORD_SET_NAME}\" already exists in zone \"${GCP_DNS_ZONE_NAME}\"."
+
+    gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction add -z "${GCP_DNS_ZONE_NAME}" \
+      --name "${GCP_DNS_RECORD_SET_NAME}" \
+      --ttl "${GCP_DNS_RECORD_TTL}" \
+      --type NS \
+      "${dns_servers[@]}"
+  fi
+
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction execute -z "${GCP_DNS_ZONE_NAME}"
 }
 
