@@ -3,6 +3,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ENV OM_VERSION 0.40.0
 ENV TERRAFORM_VERSION 0.11.7
+ENV BOSH_CLI_VERSION 5.1.2
 
 RUN \
       apt-get update && \
@@ -42,6 +43,11 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
   echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
   apt-get update -y && apt-get install google-cloud-sdk -y
+
+# Install bosh_cli v2
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 && \
+  mv bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 /usr/local/bin/bosh && \
+  chmod +x /usr/local/bin/bosh
 
 # Install yq
 RUN pip install yq
