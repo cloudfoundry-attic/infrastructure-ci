@@ -98,6 +98,7 @@ jobs:
         - ci/operations/ci-uaa-clients.yml
         - concourse-deployment/cluster/operations/credhub.yml
         - ci/operations/ci-credhub.yml
+        - ci/operations/update.yml
       skip_drain:
         - worker
 
