@@ -35,9 +35,9 @@
         ca_certificate: "((atc_ca.certificate))"
         data_storage:
           type: postgres
-          database: credhub
-          username: credhub
-          password: ((credhub_db_password))
+          database: &credhub_db credhub
+          username: *credhub_db
+          password: &credhub_db_password ((credhub_db_password))
           require_tls: false
         encryption:
           keys:
