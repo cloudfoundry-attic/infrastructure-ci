@@ -93,6 +93,8 @@ jobs:
         - concourse-deployment/cluster/operations/web-network-extension.yml
         - concourse-deployment/cluster/operations/worker-ephemeral-disk.yml
         - concourse-deployment/cluster/operations/scale.yml
+      skip_drain:
+        - worker
 
 - name: update-concourse-vsphere-worker
   interruptible: true
