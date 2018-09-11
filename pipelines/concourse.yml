@@ -93,6 +93,9 @@ jobs:
         - concourse-deployment/cluster/operations/web-network-extension.yml
         - concourse-deployment/cluster/operations/worker-ephemeral-disk.yml
         - concourse-deployment/cluster/operations/scale.yml
+        - concourse-deployment/cluster/operations/credhub.yml
+        - concourse-deployment/cluster/operations/uaa.yml
+        - ci/operations/ci-uaa-clients.yml
       skip_drain:
         - worker
 

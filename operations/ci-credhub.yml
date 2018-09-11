@@ -1,0 +1,54 @@
+# release
+- type: replace
+  path: /releases/-
+  value:
+    name: credhub
+    url: https://bosh.io/d/github.com/cloudfoundry/uaa-release?v=((credhub_version))
+    sha1: ((credhub_sha1))
+    version: ((credhub_version))
+
+# update postgres job to have credhub database
+- type: replace
+  path: /instance_groups/name=db/jobs/name=postgres/properties/databases/databases/-
+  value:
+    name: *credhub_db
+- type: replace
+  path: /instance_groups/name=db/jobs/name=postgres/properties/databases/roles/-
+  value:
+    name: *credhub_db
+    password: *credhub_db_password
+
+# add CredHub job to web instance group
+- type: replace
+  path: /instance_groups/name=web/jobs/-
+  value:
+    name: credhub
+    release: credhub
+    consumes: {database: {from: db}}
+    properties:
+      credhub:
+        authentication:
+          uaa:
+            ca_certs:
+            - "((atc_ca.certificate))"
+            url: https://((web_ip)):8443
+        ca_certificate: "((atc_ca.certificate))"
+        data_storage:
+          type: postgres
+          database: credhub
+          username: credhub
+          password: ((credhub_db_password))
+          require_tls: false
+        encryption:
+          keys:
+          - active: true
+            key_properties:
+              encryption_password: ((credhub_encryption_password))
+            provider_name: internal
+          providers:
+          - name: internal
+            type: internal
+        port: 8844
+        tls:
+          certificate: ((atc_tls.certificate))
+          private_key: ((atc_tls.private_key))

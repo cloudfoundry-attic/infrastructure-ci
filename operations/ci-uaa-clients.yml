@@ -1,0 +1,19 @@
+- type: replace
+  path: /instance_groups/name=web/jobs/name=uaa/properties/uaa/clients?
+  value:
+    concourse_to_credhub:
+      access-token-validity: 1200
+      authorities: credhub.read,credhub.write
+      authorized-grant-types: client_credentials
+      override: true
+      refresh-token-validity: 3600
+      scope: ""
+      secret: ((concourse_to_credhub_secret))
+    credhub_cli:
+      access-token-validity: 1200
+      authorities: uaa.resource
+      authorized-grant-types: password,refresh_token
+      override: true
+      refresh-token-validity: 3600
+      scope: credhub.read,credhub.write
+      secret: ""
