@@ -30,9 +30,9 @@
         authentication:
           uaa:
             ca_certs:
-            - "((atc_ca.certificate))"
+            - ((atc_ca.certificate))
             url: https://((web_ip)):8443
-        ca_certificate: "((atc_ca.certificate))"
+        ca_certificate: ((atc_tls.ca))
         data_storage:
           type: postgres
           database: &credhub_db credhub

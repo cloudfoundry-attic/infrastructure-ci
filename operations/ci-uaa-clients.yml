@@ -11,7 +11,7 @@
       secret: ((concourse_to_credhub_secret))
     credhub_cli:
       access-token-validity: 1200
-      authorities: uaa.resource
+      authorities: ""
       authorized-grant-types: password,refresh_token
       override: true
       refresh-token-validity: 3600
