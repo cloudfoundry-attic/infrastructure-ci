@@ -168,6 +168,7 @@ jobs:
     params:
       OM_USERNAME: {{om_username}}
       OM_PASSWORD: {{om_password}}
+      GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
     input_mapping:
       env-state: env-state-gcp
   - task: upload-configure-stage-srt
