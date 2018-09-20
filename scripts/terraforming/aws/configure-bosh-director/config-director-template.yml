@@ -10,7 +10,7 @@ iaas-configuration:
   vpc_id: {{.vpc_id}}
   security_group: {{.ops_manager_security_group_id}}
   key_pair_name: {{.ops_manager_ssh_public_key_name}}
-  ssh_private_key: {{ toJson .ops_manager_sh_private_key }}
+  ssh_private_key: {{ toJson .ops_manager_ssh_private_key }}
   region: {{.region}}
 network-assignment:
   network:
