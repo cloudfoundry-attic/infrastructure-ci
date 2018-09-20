@@ -1,0 +1,17 @@
+#!/bin/bash -exu
+
+cwd=${PWD}
+configure_director_dir="${cwd}/ci/scripts/terraforming/aws/configure-bosh-director"
+
+opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
+
+# generate-config
+texplate execute "${configure_director_dir}/config-director-template.yml" -f "${cwd}/env-state/metadata" -o yaml > "${cwd}/director-config.yml"
+
+# configure authentication
+set +x
+  om -t "https://${opsman_dns}" -k configure-authentication -dp "${OM_PASSWORD}"
+set -x
+
+# configure-product
+om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.yml"
