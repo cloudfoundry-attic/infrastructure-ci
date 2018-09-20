@@ -34,7 +34,7 @@ networks-configuration:
     - availability_zone_names:
       - {{index .azs 0}}
       cidr: {{index .pas_subnet_cidrs 0}}
-      dns: {{cidrhost (index .pas_subnet_gateways 0) 2}}
+      dns: {{cidrhost (index .pas_subnet_cidrs 0) 2}}
       gateway: {{index .pas_subnet_gateways 0}}
       iaas_identifier: {{index .pas_subnet_ids 0}}
       reserved_ip_ranges: {{cidrhost (index .pas_subnet_cidrs 0) 0}}-{{cidrhost (index .pas_subnet_cidrs 0) 4}}
