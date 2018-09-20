@@ -11,7 +11,7 @@ inputs:
 - name: env-state
 
 run:
-  path: ci/scripts/terraforming/gcp/deploy-srt/task
+  path: ci/scripts/terraforming/apply-changes/task
 
 params:
   OM_USERNAME:
