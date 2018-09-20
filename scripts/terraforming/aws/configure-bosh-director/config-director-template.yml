@@ -14,7 +14,7 @@ iaas-configuration:
   region: {{.region}}
 network-assignment:
   network:
-    name: {{.network_name}}
+    name: ops-manager
   singleton_availability_zone:
     name: {{index .azs 0}}
 networks-configuration:
