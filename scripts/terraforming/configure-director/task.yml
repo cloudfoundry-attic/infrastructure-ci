@@ -9,10 +9,12 @@ image_resource:
 inputs:
 - name: env-state
 - name: ci
+- name: director-config-template
 
 run:
-  path: ci/scripts/terraforming/aws/configure-bosh-director/task
+  path: ci/scripts/terraforming/gcp/configure-bosh-director/task
 
 params:
+  TEMPLATE_PATH:
   OM_USERNAME:
   OM_PASSWORD:

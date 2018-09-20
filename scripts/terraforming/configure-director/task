@@ -1,0 +1,18 @@
+#!/bin/bash -exu
+
+main() {
+  local cwd=${PWD}
+  local opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
+
+  texplate execute "${TEMPLATE_PATH}" \
+    -f "${cwd}/env-state/metadata" \
+    -o yaml > "${cwd}/director-config.yml"
+
+  set +x
+    om -t "https://${opsman_dns}" -k configure-authentication -dp "${OM_PASSWORD}"
+  set -x
+
+  om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.yml"
+}
+
+main "$@"
