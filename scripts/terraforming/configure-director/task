@@ -6,7 +6,7 @@ main() {
 
   texplate execute "${TEMPLATE_PATH}" \
     -f "${cwd}/env-state/metadata" \
-    -o yaml > "${cwd}/director-config-template/director-config.yml"
+    -o yaml > "${cwd}/director-config.yml"
 
   set +x
     om -t "https://${opsman_dns}" -k configure-authentication -dp "${OM_PASSWORD}"
