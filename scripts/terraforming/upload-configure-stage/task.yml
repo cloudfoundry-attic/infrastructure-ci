@@ -14,7 +14,7 @@ inputs:
 - name: product-config-repo
 
 run:
-  path: ci/scripts/terraforming/gcp/upload-configure-stage/task
+  path: ci/scripts/terraforming/upload-configure-stage/task
 
 params:
   OM_USERNAME:

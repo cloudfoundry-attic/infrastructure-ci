@@ -169,11 +169,11 @@ jobs:
     input_mapping:
       env-state: env-state-gcp
   - task: upload-configure-stage-srt
-    file: ci/scripts/terraforming/gcp/upload-configure-stage/task.yml
+    file: ci/scripts/terraforming/upload-configure-stage/task.yml
     params:
       <<: *om-creds
       PRODUCT_NAME: cf
-      PRODUCT_CONFIG_TEMPLATE: scripts/terraforming/gcp/upload-configure-stage/srt-config-template.yml
+      PRODUCT_CONFIG_TEMPLATE: scripts/terraforming/upload-configure-stage/srt-config-template.yml
     input_mapping:
       env-state: env-state-gcp
       product: srt
