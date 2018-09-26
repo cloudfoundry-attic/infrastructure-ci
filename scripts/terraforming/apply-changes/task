@@ -2,4 +2,4 @@
 
 opsman_dns=$(jq -r .ops_manager_dns < "${PWD}/env-state/metadata")
 
-om -t "https://${opsman_dns}" -k apply-changes
+om -t "https://${opsman_dns}" -k apply-changes -i ${IGNORE_WARNINGS}

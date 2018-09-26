@@ -14,5 +14,6 @@ run:
   path: ci/scripts/terraforming/apply-changes/task
 
 params:
-  OM_USERNAME:
-  OM_PASSWORD:
+  OM_USERNAME: ""
+  OM_PASSWORD: ""
+  IGNORE_WARNINGS: false
