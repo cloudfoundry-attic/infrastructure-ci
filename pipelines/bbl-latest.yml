@@ -21,10 +21,10 @@ resources:
   type: cf
   source:
     api: https://api.run.pivotal.io
-    username: {{pws_username}}
-    password: {{pws_password}}
-    organization: {{pws_organization}}
-    space: {{pws_space}}
+    username: ((pws_username))
+    password: ((pws_password))
+    organization: ((pws_organization))
+    space: ((pws_space))
 
 jobs:
 - name: unit-tests
@@ -38,7 +38,7 @@ jobs:
   - task: test
     file: ci/scripts/misc/bbl-latest/unit-tests/task.yml
     params:
-      GITHUB_OAUTH_TOKEN: {{github_oauth_token}}
+      GITHUB_OAUTH_TOKEN: ((github_oauth_token))
 - name: deploy-app
   public: true
   plan:

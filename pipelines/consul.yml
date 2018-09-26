@@ -20,7 +20,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
@@ -52,7 +52,7 @@ resources:
   type: git
   source:
     branch: master
-    private_key: {{consul-release-private-key}}
+    private_key: ((consul-release-private-key.private_key))
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
 - name: consul-release-gh
@@ -60,13 +60,13 @@ resources:
   source:
     owner: cloudfoundry-incubator
     repository: consul-release
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
 
 - name: consul-release-merge-target
   type: git
   source:
     branch: develop
-    private_key: {{consul-release-private-key}}
+    private_key: ((consul-release-private-key.private_key))
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
 - name: cf-deployment-concourse-tasks
@@ -80,7 +80,7 @@ resources:
   type: git
   source:
     branch: master
-    private_key: {{oss-s3-buckets-stack-private-key}}
+    private_key: ((oss-s3-buckets-stack-private-key.private_key))
     uri: git@github.com:cloudfoundry/oss-s3-buckets-stack.git
 
 - name: gcp-stemcell
@@ -116,10 +116,10 @@ jobs:
   - task: deploy-sample-manifest
     file: ci/scripts/common/deploy-sample-manifests/task.yml
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{gcp_project_id}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_GCP_ZONE: {{gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_service_account_key))
+      BBL_GCP_PROJECT_ID: ((gcp_project_id))
+      BBL_GCP_REGION: ((gcp_region))
+      BBL_GCP_ZONE: ((gcp_zone))
       CLOUD_CONFIG: manifests/cloud_config.yml
       MANIFESTS: manifests/multi-az-with-ssl.yml
 
@@ -148,8 +148,8 @@ jobs:
     image: cf-deployment-concourse-tasks-docker-image
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      BBL_GCP_REGION: {{gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
+      BBL_GCP_REGION: ((gcp_region))
       BBL_ENV_NAME: cf-with-consul
       BBL_STATE_DIR: cf-with-consul
   - task: bbl-up
@@ -157,10 +157,10 @@ jobs:
     image: cf-deployment-concourse-tasks-docker-image
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      BBL_GCP_REGION: {{gcp_region}}
-      BBL_LB_CERT: {{cf_with_consul_lb_cert}}
-      BBL_LB_KEY: {{cf_with_consul_lb_private_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
+      BBL_GCP_REGION: ((gcp_region))
+      BBL_LB_CERT: ((cf_with_consul_lb_cert.certificate))
+      BBL_LB_KEY: ((cf_with_consul_lb_cert.private_key))
       LB_DOMAIN: cf-with-consul.infrastructure.cf-app.com
       BBL_ENV_NAME: cf-with-consul
       BBL_STATE_DIR: cf-with-consul
@@ -175,7 +175,7 @@ jobs:
       image: cf-deployment-concourse-tasks-docker-image
       params:
         BBL_STATE_DIR: cf-with-consul
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       input_mapping:
         bbl-state: updated-bbl-state
       ensure:
@@ -187,9 +187,9 @@ jobs:
     file: ci/scripts/common/manage-gcp-dns/task.yml
     params:
       BBL_STATE_DIR: cf-with-consul
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+      GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
       ACTION: add
@@ -203,7 +203,7 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: cf-with-consul
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -216,7 +216,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: cf-with-consul
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       INFRASTRUCTURE: google
     on_failure:
       do:
@@ -224,9 +224,9 @@ jobs:
         file: ci/scripts/common/manage-gcp-dns/task.yml
         params:
           BBL_STATE_DIR: cf-with-consul
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
           ACTION: remove
@@ -239,7 +239,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -252,7 +252,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: cf-with-consul
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       SYSTEM_DOMAIN: cf-with-consul.infrastructure.cf-app.com
       VARS_STORE_FILE: cf-with-consul/deployment-vars.yml
       OPS_FILES: "operations/use-compiled-releases.yml operations/scale-to-one-az.yml operations/experimental/fast-deploy-with-downtime-and-danger.yml"
@@ -263,9 +263,9 @@ jobs:
         image: cf-deployment-concourse-tasks-docker-image
         params:
           BBL_STATE_DIR: cf-with-consul
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
           ACTION: remove
@@ -278,7 +278,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-docker-image
@@ -287,7 +287,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-docker-image
@@ -295,7 +295,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -320,9 +320,9 @@ jobs:
         file: ci/scripts/common/manage-gcp-dns/task.yml
         params:
           BBL_STATE_DIR: cf-with-consul
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: cf-with-consul.infrastructure.cf-app.com
           ACTION: remove
@@ -335,7 +335,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-docker-image
@@ -344,7 +344,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-docker-image
@@ -352,7 +352,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: cf-with-consul
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:

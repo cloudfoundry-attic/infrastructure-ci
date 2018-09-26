@@ -17,7 +17,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: concourse-deployment
   type: git
@@ -30,8 +30,8 @@ resources:
   source:
     bucket: infra-concourse-secrets
     versioned_file: concourse-secrets.yml
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
     region_name: us-west-2
 
 - name: prod-concourse-vars
@@ -39,8 +39,8 @@ resources:
   source:
     bucket: infra-concourse-secrets
     versioned_file: prod-concourse-vars.yml
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
     region_name: us-west-2
 
 - name: ubuntu-xenial-stemcell-gcp
@@ -109,33 +109,33 @@ jobs:
     - get: ci
       resource: infrastructure-ci
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
     - get: infrastructure-ci-bbl-states
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
     - get: concourse-deployment
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
     - get: concourse-secrets
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
     - get: ubuntu-xenial-stemcell-vsphere
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
     - get: prod-concourse-vars
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       BBL_STATE_DIR: vsphere-concourse
     input_mapping:
       bbl-states: infrastructure-ci-bbl-states
   - put: concourse-bosh-deployment
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       source_file: source-file/bosh-source.json
       manifest: concourse-deployment/cluster/external-worker.yml

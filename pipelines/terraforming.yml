@@ -17,14 +17,14 @@ resources:
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-azure.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: terraforming-gcp
   type: git
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-gcp.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: env-state-gcp
   type: terraform
@@ -34,8 +34,7 @@ resources:
       bucket: infra-tf-states
       prefix: gcp
       region: us-central1
-      credentials: |
-        {{cf_infra_gcp_service_account_key}}
+      credentials: ((cf_infra_gcp_service_account_key))
 
 - name: opsman-image
   type: pivnet
@@ -58,13 +57,13 @@ resources:
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-vsphere.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: pcf-releng-ci
   type: git
   source:
     uri: git@github.com:pivotal-cf/pcf-releng-ci.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
     ignore_paths:
     - pipelines
     - ci_screen
@@ -81,12 +80,12 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
     branch: master
     pool: terraforming
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 shared:
 - params: &om-creds
-    OM_USERNAME: {{om_username}}
-    OM_PASSWORD: {{om_password}}
+    OM_USERNAME: ((om_username))
+    OM_PASSWORD: ((om_password))
 
 jobs:
 - name: create-env-gcp
@@ -109,10 +108,10 @@ jobs:
   - task: setup-terraform-vars
     file: ci/scripts/terraforming/gcp/setup-terraform-vars/task.yml
     params:
-      GCP_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_SSL_CERT: {{ssl_cert}}
-      GCP_SSL_PRIVATE_KEY: {{ssl_private_key}}
+      GCP_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
+      GCP_SSL_CERT: ((ssl_cert.certificate))
+      GCP_SSL_PRIVATE_KEY: ((ssl_cert.private_key))
   - put: env-state-gcp
     params:
       generate_random_name: true
@@ -148,9 +147,9 @@ jobs:
   - task: add-to-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task-terraforming.yml
     params:
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+      GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_SUFFIX: gcp.infrastructure.cf-app.com
       ACTION: add
@@ -165,7 +164,7 @@ jobs:
     file: ci/scripts/terraforming/gcp/configure-bosh-director/task.yml
     params:
       <<: *om-creds
-      GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
     input_mapping:
       env-state: env-state-gcp
   - task: upload-configure-stage-srt
@@ -220,24 +219,24 @@ jobs:
   - task: setup-terraform-vars
     file: ci/scripts/terraforming/gcp/setup-terraform-vars/task.yml
     params:
-      GCP_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
-      GCP_SSL_CERT: {{ssl_cert}}
-      GCP_SSL_PRIVATE_KEY: {{ssl_private_key}}
+      GCP_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
+      GCP_SSL_CERT: ((ssl_cert))
+      GCP_SSL_PRIVATE_KEY: ((ssl_private_key))
   - task: delete-installation
     file: pcf-releng-ci/tasks/environment/delete-installation/task.yml
     params:
-      OPSMAN_USERNAME: {{om_username}}
-      OPSMAN_PASSWORD: {{om_password}}
+      OPSMAN_USERNAME: ((om_username))
+      OPSMAN_PASSWORD: ((om_password))
       OPSMAN_URL_SUFFIX: gcp.infrastructure.cf-app.com
     input_mapping:
       environment: env-state-gcp
   - task: remove-from-gcp-dns
     file: ci/scripts/common/manage-gcp-dns/task-terraforming.yml
     params:
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+      GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_SUFFIX: gcp.infrastructure.cf-app.com
       ACTION: remove
@@ -267,11 +266,11 @@ jobs:
   - task: apply-and-destroy
     file: ci/scripts/terraforming/azure/task.yml
     params:
-      AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      AZURE_TENANT_ID: {{azure_tenant_id}}
-      AZURE_CLIENT_ID: {{azure_client_id}}
-      AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      AZURE_VM_ADMIN_PASSWORD: {{azure_vm_admin_password}}
+      AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      AZURE_TENANT_ID: ((azure_tenant_id))
+      AZURE_CLIENT_ID: ((azure_client_id))
+      AZURE_CLIENT_SECRET: ((azure_client_secret))
+      AZURE_VM_ADMIN_PASSWORD: ((azure_vm_admin_password))
 
 - name: terraforming-vsphere
   serial: true
@@ -285,22 +284,22 @@ jobs:
   - task: apply-and-destroy
     file: ci/scripts/terraforming/vsphere/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
-      VSPHERE_NETWORK: {{vsphere_network_name}}
-      VSPHERE_OM_IP: {{vsphere_om_ip}}
-      VSPHERE_OM_DNS: {{vsphere_om_dns}}
-      VSPHERE_OM_NTP: {{vsphere_om_ntp}}
-      VSPHERE_OM_TEMPLATE: {{vsphere_om_template}}
-      VSPHERE_OM_ADMIN_PASSWORD: {{vsphere_om_admin_password}}
-      VSPHERE_GW_IP: {{vsphere_gw_ip}}
-      VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-      VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-      VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-      VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
+      VSPHERE_NETWORK: ((vsphere_network_name))
+      VSPHERE_OM_IP: ((vsphere_om_ip))
+      VSPHERE_OM_DNS: ((vsphere_om_dns))
+      VSPHERE_OM_NTP: ((vsphere_om_ntp))
+      VSPHERE_OM_TEMPLATE: ((vsphere_om_template))
+      VSPHERE_OM_ADMIN_PASSWORD: ((vsphere_om_admin_password))
+      VSPHERE_GW_IP: ((vsphere_gw_ip))
+      VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
+      VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
+      VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
+      VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
+      VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
+      VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
+      VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
+      VSPHERE_VCENTER_DISKS: ((vsphere_vcenter_disks))
+      VSPHERE_VCENTER_VMS: ((vsphere_vcenter_vms))
+      VSPHERE_VCENTER_TEMPLATES: ((vsphere_vcenter_templates))

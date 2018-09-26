@@ -69,56 +69,56 @@ resources:
   type: docker-image
   source:
     repository: cfinfrastructure/minimal
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: golang-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/golang
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: deployment-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/deployment
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: terraform-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/terraform
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: mkdocs-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/mkdocs
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: releng-tools-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/releng-tools
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: bbl-release
   type: github-release
   source:
     owner: cloudfoundry
     repository: bosh-bootloader
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
 
 jobs:
 - name: minimal-docker-image
@@ -205,7 +205,7 @@ jobs:
       params:
         build: infrastructure-ci/dockerfiles/deployment
         build_args:
-          GITHUB_TOKEN: {{cf_infra_bot_user_github_access_token}}
+          GITHUB_TOKEN: ((cf_infra_bot_user_github_access_token))
         cache: false
 
 - name: terraform-image

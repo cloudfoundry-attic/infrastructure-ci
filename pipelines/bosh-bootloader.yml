@@ -85,8 +85,8 @@ resources:
   source:
     bucket: infra-concourse-secrets
     versioned_file: concourse-secrets.yml
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
     region_name: us-west-2
 
 - name: test-concourse-vars
@@ -94,8 +94,8 @@ resources:
   source:
     bucket: infra-concourse-secrets
     versioned_file: test-concourse-vars.yml
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
     region_name: us-west-2
 
 - name: ubuntu-xenial-stemcell-gcp
@@ -119,7 +119,7 @@ resources:
     bucket: test-bbl-state-resource
     iaas: gcp
     gcp_region: us-east1
-    gcp_service_account_key: {{bbl_gcp_service_account_key}}
+    gcp_service_account_key: ((bbl_gcp_service_account_key))
 
 - name: bbl-state-pool
   type: pool
@@ -127,7 +127,7 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
     branch: master
     pool: bbl-states
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: concourse-bosh-deployment
   type: bosh-deployment
@@ -150,7 +150,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bbl-state-resource.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
     ignore_paths:
       - docs/**
       - README.md
@@ -160,7 +160,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
     ignore_paths:
       - docs/**
       - README.md
@@ -170,7 +170,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: leftovers-release
   type: github-release
@@ -183,7 +183,7 @@ resources:
   source:
     branch: gh-pages
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: infrastructure-ci
   type: git
@@ -196,7 +196,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: bosh-deployment
   type: git
@@ -215,8 +215,8 @@ resources:
   source:
     bucket: bbl-nat-amis-list
     versioned_file: bbl-nat-amis/ami-list.json
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
 
 - name: version
   type: semver
@@ -225,24 +225,24 @@ resources:
     driver: s3
     bucket: bbl-version
     key: bbl-version
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
 
 - name: bbl-cli-dev-bump-deployments
   type: s3
   source:
     bucket: bbl-cli-dev
     regexp: bump-deployments/bbl-(.*).tgz
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
 
 - name: bbl-cli-dev
   type: s3
   source:
     bucket: bbl-cli-dev
     regexp: bbl-dev/bbl-(.*).tgz
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
 
 - name: dev-version
   type: semver
@@ -251,15 +251,15 @@ resources:
     driver: s3
     bucket: bbl-version
     key: bbl-dev-version
-    access_key_id: {{aws_access_key_id}}
-    secret_access_key: {{aws_secret_access_key}}
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
 
 - name: bbl-release
   type: github-release
   source:
     owner: cloudfoundry
     repository: bosh-bootloader
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
     drafts: true
 
 - name: bbl-release-official
@@ -267,7 +267,7 @@ resources:
   source:
     owner: cloudfoundry
     repository: bosh-bootloader
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
     drafts: false
 
 - name: homebrew-tap
@@ -275,14 +275,14 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/homebrew-tap.git
     branch: master
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 - name: terraform
   type: github-release
   source:
     owner: hashicorp
     repository: terraform
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
 
 - name: bosh-cli
   type: s3
@@ -321,26 +321,26 @@ resources:
   source:
     tag: ci
     repository: cfinfrastructure/bbl-state-resource
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: bbl-state-resource-release-docker
   type: docker-image
   source:
     tag: pre-release
     repository: cfinfrastructure/bbl-state-resource
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: cf-deployment-concourse-tasks-bbl-dev
   type: docker-image
   source:
     repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
-    username: {{docker-username}}
-    password: {{docker-password}}
-    email: {{docker-email}}
+    username: ((docker-username))
+    password: ((docker-password))
+    email: ((docker-email))
 
 - name: cf-deployment-concourse-tasks-docker-image
   type: docker-image
@@ -360,7 +360,7 @@ resources:
   source:
     branch: bump-deployments-ci
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 jobs:
 - name: bbl-state-resource-units
@@ -462,7 +462,7 @@ jobs:
     image: bbl-state-resource-docker
     file: bbl-state-resource-src/ci/run-acceptance-task.yml
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
 
 - name: bbl-pool-up
   public: false
@@ -639,9 +639,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
@@ -649,9 +649,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: upgrade
@@ -660,9 +660,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
@@ -670,9 +670,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
@@ -696,11 +696,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
@@ -709,11 +709,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
@@ -723,11 +723,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
@@ -751,21 +751,21 @@ jobs:
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-      BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-      BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-      BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
+      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
+      BBL_VSPHERE_SUBNET: ((vsphere_subnet))
+      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
+      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
+      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
+      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
+      BBL_VSPHERE_VCENTER_DISKS: ((vsphere_vcenter_disks))
+      BBL_VSPHERE_VCENTER_VMS: ((vsphere_vcenter_vms))
+      BBL_VSPHERE_VCENTER_TEMPLATES: ((vsphere_vcenter_templates))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -789,22 +789,22 @@ jobs:
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       BBL_IAAS: openstack
-      BBL_OPENSTACK_INTERNAL_CIDR: {{bbl_openstack_internal_cidr}}
-      BBL_OPENSTACK_EXTERNAL_IP: {{bbl_openstack_external_ip}}
-      BBL_OPENSTACK_AUTH_URL: {{bbl_openstack_auth_url}}
-      BBL_OPENSTACK_AZ: {{bbl_openstack_az}}
-      BBL_OPENSTACK_DEFAULT_KEY_NAME: {{bbl_openstack_default_key_name}}
-      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: {{bbl_openstack_default_security_group}}
-      BBL_OPENSTACK_NETWORK_ID: {{bbl_openstack_network_id}}
-      BBL_OPENSTACK_PASSWORD: {{bbl_openstack_password}}
-      BBL_OPENSTACK_USERNAME: {{bbl_openstack_username}}
-      BBL_OPENSTACK_PROJECT: {{bbl_openstack_project}}
-      BBL_OPENSTACK_DOMAIN: {{bbl_openstack_domain}}
-      BBL_OPENSTACK_REGION: {{bbl_openstack_region}}
-      BBL_OPENSTACK_PRIVATE_KEY: {{bbl_openstack_private_key}}
+      BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
+      BBL_OPENSTACK_EXTERNAL_IP: ((bbl_openstack_external_ip))
+      BBL_OPENSTACK_AUTH_URL: ((bbl_openstack_auth_url))
+      BBL_OPENSTACK_AZ: ((bbl_openstack_az))
+      BBL_OPENSTACK_DEFAULT_KEY_NAME: ((bbl_openstack_default_key_name))
+      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: ((bbl_openstack_default_security_group))
+      BBL_OPENSTACK_NETWORK_ID: ((bbl_openstack_network_id))
+      BBL_OPENSTACK_PASSWORD: ((bbl_openstack_password))
+      BBL_OPENSTACK_USERNAME: ((bbl_openstack_username))
+      BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
+      BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
+      BBL_OPENSTACK_REGION: ((bbl_openstack_region))
+      BBL_OPENSTACK_PRIVATE_KEY: ((bbl_openstack_private_key.private_key))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -830,10 +830,10 @@ jobs:
       params:
         BBL_DOWN_TIMEOUT: 20m
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
-        BBL_GCP_ZONE: {{bbl_gcp_zone}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+        BBL_GCP_REGION: ((bbl_gcp_region))
+        BBL_GCP_ZONE: ((bbl_gcp_zone))
         BBL_TEST_ENV_ID_PREFIX: bbl-ci
         BBL_TEST_PACKAGES: bbl
 
@@ -929,9 +929,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
@@ -939,9 +939,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: upgrade
@@ -950,9 +950,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
@@ -960,9 +960,9 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_REGION: {{aws_region}}
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_REGION: ((aws_region))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
@@ -987,11 +987,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: latest-error
@@ -1001,11 +1001,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: bbl-up
@@ -1015,11 +1015,11 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
@@ -1045,21 +1045,21 @@ jobs:
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
-      BBL_VSPHERE_VCENTER_DISKS: {{vsphere_vcenter_disks}}
-      BBL_VSPHERE_VCENTER_VMS: {{vsphere_vcenter_vms}}
-      BBL_VSPHERE_VCENTER_TEMPLATES: {{vsphere_vcenter_templates}}
+      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
+      BBL_VSPHERE_SUBNET: ((vsphere_subnet))
+      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
+      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
+      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
+      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
+      BBL_VSPHERE_VCENTER_DISKS: ((vsphere_vcenter_disks))
+      BBL_VSPHERE_VCENTER_VMS: ((vsphere_vcenter_vms))
+      BBL_VSPHERE_VCENTER_TEMPLATES: ((vsphere_vcenter_templates))
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -1084,22 +1084,22 @@ jobs:
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
       BBL_IAAS: openstack
-      BBL_OPENSTACK_INTERNAL_CIDR: {{bbl_openstack_internal_cidr}}
-      BBL_OPENSTACK_EXTERNAL_IP: {{bbl_openstack_external_ip}}
-      BBL_OPENSTACK_AUTH_URL: {{bbl_openstack_auth_url}}
-      BBL_OPENSTACK_AZ: {{bbl_openstack_az}}
-      BBL_OPENSTACK_DEFAULT_KEY_NAME: {{bbl_openstack_default_key_name}}
-      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: {{bbl_openstack_default_security_group}}
-      BBL_OPENSTACK_NETWORK_ID: {{bbl_openstack_network_id}}
-      BBL_OPENSTACK_PASSWORD: {{bbl_openstack_password}}
-      BBL_OPENSTACK_USERNAME: {{bbl_openstack_username}}
-      BBL_OPENSTACK_PROJECT: {{bbl_openstack_project}}
-      BBL_OPENSTACK_DOMAIN: {{bbl_openstack_domain}}
-      BBL_OPENSTACK_REGION: {{bbl_openstack_region}}
-      BBL_OPENSTACK_PRIVATE_KEY: {{bbl_openstack_private_key}}
+      BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
+      BBL_OPENSTACK_EXTERNAL_IP: ((bbl_openstack_external_ip))
+      BBL_OPENSTACK_AUTH_URL: ((bbl_openstack_auth_url))
+      BBL_OPENSTACK_AZ: ((bbl_openstack_az))
+      BBL_OPENSTACK_DEFAULT_KEY_NAME: ((bbl_openstack_default_key_name))
+      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: ((bbl_openstack_default_security_group))
+      BBL_OPENSTACK_NETWORK_ID: ((bbl_openstack_network_id))
+      BBL_OPENSTACK_PASSWORD: ((bbl_openstack_password))
+      BBL_OPENSTACK_USERNAME: ((bbl_openstack_username))
+      BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
+      BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
+      BBL_OPENSTACK_REGION: ((bbl_openstack_region))
+      BBL_OPENSTACK_PRIVATE_KEY: ((bbl_openstack_private_key.private_key))
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -1125,10 +1125,10 @@ jobs:
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
-        BBL_GCP_ZONE: {{bbl_gcp_zone}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+        BBL_GCP_REGION: ((bbl_gcp_region))
+        BBL_GCP_ZONE: ((bbl_gcp_zone))
         BBL_TEST_ENV_ID_PREFIX: bump-deployments
         BBL_TEST_PACKAGES: bbl
         BBL_DOWN_TIMEOUT: 20m
@@ -1199,10 +1199,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/test-with-latest-terraform/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+      BBL_GCP_ZONE: ((bbl_gcp_zone))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-terraform
       BBL_DOWN_TIMEOUT: 20m
 
@@ -1220,10 +1220,10 @@ jobs:
     file: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_ZONE: {{bbl_gcp_zone}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+      BBL_GCP_ZONE: ((bbl_gcp_zone))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci-bosh-cli
       BBL_DOWN_TIMEOUT: 20m
 
@@ -1306,11 +1306,11 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
       BBL_ENV_NAME: bbl-azure-concourse
       BBL_STATE_DIR: bbl-azure-concourse
   - task: bbl-up
@@ -1318,13 +1318,13 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
-      BBL_LB_CERT: {{azure_lb_cert}}
-      BBL_LB_KEY: {{azure_lb_key}}
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_LB_CERT: ((azure_lb_cert))
+      BBL_LB_KEY: ((azure_lb_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-azure-concourse
       BBL_STATE_DIR: bbl-azure-concourse
@@ -1340,11 +1340,11 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bbl-azure-concourse
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
       input_mapping:
         env-repo: updated-env-repo
       ensure:
@@ -1403,11 +1403,11 @@ jobs:
           env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-azure-concourse
-          BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-          BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-          BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-          BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-          BBL_AZURE_REGION: {{azure_location}}
+          BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+          BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+          BBL_AZURE_CLIENT_ID: ((azure_client_id))
+          BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+          BBL_AZURE_REGION: ((azure_location))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -1520,8 +1520,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_ENV_NAME: bbl-aws-concourse
@@ -1530,11 +1530,11 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
-      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+      BBL_LB_KEY: ((bbl_aws_cf_lb_key.private_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-aws-concourse
       BBL_STATE_DIR: bbl-aws-concourse
@@ -1550,8 +1550,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bbl-aws-concourse
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
         env-repo: updated-env-repo
       ensure:
@@ -1610,8 +1610,8 @@ jobs:
           env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bbl-aws-concourse
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -1638,64 +1638,64 @@ jobs:
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         BBL_AWS_REGION: us-west-2
         PLAN_PATCH_DIR: 1-az-aws
     - task: acm-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         BBL_AWS_REGION: us-west-2
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+        BBL_LB_KEY: ((bbl_aws_cf_lb_key.private_key))
         PLAN_PATCH_DIR: acm-aws
     - task: alb-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         BBL_AWS_REGION: us-west-2
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+        BBL_LB_KEY: ((bbl_aws_cf_lb_key.private_key))
         PLAN_PATCH_DIR: alb-aws
     - task: bosh-lite-gcp
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_REGION: ((bbl_gcp_region))
         PLAN_PATCH_DIR: bosh-lite-gcp
     - task: byobastion-gcp
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_REGION: ((bbl_gcp_region))
         PLAN_PATCH_DIR: byobastion-gcp
     - task: colocate-gorouter-ssh-proxy-gcp
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_REGION: ((bbl_gcp_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+        BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert.private_key))
         PLAN_PATCH_DIR: colocate-gorouter-ssh-proxy-gcp
     - task: cfcr-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         BBL_AWS_REGION: us-west-2
         BBL_IAAS: aws
         PLAN_PATCH_DIR: cfcr-aws
@@ -1703,43 +1703,43 @@ jobs:
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_GCP_REGION: us-central1
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         BBL_IAAS: gcp
         PLAN_PATCH_DIR: cfcr-gcp
     - task: iso-segs-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: aws
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         BBL_AWS_REGION: us-west-2
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-        BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+        BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+        BBL_LB_KEY: ((bbl_aws_cf_lb_key.private_key))
         PLAN_PATCH_DIR: iso-segs-aws
         TF_VARS: isolation_segments=1
     - task: iso-segs-gcp
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_REGION: ((bbl_gcp_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+        BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert_private_key.private_key))
         PLAN_PATCH_DIR: iso-segs-gcp
     - task: restricted-instance-groups-gcp
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
       params:
         BBL_IAAS: gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_REGION: {{bbl_gcp_region}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_REGION: ((bbl_gcp_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
-        BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-        BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+        BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+        BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert_private_key))
         PLAN_PATCH_DIR: restricted-instance-groups-gcp
 
 - name: bbl-aws-cf
@@ -1774,8 +1774,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bbl-aws-cf
       BBL_ENV_NAME: bbl-aws-cf
@@ -1784,14 +1784,14 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bbl-aws-cf
       BBL_ENV_NAME: bbl-aws-cf
       LB_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
-      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
@@ -1803,8 +1803,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bbl-aws-cf
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
         bbl-state: updated-bbl-state
       ensure:
@@ -1819,8 +1819,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       INFRASTRUCTURE: aws
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -1831,8 +1831,8 @@ jobs:
       params:
         BBL_IAAS: aws
         BBL_STATE_DIR: bbl-aws-cf
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -1845,8 +1845,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-aws-cf
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       SYSTEM_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-aws-cf/deployment-vars.yml
       OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
@@ -1859,8 +1859,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -1869,8 +1869,8 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -1878,8 +1878,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -1918,8 +1918,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
       BBL_CONFIG_DIR: plan-patches/bosh-lite-gcp
       BBL_ENV_NAME: bbl-lite-gcp
       BBL_STATE_DIR: bbl-lite-gcp
@@ -1935,7 +1935,7 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bbl-lite-gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
         GIT_COMMIT_USERNAME: CI Infra Bot
       input_mapping:
@@ -1952,7 +1952,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-lite-gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       INFRASTRUCTURE: bosh-lite
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -1963,7 +1963,7 @@ jobs:
       params:
         BBL_IAAS: gcp
         BBL_STATE_DIR: bbl-lite-gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -1976,7 +1976,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-lite-gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       SYSTEM_DOMAIN: bbl-lite-gcp.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-lite-gcp/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml operations/bosh-lite.yml
@@ -1989,7 +1989,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -1998,7 +1998,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2006,7 +2006,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2027,7 +2027,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2036,7 +2036,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2044,7 +2044,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2083,8 +2083,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-gcp-cf
   - task: bbl-up
@@ -2092,10 +2092,10 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+      BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert.private_key))
       LB_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       BBL_ENV_NAME: bbl-downstream
       BBL_STATE_DIR: bbl-gcp-cf
@@ -2110,7 +2110,7 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bbl-gcp-cf
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       input_mapping:
         bbl-state: updated-bbl-state
       ensure:
@@ -2123,9 +2123,9 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+      GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
       ACTION: add
@@ -2139,7 +2139,7 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bbl-gcp-cf
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -2152,7 +2152,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       INFRASTRUCTURE: google
     on_failure:
       do:
@@ -2161,9 +2161,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
           ACTION: remove
@@ -2176,7 +2176,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2189,7 +2189,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bbl-gcp-cf
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       SYSTEM_DOMAIN: bbl-downstream.infrastructure.cf-app.com
       VARS_STORE_FILE: bbl-gcp-cf/deployment-vars.yml
       OPS_FILES: "operations/use-compiled-releases.yml"
@@ -2200,9 +2200,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
           ACTION: remove
@@ -2215,7 +2215,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2224,7 +2224,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2232,7 +2232,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2258,9 +2258,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bbl-downstream.infrastructure.cf-app.com
           ACTION: remove
@@ -2273,7 +2273,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2282,7 +2282,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2290,7 +2290,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2346,7 +2346,7 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{infrastructure_ci_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key))
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -2370,7 +2370,7 @@ jobs:
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2403,17 +2403,17 @@ jobs:
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_concourse_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
+      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
+      BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
+      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
+      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
+      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
+      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -2452,8 +2452,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
       BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
   - task: bbl-up
@@ -2461,11 +2461,11 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+      BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert.private_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
@@ -2481,8 +2481,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-        BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
       input_mapping:
         env-repo: updated-env-repo
       ensure:
@@ -2541,8 +2541,8 @@ jobs:
           env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-          BBL_GCP_PROJECT_ID: {{bbl_gcp_project_id}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+          BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2581,11 +2581,11 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
       BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
   - task: bbl-up
@@ -2593,13 +2593,13 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
-      BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-      BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-      BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-      BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-      BBL_AZURE_REGION: {{azure_location}}
-      BBL_LB_CERT: {{azure_lb_cert}}
-      BBL_LB_KEY: {{azure_lb_key}}
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_LB_CERT: ((azure_lb_cert))
+      BBL_LB_KEY: ((azure_lb_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
@@ -2615,11 +2615,11 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
-        BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-        BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-        BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-        BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-        BBL_AZURE_REGION: {{azure_location}}
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
       input_mapping:
         env-repo: updated-env-repo
       ensure:
@@ -2678,11 +2678,11 @@ jobs:
           env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
-          BBL_AZURE_SUBSCRIPTION_ID: {{azure_subscription_id}}
-          BBL_AZURE_TENANT_ID: {{azure_tenant_id}}
-          BBL_AZURE_CLIENT_ID: {{azure_client_id}}
-          BBL_AZURE_CLIENT_SECRET: {{azure_client_secret}}
-          BBL_AZURE_REGION: {{azure_location}}
+          BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+          BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+          BBL_AZURE_CLIENT_ID: ((azure_client_id))
+          BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+          BBL_AZURE_REGION: ((azure_location))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2721,8 +2721,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
       BBL_ENV_NAME: bump-deployments-aws-concourse
@@ -2731,11 +2731,11 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
-      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-aws-concourse
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
@@ -2751,8 +2751,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
         env-repo: updated-env-repo
       ensure:
@@ -2811,8 +2811,8 @@ jobs:
           env-repo: updated-env-repo
         params:
           BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2852,8 +2852,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
       BBL_ENV_NAME: bump-deployments-aws-cf
@@ -2862,14 +2862,14 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
       BBL_ENV_NAME: bump-deployments-aws-cf
       LB_DOMAIN: bbl-aws-cf-bump-deployments.infrastructure.cf-app.com
-      BBL_LB_CERT: {{bbl_aws_cf_lb_cert}}
-      BBL_LB_KEY: {{bbl_aws_cf_lb_key}}
+      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
+      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
       GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
       GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
@@ -2881,8 +2881,8 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
         bbl-state: updated-bbl-state
       ensure:
@@ -2897,8 +2897,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       INFRASTRUCTURE: aws
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -2909,8 +2909,8 @@ jobs:
       params:
         BBL_IAAS: aws
         BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-        BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-        BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+        BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+        BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -2923,8 +2923,8 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-      BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+      BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       SYSTEM_DOMAIN: bbl-aws-cf-bump-deployments.infrastructure.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-aws-cf/deployment-vars.yml
       OPS_FILES: "operations/aws.yml operations/use-compiled-releases.yml"
@@ -2937,8 +2937,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2947,8 +2947,8 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -2956,8 +2956,8 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-aws-cf
-          BBL_AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-          BBL_AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
+          BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+          BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -2997,8 +2997,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
       BBL_CONFIG_DIR: plan-patches/bosh-lite-gcp
       BBL_ENV_NAME: bump-deployments-lite-gcp
       BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
@@ -3014,7 +3014,7 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
         GIT_COMMIT_USERNAME: CI Infra Bot
       input_mapping:
@@ -3031,7 +3031,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       INFRASTRUCTURE: bosh-lite
     on_failure:
       task: upload-stemcell-destroy-infrastructure
@@ -3042,7 +3042,7 @@ jobs:
       params:
         BBL_IAAS: gcp
         BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -3055,7 +3055,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       SYSTEM_DOMAIN: bbl-lite-gcp.infrastructure.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-lite-gcp/deployment-vars.yml
       OPS_FILES: operations/use-compiled-releases.yml operations/bosh-lite.yml
@@ -3068,7 +3068,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3077,7 +3077,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3085,7 +3085,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -3106,7 +3106,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3115,7 +3115,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3123,7 +3123,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-lite-gcp
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -3163,8 +3163,8 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
       BBL_ENV_NAME: bump-deployments-downstream
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
   - task: bbl-up
@@ -3172,10 +3172,10 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
-      BBL_GCP_REGION: {{bbl_gcp_region}}
-      BBL_LB_CERT: {{bbl_downstream_cf_ssl_cert}}
-      BBL_LB_KEY: {{bbl_downstream_cf_ssl_cert_private_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
+      BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert.private_key))
       LB_DOMAIN: bump-deployments-cf.infrastructure.cf-app.com
       BBL_ENV_NAME: bump-deployments-downstream
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
@@ -3190,7 +3190,7 @@ jobs:
       image: cf-deployment-concourse-tasks-bbl-dev
       params:
         BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       input_mapping:
         bbl-state: updated-bbl-state
       ensure:
@@ -3203,9 +3203,9 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-      GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-      GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-      GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+      GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+      GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+      GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
       GCP_DNS_ZONE_NAME: infrastructure
       GCP_DNS_RECORD_SET_NAME: bump-deployments-cf.infrastructure.cf-app.com
       ACTION: add
@@ -3219,7 +3219,7 @@ jobs:
         bbl-state: updated-bbl-state
       params:
         BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-        BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       ensure:
         put: infrastructure-ci-bbl-states
         params:
@@ -3232,7 +3232,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       INFRASTRUCTURE: google
     on_failure:
       do:
@@ -3241,9 +3241,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bump-deployments-cf.infrastructure.cf-app.com
           ACTION: remove
@@ -3256,7 +3256,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -3269,7 +3269,7 @@ jobs:
       bbl-state: updated-bbl-state
     params:
       BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       SYSTEM_DOMAIN: bump-deployments-cf.infrastructure.cf-app.com
       VARS_STORE_FILE: bump-deployments/bbl-gcp-cf/deployment-vars.yml
       OPS_FILES: "operations/use-compiled-releases.yml"
@@ -3280,9 +3280,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bump-deployments-cf.infrastructure.cf-app.com
           ACTION: remove
@@ -3295,7 +3295,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3304,7 +3304,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3312,7 +3312,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         ensure:
           put: infrastructure-ci-bbl-states
           params:
@@ -3338,9 +3338,9 @@ jobs:
         image: cf-deployment-concourse-tasks-bbl-dev
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          GCP_DNS_PROJECT_ID: {{cf_infra_gcp_project_id}}
-          GCP_DNS_SERVICE_ACCOUNT_EMAIL: {{cf_infra_gcp_service_account_email}}
-          GCP_DNS_SERVICE_ACCOUNT_KEY: {{cf_infra_gcp_service_account_key}}
+          GCP_DNS_PROJECT_ID: ((cf_infra_gcp_project_id))
+          GCP_DNS_SERVICE_ACCOUNT_EMAIL: ((cf_infra_gcp_service_account_email))
+          GCP_DNS_SERVICE_ACCOUNT_KEY: ((cf_infra_gcp_service_account_key))
           GCP_DNS_ZONE_NAME: infrastructure
           GCP_DNS_RECORD_SET_NAME: bump-deployments-cf.infrastructure.cf-app.com
           ACTION: remove
@@ -3353,7 +3353,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: bosh-cleanup
         file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3362,7 +3362,7 @@ jobs:
         params:
           CLEAN_ALL: true
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       - task: destroy-infrastructure
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
@@ -3370,7 +3370,7 @@ jobs:
           bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-cf
-          BBL_GCP_SERVICE_ACCOUNT_KEY: {{bbl_gcp_service_account_key}}
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         on_failure:
           put: infrastructure-ci-bbl-states
           params:
@@ -3423,7 +3423,7 @@ jobs:
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: {{infrastructure_ci_gcp_service_account_key}}
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key))
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -3448,7 +3448,7 @@ jobs:
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
       tags:
-      - {{vsphere_network_name}}
+      - ((vsphere_network_name))
       passed:
       - bbl-aws-cf-bump-deployments
       - bbl-gcp-cf-bump-deployments
@@ -3477,17 +3477,17 @@ jobs:
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     tags:
-    - {{vsphere_network_name}}
+    - ((vsphere_network_name))
     params:
-      BBL_VSPHERE_NETWORK: {{vsphere_network_name}}
-      BBL_VSPHERE_SUBNET: {{vsphere_concourse_subnet}}
-      BBL_VSPHERE_VCENTER_IP: {{vsphere_vcenter_ip}}
-      BBL_VSPHERE_VCENTER_USER: {{vsphere_vcenter_user}}
-      BBL_VSPHERE_VCENTER_PASSWORD: {{vsphere_vcenter_password}}
-      BBL_VSPHERE_VCENTER_DC: {{vsphere_vcenter_dc}}
-      BBL_VSPHERE_VCENTER_CLUSTER: {{vsphere_vcenter_cluster}}
-      BBL_VSPHERE_VCENTER_RP: {{vsphere_vcenter_rp}}
-      BBL_VSPHERE_VCENTER_DS: {{vsphere_vcenter_ds}}
+      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
+      BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
+      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
+      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
+      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
+      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -3612,10 +3612,10 @@ jobs:
   - task: get-ami-json
     file: ci/scripts/bosh-bootloader/get-aws-nat-amis/task.yml
     params:
-      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      GOVCLOUD_AWS_SECRET_ACCESS_KEY: {{govcloud_images_secret_access_key}}
-      GOVCLOUD_AWS_ACCESS_KEY_ID: {{govcloud_images_access_key_id}}
+      AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
+      AWS_ACCESS_KEY_ID: ((aws_access_key_id))
+      GOVCLOUD_AWS_SECRET_ACCESS_KEY: ((govcloud_images_secret_access_key))
+      GOVCLOUD_AWS_ACCESS_KEY_ID: ((govcloud_images_access_key_id))
   - put: bbl-nat-amis
     params:
       file: aws-nat-amis/ami-list.json

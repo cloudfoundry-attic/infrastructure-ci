@@ -17,7 +17,7 @@ resources:
   source:
     owner: genevieve
     repository: az-automation
-    access_token: {{cf_infra_bot_user_github_access_token}}
+    access_token: ((cf_infra_bot_user_github_access_token))
 
 - name: infrastructure-ci
   type: git
@@ -30,7 +30,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:genevieve/homebrew-tap.git
-    private_key: {{cf_infra_bot_user_github_private_key}}
+    private_key: ((cf_infra_bot_user_github_private_key.private_key))
 
 jobs:
 - name: test
