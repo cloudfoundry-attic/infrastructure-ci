@@ -17,14 +17,14 @@ resources:
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-azure.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: terraforming-gcp
   type: git
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-gcp.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: env-state-gcp
   type: terraform
@@ -57,13 +57,13 @@ resources:
   source:
     branch: master
     uri: git@github.com:pivotal-cf/terraforming-vsphere.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: pcf-releng-ci
   type: git
   source:
     uri: git@github.com:pivotal-cf/pcf-releng-ci.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
     ignore_paths:
     - pipelines
     - ci_screen
@@ -80,7 +80,7 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
     branch: master
     pool: terraforming
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 shared:
 - params: &om-creds

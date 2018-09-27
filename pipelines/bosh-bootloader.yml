@@ -127,7 +127,7 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-deployment-locks.git
     branch: master
     pool: bbl-states
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: concourse-bosh-deployment
   type: bosh-deployment
@@ -150,7 +150,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bbl-state-resource.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
     ignore_paths:
       - docs/**
       - README.md
@@ -160,7 +160,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
     ignore_paths:
       - docs/**
       - README.md
@@ -170,7 +170,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: leftovers-release
   type: github-release
@@ -183,7 +183,7 @@ resources:
   source:
     branch: gh-pages
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: infrastructure-ci
   type: git
@@ -196,7 +196,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: bosh-deployment
   type: git
@@ -275,7 +275,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/homebrew-tap.git
     branch: master
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 - name: terraform
   type: github-release
@@ -360,7 +360,7 @@ resources:
   source:
     branch: bump-deployments-ci
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 jobs:
 - name: bbl-state-resource-units

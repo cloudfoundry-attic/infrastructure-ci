@@ -30,7 +30,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:genevieve/homebrew-tap.git
-    private_key: ((cf_infra_bot_user_github_private_key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
 
 jobs:
 - name: test
