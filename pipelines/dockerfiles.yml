@@ -69,48 +69,48 @@ resources:
   type: docker-image
   source:
     repository: cfinfrastructure/minimal
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: golang-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/golang
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: deployment-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/deployment
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: terraform-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/terraform
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: mkdocs-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/mkdocs
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: releng-tools-docker-image
   type: docker-image
   source:
     repository: cfinfrastructure/releng-tools
-    username: ((docker-username))
-    password: ((docker-password))
+    username: ((docker_user.username))
+    password: ((docker_user.password))
     email: ((docker-email))
 
 - name: bbl-release

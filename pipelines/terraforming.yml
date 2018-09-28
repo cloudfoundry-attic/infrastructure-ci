@@ -85,8 +85,8 @@ resources:
 
 shared:
 - params: &om-creds
-    OM_USERNAME: ((om_username))
-    OM_PASSWORD: ((om_password))
+    OM_USERNAME: ((om.username))
+    OM_PASSWORD: ((om.password))
 
 jobs:
 - name: create-env-gcp
@@ -227,8 +227,8 @@ jobs:
   - task: delete-installation
     file: pcf-releng-ci/tasks/environment/delete-installation/task.yml
     params:
-      OPSMAN_USERNAME: ((om_username))
-      OPSMAN_PASSWORD: ((om_password))
+      OPSMAN_USERNAME: ((om.username))
+      OPSMAN_PASSWORD: ((om.password))
       OPSMAN_URL_SUFFIX: gcp.infrastructure.cf-app.com
     input_mapping:
       environment: env-state-gcp
