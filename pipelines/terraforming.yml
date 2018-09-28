@@ -34,7 +34,8 @@ resources:
       bucket: infra-tf-states
       prefix: gcp
       region: us-central1
-      credentials: ((cf_infra_gcp_service_account_key))
+      credentials: |
+        {{cf_infra_gcp_service_account_key_for_terraform}}
 
 - name: opsman-image
   type: pivnet
