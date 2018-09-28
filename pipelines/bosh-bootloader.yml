@@ -1530,7 +1530,7 @@ jobs:
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
       BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
-      BBL_LB_KEY: ((bbl_aws_cf_lb_key.private_key))
+      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
       BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-aws-concourse
       BBL_STATE_DIR: bbl-aws-concourse
