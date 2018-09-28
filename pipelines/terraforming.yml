@@ -283,8 +283,7 @@ jobs:
       resource: infrastructure-ci
   - task: apply-and-destroy
     file: ci/scripts/terraforming/vsphere/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       VSPHERE_NETWORK: ((vsphere_network_name))
       VSPHERE_OM_IP: ((vsphere_om_ip))

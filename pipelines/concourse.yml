@@ -108,34 +108,26 @@ jobs:
   - aggregate:
     - get: ci
       resource: infrastructure-ci
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
     - get: infrastructure-ci-bbl-states
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
     - get: concourse-deployment
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
     - get: concourse-secrets
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
     - get: ubuntu-xenial-stemcell-vsphere
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
     - get: prod-concourse-vars
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_STATE_DIR: vsphere-concourse
     input_mapping:
       bbl-states: infrastructure-ci-bbl-states
   - put: concourse-bosh-deployment
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       source_file: source-file/bosh-source.json
       manifest: concourse-deployment/cluster/external-worker.yml

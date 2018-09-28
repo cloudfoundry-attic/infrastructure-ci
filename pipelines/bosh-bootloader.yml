@@ -750,8 +750,7 @@ jobs:
       trigger: true
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_IAAS: vsphere
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
@@ -788,8 +787,7 @@ jobs:
       trigger: true
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_IAAS: openstack
       BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
@@ -1044,8 +1042,7 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_IAAS: vsphere
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
@@ -1083,8 +1080,7 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_IAAS: openstack
       BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
@@ -2369,8 +2365,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2402,8 +2397,7 @@ jobs:
   - task: bbl-up-vsphere-concourse-bosh-director
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
     image: cf-deployment-concourse-tasks-bbl-dev
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
       BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
@@ -3447,8 +3441,7 @@ jobs:
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
-      tags:
-      - ((vsphere_network_name))
+      tags: [khaleesi]
       passed:
       - bbl-aws-cf-bump-deployments
       - bbl-gcp-cf-bump-deployments
@@ -3476,8 +3469,7 @@ jobs:
   - task: bbl-up-vsphere-concourse-bosh-director
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
     image: cf-deployment-concourse-tasks-bbl-dev
-    tags:
-    - ((vsphere_network_name))
+    tags: [khaleesi]
     params:
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
       BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
