@@ -847,6 +847,7 @@ jobs:
     - get: bosh-deployment
       trigger: true
     - get: jumpbox-deployment
+      version: {ref: 32c162b16f2a5a2639c78d905ba852487b93d507}
       trigger: true
   - put: version
     params:
