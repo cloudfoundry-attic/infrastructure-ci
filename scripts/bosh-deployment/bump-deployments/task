@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cppforlife"
+JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
 BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
 
 function main() {
@@ -23,7 +23,7 @@ function main() {
     local commitish
     commitish=$(git -C ./jumpbox-deployment rev-parse HEAD)
 
-    echo "- *Current jumpbox-deployment: cppforlife/jumpbox-deployment@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
+    echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
     rm -rf jumpbox-deployment/.git
   popd
 
