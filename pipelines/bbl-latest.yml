@@ -21,8 +21,8 @@ resources:
   type: cf
   source:
     api: https://api.run.pivotal.io
-    username: ((pws_username))
-    password: ((pws_password))
+    client_id: ((pcf_infra_prod_service_account.username))
+    client_secret: ((pcf_infra_prod_service_account.password))
     organization: ((pws_organization))
     space: ((pws_space))
 
