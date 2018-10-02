@@ -208,7 +208,7 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cppforlife/jumpbox-deployment.git
+    uri: https://github.com/cloudfoundry/jumpbox-deployment.git
 
 - name: bbl-nat-amis
   type: s3
@@ -847,7 +847,6 @@ jobs:
     - get: bosh-deployment
       trigger: true
     - get: jumpbox-deployment
-      version: {ref: 32c162b16f2a5a2639c78d905ba852487b93d507}
       trigger: true
   - put: version
     params:
