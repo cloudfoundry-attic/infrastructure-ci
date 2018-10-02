@@ -1,0 +1,34 @@
+#!/bin/bash -e
+
+ROOT="${PWD}"
+
+function main() {
+  pushd "${ROOT}/bbl-states/${BBL_STATE_DIR}" > /dev/null
+    local external_host
+    local username
+    local password
+
+    export external_host="$(bbl lbs | awk -F': ' '{print $2}')"
+    export username="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+    export password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+
+    cat >"${ROOT}/concourse-test-vars/vars.yml" <<EOL
+external_host: "${external_host}"
+external_url: "https://${external_host}"
+local_user:
+  username: "${username}"
+  password: "${password}"
+network_name: 'private'
+web_network_name: 'private'
+web_vm_type: 'default'
+web_network_vm_extension: 'lb'
+db_vm_type: 'default'
+db_persistent_disk_type: '1GB'
+worker_vm_type: 'default'
+deployment_name: 'concourse'
+
+EOL
+  popd > /dev/null
+}
+
+main

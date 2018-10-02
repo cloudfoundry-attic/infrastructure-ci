@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+- name: ci
+- name: bbl-states
+
+outputs:
+- name: concourse-test-vars
+
+params:
+  BBL_STATE_DIR: infra-ci
+
+run:
+  path: ci/scripts/bosh-bootloader/get-concourse-test-vars/task

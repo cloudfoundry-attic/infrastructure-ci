@@ -1561,6 +1561,12 @@ jobs:
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
       bbl-states: updated-env-repo
+  - task: get-concourse-test-vars
+    file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
+    params:
+      BBL_STATE_DIR: bbl-aws-concourse
+    input_mapping:
+      bbl-states: updated-env-repo
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -1568,13 +1574,13 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-aws/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-secrets/concourse-secrets.yml
-        - test-concourse-vars/test-concourse-vars.yml
+        - concourse-test-vars/vars.yml
       ops_files:
+        - concourse-deployment/cluster/operations/basic-auth.yml
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
-        - concourse-deployment/cluster/operations/basic-auth.yml
         - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1590,7 +1596,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | cut -d '[' -f 2 | tr -d ']') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
