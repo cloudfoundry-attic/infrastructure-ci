@@ -2,8 +2,22 @@
 
 main() {
   local opsman_image=$(bosh int ${PWD}/opsman-image/*${IAAS}.yml --path "/${KEY}")
+  local output_key
 
-  echo "${PREFIX}${opsman_image}" > "${PWD}/tfvars/terraform.tfvars"
+  local iaas_lowercase=$(echo "${IAAS}" | awk '{print tolower($0)}')
+  case "$iaas_lowercase"
+  aws)
+    output_key=ops_manager_ami
+    ;;
+  gcp)
+    output_key=opsman_image_url
+    ;;
+  azure)
+    output_key=ops_manager_image_uri
+    ;;
+  esac
+
+  echo "${output_key}: ${PREFIX}${opsman_image}" > "${PWD}/tfvars/terraform.yml"
 }
 
 main "$@"
