@@ -16,7 +16,11 @@ outputs:
 run:
   path: ci/scripts/terraforming/latest-opsman/task
 
+# IAAS:
 params:
+  # AWS|GCP|Azure
   IAAS: ""
+  # For AWS use one of the supported AWS regions (e.g. us-west-1)
+  # For GCP use 'us', 'eu' or 'asia'
+  # For Azure use  one of the supported Azure regions (e.g. west_us)
   KEY: ""
-  PREFIX: ""

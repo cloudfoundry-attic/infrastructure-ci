@@ -3,6 +3,7 @@
 main() {
   local opsman_image=$(bosh int ${PWD}/opsman-image/*${IAAS}.yml --path "/${KEY}")
   local output_key
+  local prefix=""
 
   local iaas_lowercase=$(echo "${IAAS}" | awk '{print tolower($0)}')
   case "$iaas_lowercase" in
@@ -10,6 +11,7 @@ main() {
     output_key=ops_manager_ami
     ;;
   gcp)
+    prefix="https://storage.googleapis.com/"
     output_key=opsman_image_url
     ;;
   azure)
@@ -17,7 +19,7 @@ main() {
     ;;
   esac
 
-  echo "${output_key}: ${PREFIX}${opsman_image}" > "${PWD}/tfvars/terraform.yml"
+  echo "${output_key}: ${prefix}${opsman_image}" > "${PWD}/tfvars/terraform.yml"
 }
 
 main "$@"
