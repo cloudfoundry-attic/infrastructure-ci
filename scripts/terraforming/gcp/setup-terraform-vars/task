@@ -1,7 +1,0 @@
-#!/bin/bash -exu
-
-vars_file="${PWD}/tfvars/terraform.tfvars"
-opsman_image_file=$(ls -1 "${PWD}"/opsman-image/*.yml)
-export opsman_image_url=$(awk '$1 == "us:" { print $2 }' "${opsman_image_file}")
-
-texplate execute "${PWD}/ci/scripts/terraforming/gcp/setup-terraform-vars/vars-template.yml" -o json > "${vars_file}"
