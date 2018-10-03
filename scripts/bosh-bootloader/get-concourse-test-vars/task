@@ -8,9 +8,9 @@ function main() {
     local username
     local password
 
-    export external_host="$(bbl lbs | awk -F': ' '{print $2}')"
-    export username="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
-    export password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+    external_host="$(bbl outputs | grep concourse_lb_ip | cut -d ' ' -f2)"
+    username="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+    password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 
     cat >"${ROOT}/concourse-test-vars/vars.yml" <<EOL
 external_host: "${external_host}"
