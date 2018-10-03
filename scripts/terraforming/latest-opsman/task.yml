@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/releng-tools
+
+inputs:
+- name: ci
+- name: opsman-image
+
+outputs:
+- name: tfvars
+
+run:
+  path: ci/scripts/terraforming/latest-opsman/task
+
+params:
+  IAAS: ""
+  KEY: ""
+  PREFIX: ""

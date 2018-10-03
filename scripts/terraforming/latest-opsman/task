@@ -1,0 +1,9 @@
+#!/bin/bash -exu
+
+main() {
+  local opsman_image=$(bosh int ${PWD}/opsman-image/*${IAAS}.yml --path "/${KEY}")
+
+  echo "${PREFIX}${opsman_image}" > "${PWD}/tfvars/terraform.tfvars"
+}
+
+main "$@"
