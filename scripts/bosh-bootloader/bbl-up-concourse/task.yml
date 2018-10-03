@@ -15,7 +15,7 @@ outputs:
 - name: updated-bbl-state
 
 run:
-  path: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
+  path: ci/scripts/bosh-bootloader/bbl-up-concourse/task
 
 params:
   # AWS Configuration Params
@@ -42,6 +42,7 @@ params:
   BBL_STATE_DIR: bbl-state
   BBL_IAAS:
   BBL_ENV_NAME:
+  BBL_LB_TYPE: concourse
 
   GIT_COMMIT_EMAIL: "cf-infrastructure@pivotal.io"
   GIT_COMMIT_USERNAME: "CI Infra Bot"
