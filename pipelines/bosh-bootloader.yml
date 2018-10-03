@@ -299,14 +299,6 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
 
-# Fork of cf-deployment-concourse-tasks that has features
-# we need that are not yet merged into upstream
-- name: cf-deployment-concourse-tasks-infrastructure
-  type: git
-  source:
-    branch: infrastructure
-    uri: https://github.com/desmondrawls/cf-deployment-concourse-tasks.git
-
 - name: bbl-state-resource-docker
   type: docker-image
   source:
@@ -1271,7 +1263,7 @@ jobs:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
@@ -1300,7 +1292,7 @@ jobs:
       BBL_ENV_NAME: bbl-azure-concourse
       BBL_STATE_DIR: bbl-azure-concourse
   - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
@@ -1309,17 +1301,10 @@ jobs:
       BBL_AZURE_CLIENT_ID: ((azure_client_id))
       BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
       BBL_AZURE_REGION: ((azure_location))
-      BBL_LB_CERT: ((azure_lb_cert))
-      BBL_LB_KEY: ((azure_lb_key))
-      BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-azure-concourse
       BBL_STATE_DIR: bbl-azure-concourse
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-      bbl-plan-patch: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1332,24 +1317,24 @@ jobs:
         BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
         BBL_AZURE_REGION: ((azure_location))
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bbl-azure-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
       BBL_STATE_DIR: bbl-azure-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -1368,7 +1353,7 @@ jobs:
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: updated-env-repo
+      bbl-state: updated-bbl-state
     config:
       platform: linux
       inputs:
@@ -1379,7 +1364,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -1392,7 +1377,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
         input_mapping:
-          env-repo: updated-env-repo
+          bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-azure-concourse
           BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
@@ -1404,7 +1389,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-env-repo
+            repository: updated-bbl-state
 
 - name: bbl-gcp-concourse
   serial: true
@@ -1443,10 +1428,8 @@ jobs:
           lb-type: concourse
     - task: get-concourse-test-vars
       file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
-      params:
-        BBL_STATE_DIR: bbl-aws-concourse
       input_mapping:
-        bbl-states: updated-env-repo
+        bbl-states: test-bbl-state
     - put: concourse-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
@@ -1465,7 +1448,7 @@ jobs:
     - task: curl-concourse
       image: cf-deployment-concourse-tasks-bbl-dev
       input_mapping:
-        bbl-state: updated-env-repo
+        bbl-state: test-bbl-state
       config:
         platform: linux
         inputs:
@@ -1474,7 +1457,7 @@ jobs:
           path: bash
           args:
             - "-c"
-            - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+            - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     - put: concourse-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
@@ -1495,7 +1478,7 @@ jobs:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
@@ -1522,24 +1505,17 @@ jobs:
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_ENV_NAME: bbl-aws-concourse
   - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
-      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
-      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
-      BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bbl-aws-concourse
       BBL_STATE_DIR: bbl-aws-concourse
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-      bbl-plan-patch: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -1549,24 +1525,24 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -1580,12 +1556,12 @@ jobs:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
         - concourse-deployment/cluster/operations/tls.yml
-        - concourse-deployment/cluster/operations/tls-vars.yml
+        - ci/operations/concourse-tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: updated-env-repo
+      bbl-state: updated-bbl-state
     config:
       platform: linux
       inputs:
@@ -1596,7 +1572,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_url | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -1609,7 +1585,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
         input_mapping:
-          env-repo: updated-env-repo
+          bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
@@ -1618,7 +1594,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-env-repo
+            repository: updated-bbl-state
 
 - name: validate-plan-patches
   plan:
@@ -2431,7 +2407,7 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2456,24 +2432,17 @@ jobs:
       BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
   - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: gcp
       BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
       BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
       BBL_GCP_REGION: ((bbl_gcp_region))
-      BBL_LB_CERT: ((bbl_downstream_cf_ssl_cert.certificate))
-      BBL_LB_KEY: ((bbl_downstream_cf_ssl_cert.private_key))
-      BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-gcp-concourse
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-      bbl-plan-patch: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -2483,18 +2452,18 @@ jobs:
         BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -2513,7 +2482,7 @@ jobs:
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: updated-env-repo
+      bbl-state: updated-bbl-state
     config:
       platform: linux
       inputs:
@@ -2524,7 +2493,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2537,7 +2506,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
         input_mapping:
-          env-repo: updated-env-repo
+          bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
           BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
@@ -2546,7 +2515,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-env-repo
+            repository: updated-bbl-state
 
 - name: bbl-azure-concourse-bump-deployments
   serial: true
@@ -2559,7 +2528,7 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2587,7 +2556,7 @@ jobs:
       BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
   - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: azure
@@ -2596,17 +2565,10 @@ jobs:
       BBL_AZURE_CLIENT_ID: ((azure_client_id))
       BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
       BBL_AZURE_REGION: ((azure_location))
-      BBL_LB_CERT: ((azure_lb_cert))
-      BBL_LB_KEY: ((azure_lb_key))
-      BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-azure-concourse
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-      bbl-plan-patch: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -2619,24 +2581,24 @@ jobs:
         BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
         BBL_AZURE_REGION: ((azure_location))
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -2655,7 +2617,7 @@ jobs:
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: updated-env-repo
+      bbl-state: updated-bbl-state
     config:
       platform: linux
       inputs:
@@ -2666,7 +2628,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2679,7 +2641,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
         input_mapping:
-          env-repo: updated-env-repo
+          bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
           BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
@@ -2691,7 +2653,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-env-repo
+            repository: updated-bbl-state
 
 - name: bbl-aws-concourse-bump-deployments
   serial: true
@@ -2704,7 +2666,7 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
       trigger: true
     - get: cf-deployment-concourse-tasks
-      resource: cf-deployment-concourse-tasks-infrastructure
+      resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2730,24 +2692,17 @@ jobs:
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
       BBL_ENV_NAME: bump-deployments-aws-concourse
   - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
     params:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       BBL_AWS_REGION: us-west-2
-      BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
-      BBL_LB_KEY: ((bbl_aws_cf_lb_cert.private_key))
-      BBL_LB_TYPE: concourse
       BBL_ENV_NAME: bump-deployments-aws-concourse
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
-      GIT_COMMIT_EMAIL: cf-infrastructure@pivotal.io
-      GIT_COMMIT_USERNAME: CI Infra Bot
     input_mapping:
-      env-repo: infrastructure-ci-bbl-states
-      ops-files: infrastructure-ci-bbl-states
-      bbl-plan-patch: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     on_failure:
       task: bbl-up-destroy-infrastructure
       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
@@ -2757,24 +2712,24 @@ jobs:
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
       input_mapping:
-        env-repo: updated-env-repo
+        bbl-state: updated-bbl-state
       ensure:
         put: infrastructure-ci-bbl-states
         params:
           rebase: true
-          repository: updated-env-repo
+          repository: updated-bbl-state
   - task: create-bosh-source-file
     file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
     params:
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
-      bbl-states: updated-env-repo
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -2788,12 +2743,12 @@ jobs:
         - concourse-deployment/cluster/operations/privileged-http.yml
         - concourse-deployment/cluster/operations/basic-auth.yml
         - concourse-deployment/cluster/operations/tls.yml
-        - concourse-deployment/cluster/operations/tls-vars.yml
+        - ci/operations/concourse-tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: updated-env-repo
+      bbl-state: updated-bbl-state
     config:
       platform: linux
       inputs:
@@ -2804,7 +2759,7 @@ jobs:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl lbs --state-dir bbl-state/${BBL_STATE_DIR} | awk -F': ' '{print $2}') | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_url | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2817,7 +2772,7 @@ jobs:
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         image: cf-deployment-concourse-tasks-bbl-dev
         input_mapping:
-          env-repo: updated-env-repo
+          bbl-state: updated-bbl-state
         params:
           BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
           BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
@@ -2826,7 +2781,7 @@ jobs:
           put: infrastructure-ci-bbl-states
           params:
             rebase: true
-            repository: updated-env-repo
+            repository: updated-bbl-state
 
 - name: bbl-aws-cf-bump-deployments
   serial: true
