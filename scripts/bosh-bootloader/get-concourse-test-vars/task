@@ -7,8 +7,14 @@ function main() {
     local external_host
     local username
     local password
+    local iaas
 
-    external_host="$(bbl outputs | grep concourse_lb_ip | cut -d ' ' -f2)"
+    iaas="$(cat bbl-state.json | jq -r .iaas)"
+    if [ "${iaas}" = "aws" ]; then
+      external_host="$(bbl outputs | grep concourse_lb_url | cut -d ' ' -f2)"
+    else
+      external_host="$(bbl outputs | grep concourse_lb_ip | cut -d ' ' -f2)"
+    fi
     username="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
     password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 
