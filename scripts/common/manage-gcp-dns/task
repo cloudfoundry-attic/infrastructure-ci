@@ -42,13 +42,13 @@ function main() {
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction start -z "${GCP_DNS_ZONE_NAME}"
 
   if [[ -n "${zone_info}" ]]; then
-    outdated_dns_servers="$(echo $zone_info | awk 'NR==2{print $4}' | sed 's/,/ /g')"
+    outdated_dns_servers=$(echo "${zone_info}" | awk 'NR==2{print $4}' | sed 's/,/ /g')
 
     gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction remove -z "${GCP_DNS_ZONE_NAME}" \
       --name "${GCP_DNS_RECORD_SET_NAME}" \
       --ttl "${GCP_DNS_RECORD_TTL}" \
       --type NS \
-      "${outdated_dns_servers}"
+      ${outdated_dns_servers[@]}
   fi
 
   if [[ "${ACTION}" = "add" ]]; then
