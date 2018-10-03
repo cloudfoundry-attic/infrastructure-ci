@@ -5,7 +5,7 @@ main() {
   local output_key
 
   local iaas_lowercase=$(echo "${IAAS}" | awk '{print tolower($0)}')
-  case "$iaas_lowercase"
+  case "$iaas_lowercase" in
   aws)
     output_key=ops_manager_ami
     ;;
