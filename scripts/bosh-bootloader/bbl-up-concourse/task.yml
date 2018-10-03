@@ -10,6 +10,7 @@ image_resource:
 inputs:
 - name: ci
 - name: bbl-state
+- name: cf-deployment-concourse-tasks
 
 outputs:
 - name: updated-bbl-state
