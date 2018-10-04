@@ -80,15 +80,6 @@ resource_types:
     repository: cloudfoundry/bosh-deployment-resource
 
 resources:
-- name: concourse-secrets
-  type: s3
-  source:
-    bucket: infra-concourse-secrets
-    versioned_file: concourse-secrets.yml
-    access_key_id: ((aws_access_key_id))
-    secret_access_key: ((aws_secret_access_key))
-    region_name: us-west-2
-
 - name: ubuntu-xenial-stemcell-gcp
   type: bosh-io-stemcell
   source:
@@ -1271,7 +1262,6 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: concourse-secrets
     - get: bbl-version
       resource: dev-version
       passed: [bbl-downstream-docker-image]
@@ -1408,7 +1398,8 @@ jobs:
     - get: bbl-cli-dev
       passed: [build-bbl-state-docker]
       trigger: true
-    - get: concourse-secrets
+    - get: ci
+      resource: infrastructure-ci
   - do:
     - put: test-bbl-state
       params:
@@ -1486,7 +1477,6 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: concourse-secrets
     - get: bbl-version
       resource: dev-version
       passed: [bbl-downstream-docker-image]
@@ -2415,7 +2405,6 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: concourse-secrets
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2536,7 +2525,6 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: concourse-secrets
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2674,7 +2662,6 @@ jobs:
       resource: infrastructure-ci
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: concourse-secrets
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
