@@ -1446,7 +1446,7 @@ jobs:
           path: bash
           args:
             - "-c"
-            - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+            - "curl -k https://$(bbl outputs --state-dir test-bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     - put: concourse-bosh-deployment
       params:
         source_file: test-bbl-state/bdr-source-file
