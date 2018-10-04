@@ -1260,8 +1260,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: bbl-version
       resource: dev-version
       passed: [bbl-downstream-docker-image]
@@ -1475,8 +1473,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: bbl-version
       resource: dev-version
       passed: [bbl-downstream-docker-image]
@@ -2403,8 +2399,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2523,8 +2517,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
@@ -2660,8 +2652,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: bbl-version
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
