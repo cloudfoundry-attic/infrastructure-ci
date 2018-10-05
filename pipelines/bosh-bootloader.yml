@@ -1269,8 +1269,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
     - get: bbl-version
       resource: dev-version
@@ -1486,8 +1484,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
     - get: bbl-version
       resource: dev-version
@@ -2415,8 +2411,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
     - get: bbl-version
       resource: version
@@ -2542,8 +2536,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
     - get: bbl-version
       resource: version
@@ -2680,8 +2672,6 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ci
       resource: infrastructure-ci
-    - get: vars-store
-      resource: infrastructure-ci-bbl-states
     - get: concourse-secrets
     - get: bbl-version
       resource: version
