@@ -1408,6 +1408,8 @@ jobs:
     - get: bbl-cli-dev
       passed: [build-bbl-state-docker]
       trigger: true
+    - get: ci
+      resource: infrastructure-ci
     - get: concourse-secrets
   - do:
     - put: test-bbl-state
@@ -2464,6 +2466,12 @@ jobs:
       BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
     input_mapping:
       bbl-states: updated-bbl-state
+  - task: get-concourse-test-vars
+    file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
+    params:
+      BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
+    input_mapping:
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
       source_file: source-file/bosh-source.json
@@ -2596,7 +2604,7 @@ jobs:
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-concourse
+      BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
     input_mapping:
       bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
@@ -2727,7 +2735,7 @@ jobs:
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     params:
-      BBL_STATE_DIR: bbl-aws-concourse
+      BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
     input_mapping:
       bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
