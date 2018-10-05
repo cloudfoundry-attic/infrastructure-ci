@@ -14,7 +14,7 @@ outputs:
 - name: concourse-test-vars
 
 params:
-  BBL_STATE_DIR: infra-ci
+  BBL_STATE_DIR:
 
 run:
   path: ci/scripts/bosh-bootloader/get-concourse-test-vars/task
