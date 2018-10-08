@@ -36,10 +36,6 @@ RUN /opt/rubies/ruby-2.2.4/bin/gem install bundler --no-rdoc --no-ri
 # Install bosh_cli v1
 RUN /opt/rubies/ruby-2.2.4/bin/gem install bosh_cli --no-rdoc --no-ri
 
-# Install bosh_cli v2
-RUN curl -L "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-$(curl -s https://api.github.com/repos/cloudfoundry/bosh-cli/releases | jq -r .[0].name | tr -d "v")-linux-amd64" -o "/usr/local/bin/bosh" && \
-  chmod +x "/usr/local/bin/bosh"
-
 # Install terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
   unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
@@ -56,6 +52,10 @@ RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk-trusty main" > /et
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   mv jq-linux64 /usr/local/bin/jq && \
   chmod +x /usr/local/bin/jq
+
+# Install bosh_cli v2
+RUN curl -L "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-$(curl -s https://api.github.com/repos/cloudfoundry/bosh-cli/releases | jq -r .[0].name | tr -d "v")-linux-amd64" -o "/usr/local/bin/bosh" && \
+  chmod +x "/usr/local/bin/bosh"
 
 # Install bbl
 RUN curl -H "Authorization: token ${GITHUB_TOKEN}" -s https://api.github.com/repos/cloudfoundry/bosh-bootloader/releases/latest | \
