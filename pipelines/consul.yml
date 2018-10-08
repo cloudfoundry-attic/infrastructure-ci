@@ -52,7 +52,7 @@ resources:
   type: git
   source:
     branch: master
-    private_key: ((consul-release-private-key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
 - name: consul-release-gh
@@ -66,7 +66,7 @@ resources:
   type: git
   source:
     branch: develop
-    private_key: ((consul-release-private-key.private_key))
+    private_key: ((cf_infra_bot_github_user.private_key))
     uri: git@github.com:cloudfoundry-incubator/consul-release.git
 
 - name: cf-deployment-concourse-tasks
