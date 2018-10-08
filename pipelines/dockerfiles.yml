@@ -120,6 +120,13 @@ resources:
     repository: bosh-bootloader
     access_token: ((cf_infra_bot_user_github_access_token))
 
+- name: bosh-cli
+  type: github-release
+  source:
+    owner: cloudfoundry
+    repository: bosh-cli
+    access_token: ((cf_infra_bot_user_github_access_token))
+
 jobs:
 - name: minimal-docker-image
   public: true
@@ -200,6 +207,8 @@ jobs:
         resource: deployment-dockerfile
         trigger: true
       - get: bbl-release
+        trigger: true
+      - get: bosh-cli
         trigger: true
     - put: deployment-docker-image
       params:

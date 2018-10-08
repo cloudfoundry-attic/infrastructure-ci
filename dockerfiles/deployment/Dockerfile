@@ -3,7 +3,6 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ARG GITHUB_TOKEN
 ENV TERRAFORM_VERSION 0.11.0
-ENV BOSH_CLI_VERSION 4.0.1
 
 RUN \
       apt-get update && \
@@ -38,9 +37,8 @@ RUN /opt/rubies/ruby-2.2.4/bin/gem install bundler --no-rdoc --no-ri
 RUN /opt/rubies/ruby-2.2.4/bin/gem install bosh_cli --no-rdoc --no-ri
 
 # Install bosh_cli v2
-RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 && \
-  mv bosh-cli-${BOSH_CLI_VERSION}-linux-amd64 /usr/local/bin/bosh && \
-  chmod +x /usr/local/bin/bosh
+RUN curl -L "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-$(curl -s https://api.github.com/repos/cloudfoundry/bosh-cli/releases | jq -r .[0].name | tr -d "v")-linux-amd64" -o "/usr/local/bin/bosh" && \
+  chmod +x "/usr/local/bin/bosh"
 
 # Install terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
