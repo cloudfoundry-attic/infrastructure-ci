@@ -1,7 +1,6 @@
 FROM python:3.6.5-jessie
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
-ENV OM_VERSION 0.40.0
 ENV TERRAFORM_VERSION 0.11.7
 ENV BOSH_CLI_VERSION 5.1.2
 
@@ -18,7 +17,7 @@ RUN \
       apt-get clean
 
 # Install om
-RUN wget https://github.com/pivotal-cf/om/releases/download/${OM_VERSION}/om-linux && \
+RUN wget "https://github.com/pivotal-cf/om/releases/download/$(curl -s https://api.github.com/repos/pivotal-cf/om/releases | jq -r '.[0].name' | tr -d "v")/om-linux" && \
   mv om-linux /usr/local/bin/om && \
   chmod +x /usr/local/bin/om
 
