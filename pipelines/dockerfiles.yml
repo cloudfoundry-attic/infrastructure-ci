@@ -10,6 +10,12 @@ groups:
   - terraform-image
 
 resources:
+- name: infrastructure-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/infrastructure-ci
+    branch: master
+
 - name: terraform-dockerfile
   type: git
   source:
@@ -195,11 +201,17 @@ jobs:
       - get: infrastructure-ci
         resource: golang-dockerfile
         trigger: true
+      - get: ci
+        resource: infrastructure-ci
       - get: golang-linux
         trigger: true
+    - task: prepare-golang-docker-workspace
+      file: ci/scripts/docker/prepare-golang-workspace/task.yml
+      params:
+        DOCKERFILE: golang
     - put: golang-docker-image
       params:
-        build: infrastructure-ci/dockerfiles/golang
+        build: docker-workspace
         cache: false
 
 - name: deployment-docker-image

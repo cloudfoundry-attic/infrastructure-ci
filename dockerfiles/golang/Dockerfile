@@ -2,9 +2,7 @@ FROM cfinfrastructure/minimal
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 # Install go
-ADD golang-linux /tmp/golang && \
-  tar -C /usr/local -xzf /tmp/golang/go*.linux-amd64.tar.gz && \
-  rm -rf /tmp/golang
+ADD go /usr/local
 RUN chown -R testuser:testuser /usr/local/go/pkg
 
 # Create directory for GOPATH
