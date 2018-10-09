@@ -22,6 +22,7 @@ groups:
   - major
   - bbl-up-gcp-concourse-director
   - bbl-up-vsphere-concourse-director
+  - deliver-stories
   - github-release
 
 - name: bump-deployments
@@ -80,6 +81,13 @@ resource_types:
     repository: cloudfoundry/bosh-deployment-resource
 
 resources:
+- name: cf-infra-tracker
+  type: tracker
+  source:
+    token: ((cf_infra_tracker_token))
+    project_id: "1488988"
+    tracker_url: https://www.pivotaltracker.com
+
 - name: ubuntu-xenial-stemcell-gcp
   type: bosh-io-stemcell
   source:
@@ -2640,6 +2648,18 @@ jobs:
           params:
             rebase: true
             repository: updated-bbl-state
+
+- name: deliver-stories
+  plan:
+  - get: bosh-bootloader
+    trigger: true
+    passed:
+    - bbl-up-gcp-concourse-director
+    - bbl-up-vsphere-concourse-director
+  - put: cf-infra-tracker
+    params:
+      repos:
+      - bosh-bootloader
 
 - name: bbl-aws-concourse-bump-deployments
   serial: true
