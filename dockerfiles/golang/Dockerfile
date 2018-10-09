@@ -2,7 +2,7 @@ FROM cfinfrastructure/minimal
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 # Install go
-ADD go /usr/local
+ADD go /usr/local/
 RUN chown -R testuser:testuser /usr/local/go/pkg
 
 # Create directory for GOPATH

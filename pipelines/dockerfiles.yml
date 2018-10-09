@@ -207,8 +207,10 @@ jobs:
         trigger: true
     - task: prepare-golang-docker-workspace
       file: ci/scripts/docker/prepare-golang-workspace/task.yml
+      input_mapping:
+        dockerfiles: infrastructure-ci
       params:
-        DOCKERFILE: golang
+        DOCKERFILE: dockerfiles/golang/Dockerfile
     - put: golang-docker-image
       params:
         build: docker-workspace
