@@ -12,6 +12,7 @@ function main() {
   local bosh_bootloader_commit_sha
   local deployment_versions
 
+  mkdir -p "${GOPATH}/src/github.com/cloudfoundry/"
   ln -s "${ROOT}/bosh-bootloader" "${GOPATH}/src/github.com/cloudfoundry/"
 
   bosh_bootloader_commit_sha=$(git -C "${ROOT}/bosh-bootloader" rev-parse HEAD)
