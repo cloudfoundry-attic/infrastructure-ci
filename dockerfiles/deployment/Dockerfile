@@ -79,3 +79,5 @@ RUN curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=git
   mv cf /usr/local/bin/cf
 
 RUN go get -u github.com/pivotal-cf/texplate
+
+RUN go get -u github.com/jteeuwen/go-bindata/...
