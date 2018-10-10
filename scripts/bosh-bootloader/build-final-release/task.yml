@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
+    repository: cfinfrastructure/deployment
 
 inputs:
   - name: bosh-bootloader
