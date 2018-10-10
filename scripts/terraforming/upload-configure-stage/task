@@ -16,7 +16,7 @@ texplate execute "${cwd}/product-config-repo/${PRODUCT_CONFIG_TEMPLATE}" -f "${c
 
 # upload and stage product
 om -t "https://${opsman_dns}" -k upload-stemcell --stemcell "${stemcell}"
-om -t "https://${opsman_dns}" -k upload-product --product "${product}"
+om -t "https://${opsman_dns}" -k upload-product --product "${product}" --request-timeout 7200
 om -t "https://${opsman_dns}" -k stage-product --product-name "${PRODUCT_NAME}" --product-version "${version}"
 
 # configure-product
