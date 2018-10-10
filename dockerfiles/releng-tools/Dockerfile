@@ -16,6 +16,11 @@ RUN \
       && \
       apt-get clean
 
+# Install jq
+RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
+  mv jq-linux64 /usr/local/bin/jq && \
+  chmod +x /usr/local/bin/jq
+
 # Install om
 RUN wget "https://github.com/pivotal-cf/om/releases/download/$(curl -s https://api.github.com/repos/pivotal-cf/om/releases | jq -r '.[0].name' | tr -d "v")/om-linux" && \
   mv om-linux /usr/local/bin/om && \
@@ -25,11 +30,6 @@ RUN wget "https://github.com/pivotal-cf/om/releases/download/$(curl -s https://a
 RUN wget https://github.com/pivotal-cf/texplate/releases/download/v0.2.0/texplate_linux_amd64 && \
   mv texplate_linux_amd64 /usr/local/bin/texplate && \
   chmod +x /usr/local/bin/texplate
-
-# Install jq
-RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
-  mv jq-linux64 /usr/local/bin/jq && \
-  chmod +x /usr/local/bin/jq
 
 # Install terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
