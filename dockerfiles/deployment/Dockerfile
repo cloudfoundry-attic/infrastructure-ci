@@ -78,6 +78,13 @@ RUN curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=git
   chmod +x cf && \
   mv cf /usr/local/bin/cf
 
+# Install Credhub
+RUN CREDHUB_CLI_REPO="cloudfoundry-incubator/credhub-cli" && \
+    CREDHUB_CLI_VERSION="$(curl -s https://api.github.com/repos/${CREDHUB_CLI_REPO}/releases | jq -r '.[0].name' | tr -d 'v')" && \
+    wget -c "https://github.com/${CREDHUB_CLI_REPO}/releases/download/${CREDHUB_CLI_VERSION}/credhub-linux-${CREDHUB_CLI_VERSION}.tgz" -O - | tar -zx && \
+    mv credhub /usr/local/bin/credhub && \
+    chmod +x /usr/local/bin/credhub
+
 RUN go get -u github.com/pivotal-cf/texplate
 
 RUN go get -u github.com/jteeuwen/go-bindata/...
