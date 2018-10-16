@@ -8,6 +8,7 @@ groups:
   - mkdocs-docker-image
   - releng-tools-docker-image
   - terraform-image
+  - control-plane-image
 
 resources:
 - name: infrastructure-ci
@@ -56,7 +57,6 @@ resources:
     paths:
     - dockerfiles/mkdocs
 
-
 - name: releng-tools-dockerfile
   type: git
   source:
@@ -70,6 +70,23 @@ resources:
   source:
     repository: ubuntu
     tag: "14.04"
+
+- name: control-plane-dockerfile
+  type: git
+  source:
+    private_key: ((control-plane-tile-repo.private_key))
+    uri: git@github.com:pivotal-cf/control-plane-tile.git
+    branch: master
+    paths:
+    - ci/docker
+
+- name: control-plane-docker-image
+  type: docker-image
+  source:
+    repository: cfinfrastructure/control-plane
+    username: ((docker_user.username))
+    password: ((docker_user.password))
+    email: ((docker-email))
 
 - name: minimal-docker-image
   type: docker-image
@@ -141,6 +158,18 @@ resources:
     regexp: 'go(1\.\d+(\.\d+)?)\.linux-amd64\.tar.gz'
 
 jobs:
+- name: control-plane-image
+  public: true
+  plan:
+  - do:
+    - get: infrastructure-ci
+      resource: control-plane-dockerfile
+      trigger: true
+    - put: control-plane-docker-image
+      params:
+        build: infrastructure-ci/ci/docker
+        cache: false
+
 - name: minimal-docker-image
   public: true
   plan:
