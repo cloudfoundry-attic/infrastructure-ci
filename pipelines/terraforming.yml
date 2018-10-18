@@ -12,13 +12,6 @@ resource_types:
     tag: latest-final
 
 resources:
-- name: terraforming-azure
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:pivotal-cf/terraforming-azure.git
-    private_key: ((cf_infra_bot_github_user.private_key))
-
 - name: terraforming-vsphere
   type: git
   source:
@@ -38,24 +31,6 @@ shared:
     OM_PASSWORD: ((om.password))
 
 jobs:
-- name: terraforming-azure
-  serial: true
-  public: false
-  plan:
-  - aggregate:
-    - get: terraforming-azure
-      trigger: true
-    - get: ci
-      resource: infrastructure-ci
-  - task: apply-and-destroy
-    file: ci/scripts/terraforming/azure/task.yml
-    params:
-      AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
-      AZURE_TENANT_ID: ((azure_tenant_id))
-      AZURE_CLIENT_ID: ((azure_client_id))
-      AZURE_CLIENT_SECRET: ((azure_client_secret))
-      AZURE_VM_ADMIN_PASSWORD: ((azure_vm_admin_password))
-
 - name: terraforming-vsphere
   serial: true
   public: false
