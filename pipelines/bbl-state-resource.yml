@@ -78,7 +78,7 @@ resources:
 - name: bbl-state-resource-release-docker
   type: docker-image
   source:
-    tag: pre-release
+    tag: ci
     repository: cfinfrastructure/bbl-state-resource
     username: ((docker_user.username))
     password: ((docker_user.password))
@@ -127,6 +127,7 @@ jobs:
     params:
       build: bbl-state-resource-src
       build_args_file: docker-build-args/json
+      tag: bbl-state-resource-release-docker/tag
   - task: sleep-so-that-concourse-uses-our-new-image
     image: cf-deployment-concourse-tasks-bbl-dev
     config:
@@ -253,4 +254,3 @@ jobs:
     params:
       tag_as_latest: true
       load: bbl-state-resource-release-docker
-
