@@ -1393,78 +1393,115 @@ jobs:
   - aggregate:
     - get: concourse-deployment
     - get: bosh-bootloader
-      passed: [build-bbl-state-docker]
+      passed: [bbl-downstream-docker-image]
     - get: ubuntu-xenial-stemcell-gcp
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
-      passed: [build-bbl-state-docker]
+      passed: [bbl-downstream-docker-image]
     - get: bbl-version
       resource: dev-version
-      passed: [build-bbl-state-docker]
+      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
-      passed: [build-bbl-state-docker]
+      passed: [bbl-downstream-docker-image]
       trigger: true
     - get: ci
       resource: infrastructure-ci
-  - do:
-    - put: test-bbl-state
-      params:
-        command: "down"
-        name: bbl-gcp-concourse
-    - put: test-bbl-state
-      params:
-        command: "leftovers"
-        args:
-          filter: bbl-gcp-concourse
-        name: bbl-gcp-concourse
-    - put: test-bbl-state
-      params:
-        name: bbl-gcp-concourse
-        command: "up"
-        args:
-          lb-type: concourse
-    - task: get-concourse-test-vars
-      file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
-      input_mapping:
-        bbl-states: test-bbl-state
-    - put: concourse-bosh-deployment
-      params:
-        source_file: test-bbl-state/bdr-source-file
-        manifest: concourse-deployment/cluster/concourse.yml
-        stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
-        vars_files:
-          - concourse-deployment/versions.yml
-          - concourse-test-vars/vars.yml
-        ops_files:
-          - concourse-deployment/cluster/operations/privileged-https.yml
-          - concourse-deployment/cluster/operations/privileged-http.yml
-          - concourse-deployment/cluster/operations/basic-auth.yml
-          - concourse-deployment/cluster/operations/tls.yml
-          - concourse-deployment/cluster/operations/tls-vars.yml
-          - concourse-deployment/cluster/operations/web-network-extension.yml
-    - task: curl-concourse
+  - task: bbl-leftovers
+    file: ci/scripts/bosh-bootloader/leftovers/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_ENV_NAME: bbl-gcp-concourse
+      BBL_STATE_DIR: bbl-gcp-concourse
+  - task: bbl-up
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
+    image: cf-deployment-concourse-tasks-bbl-dev
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+      BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+      BBL_GCP_REGION: ((bbl_gcp_region))
+      BBL_ENV_NAME: bbl-gcp-concourse
+      BBL_STATE_DIR: bbl-gcp-concourse
+    input_mapping:
+      bbl-state: infrastructure-ci-bbl-states
+    on_failure:
+      task: bbl-up-destroy-infrastructure
+      file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
       image: cf-deployment-concourse-tasks-bbl-dev
+      params:
+        BBL_STATE_DIR: bbl-gcp-concourse
+        BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+        BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
       input_mapping:
-        bbl-state: test-bbl-state
-      config:
-        platform: linux
-        inputs:
-        - name: test-bbl-state
-        run:
-          path: bash
-          args:
-            - "-c"
-            - "curl -k https://$(bbl outputs --state-dir test-bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
-    - put: concourse-bosh-deployment
-      params:
-        source_file: test-bbl-state/bdr-source-file
-        delete:
-          enabled: true
-          force: true
-    - put: test-bbl-state
-      params:
-        command: "down"
-        name: bbl-gcp-concourse
+        bbl-state: updated-bbl-state
+      ensure:
+        put: infrastructure-ci-bbl-states
+        params:
+          rebase: true
+          repository: updated-bbl-state
+  - task: create-bosh-source-file
+    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
+    params:
+      BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
+    input_mapping:
+      bbl-states: updated-bbl-state
+  - task: get-concourse-test-vars
+    file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
+    input_mapping:
+      bbl-states: test-bbl-state
+  - put: concourse-bosh-deployment
+    params:
+      source_file: test-bbl-state/bdr-source-file
+      manifest: concourse-deployment/cluster/concourse.yml
+      stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
+      vars_files:
+        - concourse-deployment/versions.yml
+        - concourse-test-vars/vars.yml
+      ops_files:
+        - concourse-deployment/cluster/operations/privileged-https.yml
+        - concourse-deployment/cluster/operations/privileged-http.yml
+        - concourse-deployment/cluster/operations/basic-auth.yml
+        - concourse-deployment/cluster/operations/tls.yml
+        - concourse-deployment/cluster/operations/tls-vars.yml
+        - concourse-deployment/cluster/operations/web-network-extension.yml
+  - task: curl-concourse
+    image: cf-deployment-concourse-tasks-bbl-dev
+    input_mapping:
+      bbl-state: test-bbl-state
+    config:
+      platform: linux
+      inputs:
+      - name: test-bbl-state
+      run:
+        path: bash
+        args:
+          - "-c"
+          - "curl -k https://$(bbl outputs --state-dir test-bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+    ensure:
+      do:
+      - put: concourse-bosh-deployment
+        params:
+          source_file: source-file/bosh-source.json
+          delete:
+            enabled: true
+            force: true
+      - task: destroy-infrastructure
+        file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+        image: cf-deployment-concourse-tasks-bbl-dev
+        input_mapping:
+          bbl-state: updated-bbl-state
+        params:
+          BBL_STATE_DIR: bbl-gcp-concourse
+          BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
+          BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
+        on_failure:
+          put: infrastructure-ci-bbl-states
+          params:
+            rebase: true
+            repository: updated-bbl-state
 
 - name: bbl-aws-concourse
   serial: true
