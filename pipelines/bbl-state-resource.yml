@@ -9,6 +9,13 @@ groups:
   - bbl-pool-up
   - bbl-state-resource-tag-latest
 
+resource_types:
+- name: bbl-state-resource
+  type: docker-image
+  source:
+    repository: cfinfrastructure/bbl-state-resource
+    tag: ci
+
 resources:
 - name: cf-deployment-concourse-tasks-bbl-dev
   type: docker-image

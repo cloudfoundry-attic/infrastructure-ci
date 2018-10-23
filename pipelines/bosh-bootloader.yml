@@ -58,12 +58,6 @@ groups:
   - test-with-latest-bosh-cli
 
 resource_types:
-- name: bbl-state-resource
-  type: docker-image
-  source:
-    repository: cfinfrastructure/bbl-state-resource
-    tag: ci
-
 - name: bosh-deployment
   type: docker-image
   source:
