@@ -1176,10 +1176,10 @@ jobs:
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
     input_mapping:
-      bbl-states: test-bbl-state
+      bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
     params:
-      source_file: test-bbl-state/bdr-source-file
+      source_file: source-file/bosh-source.json
       manifest: concourse-deployment/cluster/concourse.yml
       stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
       vars_files:
@@ -1195,16 +1195,16 @@ jobs:
   - task: curl-concourse
     image: cf-deployment-concourse-tasks-bbl-dev
     input_mapping:
-      bbl-state: test-bbl-state
+      bbl-states: updated-bbl-state
     config:
       platform: linux
       inputs:
-      - name: test-bbl-state
+      - name: bbl-states
       run:
         path: bash
         args:
           - "-c"
-          - "curl -k https://$(bbl outputs --state-dir test-bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+          - "curl -k https://$(bbl outputs --state-dir bbl-states/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
     ensure:
       do:
       - put: concourse-bosh-deployment
