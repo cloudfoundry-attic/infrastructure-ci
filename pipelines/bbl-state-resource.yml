@@ -22,14 +22,6 @@ resource_types:
     repository: cloudfoundry/bosh-deployment-resource
 
 resources:
-- name: cf-deployment-concourse-tasks-bbl-dev
-  type: docker-image
-  source:
-    repository: cfinfrastructure/cf-deployment-concourse-tasks-bbl-dev
-    username: ((docker_user.username))
-    password: ((docker_user.password))
-    email: ((docker-email))
-
 - name: ubuntu-xenial-stemcell-gcp
   type: bosh-io-stemcell
   source:
@@ -102,7 +94,6 @@ jobs:
   public: false
   plan:
   - aggregate:
-    - get: cf-deployment-concourse-tasks-bbl-dev
     - get: bbl-state-resource-release-docker
     - get: bbl-state-resource-src
       trigger: true
@@ -116,9 +107,12 @@ jobs:
         globs:
         - bbl-*_linux_x86-64
   - task: format-version-as-json
-    image: cf-deployment-concourse-tasks-bbl-dev
     config:
       platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cfinfrastructure/golang
       inputs:
       - name: bbl-release
       outputs:
@@ -135,9 +129,12 @@ jobs:
       build_args_file: docker-build-args/json
       tag: bbl-state-resource-release-docker/tag
   - task: sleep-so-that-concourse-uses-our-new-image
-    image: cf-deployment-concourse-tasks-bbl-dev
     config:
       platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cfinfrastructure/golang
       run:
         path: sleep
         args: [ 100 ]
