@@ -1117,6 +1117,8 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
+    - get: cf-deployment-concourse-tasks
+      resource: cdct
     - get: ubuntu-xenial-stemcell-gcp
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
