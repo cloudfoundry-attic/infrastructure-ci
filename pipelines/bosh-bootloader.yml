@@ -1175,6 +1175,8 @@ jobs:
       bbl-states: updated-bbl-state
   - task: get-concourse-test-vars
     file: ci/scripts/bosh-bootloader/get-concourse-test-vars/task.yml
+    params:
+      BBL_STATE_DIR: bbl-gcp-concourse
     input_mapping:
       bbl-states: updated-bbl-state
   - put: concourse-bosh-deployment
