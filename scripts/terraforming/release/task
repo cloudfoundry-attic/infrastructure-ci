@@ -1,0 +1,8 @@
+#!/bin/bash
+
+main() {
+  commit_sha=$(git -C terraforming rev-parse HEAD)
+  echo -n "${commit_sha}" > release/commitish
+}
+
+main "$@"
