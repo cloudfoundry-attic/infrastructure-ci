@@ -12,4 +12,5 @@ inputs:
 outputs:
 - name: release
 
-run: ci/scripts/terraforming/release/task
+run:
+  path: ci/scripts/terraforming/release/task
