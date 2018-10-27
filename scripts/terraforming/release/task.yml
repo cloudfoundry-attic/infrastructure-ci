@@ -8,6 +8,7 @@ image_resource:
 inputs:
 - name: terraforming
 - name: version
+- name: ci
 
 outputs:
 - name: release
