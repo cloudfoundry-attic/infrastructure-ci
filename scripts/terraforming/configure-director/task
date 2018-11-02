@@ -6,13 +6,13 @@ main() {
 
   texplate execute "${TEMPLATE_PATH}" \
     -f "${cwd}/env-state/metadata" \
-    -o yaml > "${cwd}/director-config.yml"
+    -o json > "${cwd}/director-config.json"
 
   set +x
     om -t "https://${opsman_dns}" -k -o 30 configure-authentication -dp "${OM_PASSWORD}"
   set -x
 
-  om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.yml"
+  om -t "https://${opsman_dns}" -k configure-director --config "${cwd}/director-config.json"
 }
 
 main "$@"
