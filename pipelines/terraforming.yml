@@ -45,6 +45,7 @@ jobs:
     tags: [khaleesi]
     params:
       VSPHERE_NETWORK: ((vsphere_network_name))
+      VSPHERE_SUBNET_CIDR: ((terraforming_vsphere_subnet_cidr))
       VSPHERE_OM_IP: ((vsphere_om_ip))
       VSPHERE_OM_DNS: ((vsphere_om_dns))
       VSPHERE_OM_NTP: ((vsphere_om_ntp))
