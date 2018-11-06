@@ -2,6 +2,7 @@
 
 main() {
   commit_sha=$(git -C terraforming rev-parse HEAD)
+  echo -n "v$(cat version/version)" > release/version
   echo -n "${commit_sha}" > release/commitish
 }
 
