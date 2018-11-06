@@ -753,6 +753,7 @@ jobs:
       BBL_IAAS: vsphere
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
       BBL_VSPHERE_SUBNET: ((vsphere_subnet))
+      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_subnet))
       BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
       BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
       BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
@@ -3214,6 +3215,7 @@ jobs:
     params:
       BBL_VSPHERE_NETWORK: ((vsphere_network_name))
       BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
+      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_concourse_subnet))
       BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
       BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
       BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
