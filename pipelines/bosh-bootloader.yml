@@ -272,6 +272,11 @@ resources:
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: ((cf_infra_bot_github_user.private_key))
 
+- name: concourse-smoke-tests
+  type: git
+  source:
+    uri: https://github.com/joshzarrabi/concourse-smoke-tests
+
 jobs:
 - name: bump-leftovers
   public: true
@@ -1063,7 +1068,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-azure/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
@@ -1133,6 +1138,7 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1188,7 +1194,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
@@ -1196,21 +1202,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - concourse-deployment/cluster/operations/tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-states: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-states
-      params:
-        BBL_STATE_DIR: bbl-gcp-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-states/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -1312,7 +1305,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-aws/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/basic-auth.yml
         - concourse-deployment/cluster/operations/privileged-https.yml
@@ -2237,7 +2230,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
@@ -2369,7 +2362,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-azure/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml
@@ -2509,7 +2502,7 @@ jobs:
       stemcells: [ ubuntu-xenial-stemcell-aws/stemcell.tgz ]
       vars_files:
         - concourse-deployment/versions.yml
-        - concourse-test-vars/vars.yml
+        - concourse-vars/vars.yml
       ops_files:
         - concourse-deployment/cluster/operations/privileged-https.yml
         - concourse-deployment/cluster/operations/privileged-http.yml

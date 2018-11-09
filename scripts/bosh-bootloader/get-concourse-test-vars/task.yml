@@ -11,7 +11,7 @@ inputs:
 - name: bbl-states
 
 outputs:
-- name: concourse-test-vars
+- name: concourse-vars
 
 params:
   BBL_STATE_DIR:

@@ -18,7 +18,7 @@ function main() {
     username="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
     password="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 
-    cat >"${ROOT}/concourse-test-vars/vars.yml" <<EOL
+    cat >"${ROOT}/concourse-vars/vars.yml" <<EOL
 external_host: "${external_host}"
 external_url: "https://${external_host}"
 local_user:
