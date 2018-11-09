@@ -60,6 +60,21 @@ function main() {
   fi
 
   gcloud --project="${GCP_DNS_PROJECT_ID}" dns record-sets transaction execute -z "${GCP_DNS_ZONE_NAME}"
+
+  if [[ "${CHECK_DNS}" == "true" ]]; then
+    check_dns "pcf.${GCP_DNS_RECORD_SET_NAME}"
+  fi
+}
+
+check_dns(){
+  local domain=${1?"there is no domain specified"}
+  while true; do
+    if host "${domain}"; then
+      exit 0
+    fi
+
+    sleep 5
+  done
 }
 
 main

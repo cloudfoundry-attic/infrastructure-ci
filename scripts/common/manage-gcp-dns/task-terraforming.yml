@@ -19,6 +19,7 @@ params:
   GCP_DNS_SUFFIX:
   GCP_DNS_RECORD_TTL: 300
   ACTION:
+  CHECK_DNS: true
 
 run:
   path: ci/scripts/common/manage-gcp-dns/task
