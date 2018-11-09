@@ -13,6 +13,7 @@ RUN \
             silversearcher-ag \
             unzip \
             tree \
+            host \
       && \
       apt-get clean
 
