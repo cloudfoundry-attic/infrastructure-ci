@@ -16,11 +16,7 @@ function main() {
     vars="-l ${var_file}"
   fi
 
-  if [ "${pipeline_name}" = "terraforming" ]; then
-    fly -t ${2} set-pipeline -p ${1} -c ${pipeline_file} -l <(lpass show --notes terraforming-pipeline-creds)
-  else
-    fly -t ${2} set-pipeline -p ${1} -c ${pipeline_file}
-  fi
+  fly -t ${2} set-pipeline -p ${1} -c ${pipeline_file}
 }
 
 main ${1} ${2:-"ovoc"}
