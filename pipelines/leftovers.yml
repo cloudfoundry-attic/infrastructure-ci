@@ -109,7 +109,7 @@ jobs:
       passed: [test]
   - task: acceptance
     file: ci/scripts/leftovers/acceptance/task.yml
-    tags: [khaleesi]
+    tags: [vsphere]
     params:
       LEFTOVERS_ACCEPTANCE: vsphere
       BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))

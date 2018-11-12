@@ -54,19 +54,19 @@ jobs:
     - get: terraform-provider-vsphereovf
       trigger: true
       passed: [test-ovf-provider]
-      tags: [khaleesi]
+      tags: [vsphere]
     - get: ci
       resource: infrastructure-ci
-      tags: [khaleesi]
+      tags: [vsphere]
     - get: core-os-ova
-      tags: [khaleesi]
+      tags: [vsphere]
     - get: core-os-ovf
-      tags: [khaleesi]
+      tags: [vsphere]
     - get: core-os-vmdk
-      tags: [khaleesi]
+      tags: [vsphere]
   - task: run-acceptance-tests
     file: ci/scripts/ovf-provider/acceptance-tests/task.yml
-    tags: [khaleesi]
+    tags: [vsphere]
     params:
       VSPHERE_FOLDER: ((vsphere_vcenter_templates))
       VSPHERE_DATACENTER: ((vsphere_vcenter_dc))
