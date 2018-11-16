@@ -68,9 +68,13 @@ function main() {
 
 check_dns(){
   local domain=${1?"there is no domain specified"}
-  while true; do
+  local count=0
+  local max_successes=12
+  while [[ "$count" -lt "$max_successes" ]]; do
     if host "${domain}" 1.1.1.1; then
-      exit 0
+      count=$((count + 1))
+    else
+      count=0
     fi
 
     sleep 5
