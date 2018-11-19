@@ -71,7 +71,7 @@ check_dns(){
   local count=0
   local max_successes=12
   while [[ "$count" -lt "$max_successes" ]]; do
-    if host "${domain}" 1.1.1.1; then
+    if host "${domain}"; then
       count=$((count + 1))
     else
       count=0
