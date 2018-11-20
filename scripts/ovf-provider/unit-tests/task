@@ -1,7 +1,0 @@
-#!/bin/bash -eux
-
-GOPATH="${PWD}/go"
-
-pushd "${GOPATH}/src/github.com/rowanjacobs/terraform-provider-vsphereovf" > /dev/null
-	ginkgo -r -p -v
-popd > /dev/null
