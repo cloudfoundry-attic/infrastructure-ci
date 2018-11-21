@@ -1005,6 +1005,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: ubuntu-xenial-stemcell-azure
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1076,21 +1077,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - concourse-deployment/cluster/operations/tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-state: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bbl-azure-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -1249,6 +1237,7 @@ jobs:
       passed: [bbl-downstream-docker-image]
       trigger: true
     - get: ubuntu-xenial-stemcell-aws
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1313,21 +1302,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - ci/operations/concourse-tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-state: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bbl-aws-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_url | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2175,6 +2151,7 @@ jobs:
     - get: bbl-cli-dev-bump-deployments
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-gcp
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2238,21 +2215,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - concourse-deployment/cluster/operations/tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-state: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bump-deployments/bbl-gcp-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2299,6 +2263,7 @@ jobs:
     - get: bbl-cli-dev-bump-deployments
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-azure
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2370,21 +2335,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - concourse-deployment/cluster/operations/tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-state: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bump-deployments/bbl-azure-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_ip | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
@@ -2446,6 +2398,7 @@ jobs:
     - get: bbl-cli-dev-bump-deployments
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-aws
+    - get: concourse-smoke-tests
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2510,21 +2463,8 @@ jobs:
         - concourse-deployment/cluster/operations/tls.yml
         - ci/operations/concourse-tls-vars.yml
         - concourse-deployment/cluster/operations/web-network-extension.yml
-  - task: curl-concourse
-    image: cf-deployment-concourse-tasks-bbl-dev
-    input_mapping:
-      bbl-state: updated-bbl-state
-    config:
-      platform: linux
-      inputs:
-      - name: bbl-state
-      params:
-        BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
-      run:
-        path: bash
-        args:
-          - "-c"
-          - "curl -k https://$(bbl outputs --state-dir bbl-state/${BBL_STATE_DIR} | grep concourse_lb_url | cut -d ' ' -f2) | grep '<title>Concourse</title>'"
+  - task: smoke-tests
+    file: concourse-smoke-tests/ci/tasks/run-tests-dynamic.yml
     ensure:
       do:
       - put: concourse-bosh-deployment
