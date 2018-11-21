@@ -855,7 +855,6 @@ jobs:
           - openstack-acceptance-tests-bump-deployments
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
-        trigger: true
       - get: ci
         resource: infrastructure-ci
       - get: bbl-dev
@@ -966,7 +965,6 @@ jobs:
         params:
           unpack: true
       - get: cf-deployment-concourse-tasks-docker-image
-        trigger: true
       - get: ci
         resource: infrastructure-ci
       - get: bbl-dev
