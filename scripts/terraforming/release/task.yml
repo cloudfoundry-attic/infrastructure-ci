@@ -13,5 +13,8 @@ inputs:
 outputs:
 - name: release
 
+params:
+  IAAS:
+
 run:
   path: ci/scripts/terraforming/release/task

@@ -7,7 +7,7 @@ main() {
   echo -n "${commit_sha}" > release/commitish
 
   rm -rf terraforming/ci terraforming/scripts
-  tar cvzf "release/terraforming-aws-${version}.tar.gz" terraforming
+  tar cvzf "release/terraforming-${IAAS}-${version}.tar.gz" terraforming
 }
 
 main "$@"
