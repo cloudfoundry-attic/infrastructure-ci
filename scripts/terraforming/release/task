@@ -2,8 +2,12 @@
 
 main() {
   commit_sha=$(git -C terraforming rev-parse HEAD)
-  echo -n "v$(cat version/version)" > release/version
+  version="v$(cat version/version)"
+  echo -n "${version}" > release/version
   echo -n "${commit_sha}" > release/commitish
+
+  rm -rf terraforming/ci terraforming/scripts
+  tar cvzf "release/terraforming-aws-${version}.tar.gz" terraforming
 }
 
 main "$@"
