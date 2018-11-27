@@ -12,4 +12,6 @@ pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
   export BOSH_LOG_LEVEL=debug
   export BOSH_LOG_PATH="${ROOT}/bosh-logs.txt"
   ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
+
+  mv ${BOSH_LOG_PATH} "${ROOT}/bosh-logs/bosh-logs.txt"
 popd > /dev/null

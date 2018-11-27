@@ -154,6 +154,14 @@ resources:
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
+
+- name: bbl-ci-logs
+  type: s3
+  source:
+    bucket: bbl-ci-logs
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
+
 - name: version
   type: semver
   source:
@@ -442,6 +450,9 @@ jobs:
         BBL_TEST_PACKAGES: bbl
         RUN_TEST: plan
         BBL_UP_TIMEOUT: 80m
+    - put: bbl-ci-logs
+      params:
+        file: bosh-logs/bosh-logs.txt
 
 - name: vsphere-acceptance-tests
   serial: true
