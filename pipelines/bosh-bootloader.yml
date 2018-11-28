@@ -547,6 +547,7 @@ jobs:
       params:
         BBL_DOWN_TIMEOUT: 20m
         BBL_IAAS: gcp
+        STEMCELL_URL: https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-xenial-go_agent
         BBL_GCP_SERVICE_ACCOUNT_KEY: ((bbl_gcp_service_account_key))
         BBL_GCP_PROJECT_ID: ((bbl_gcp_project_id))
         BBL_GCP_REGION: ((bbl_gcp_region))
