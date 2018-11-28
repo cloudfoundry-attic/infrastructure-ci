@@ -2,17 +2,6 @@
 
 ROOT="${PWD}"
 
-trap moveLogFiles EXIT
-moveLogFiles()
-{
-  if [[ -e "${BOSH_LOG_PATH}" ]]; then
-    cp ${BOSH_LOG_PATH} "${ROOT}/bosh-logs/bosh-logs.log"
-  else
-    echo "Failed before bosh cli" > "${ROOT}/bosh-logs/bosh-logs.log"
-  fi
-  exit 1
-}
-
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null

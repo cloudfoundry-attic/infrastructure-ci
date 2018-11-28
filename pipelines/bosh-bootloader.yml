@@ -154,14 +154,6 @@ resources:
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
-- name: bbl-ci-logs
-  type: s3
-  source:
-    bucket: bbl-ci-logs
-    versioned_file: bosh-logs.log
-    access_key_id: ((aws_access_key_id))
-    secret_access_key: ((aws_secret_access_key))
-
 - name: version
   type: semver
   source:
@@ -729,10 +721,6 @@ jobs:
         RUN_TEST: bbl-up
         BBL_DOWN_TIMEOUT: 20m
         BBL_UP_TIMEOUT: 80m
-      ensure:
-        put: bbl-ci-logs
-        params:
-          file: bosh-logs/bosh-logs.log
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
       params:
