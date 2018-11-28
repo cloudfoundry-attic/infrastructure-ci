@@ -10,6 +10,9 @@ inputs:
   - name: bosh-bootloader
   - name: ci
 
+outputs:
+  - name: bosh-logs
+
 run:
   path: ci/scripts/bosh-bootloader/acceptance/task
 
