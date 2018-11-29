@@ -18,6 +18,15 @@ resources:
     ignore_paths:
       - README.md
 
+- name: jumpbox-deployment-choose-trusty
+  type: git
+  source:
+    branch: azure-choose-trusty
+    uri: git@github.com:cloudfoundry/jumpbox-deployment.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+    ignore_paths:
+      - README.md
+
 - name: stemcell-azure-xenial
   type: bosh-io-stemcell
   source:
@@ -49,6 +58,13 @@ resources:
   type: git
   source:
     branch: azure-trusty
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+
+- name: bosh-bootloader-bump-azure-choose-trusty
+  type: git
+  source:
+    branch: azure-choose-trusty
     uri: git@github.com:cloudfoundry/bosh-bootloader.git
     private_key: ((cf_infra_bot_github_user.private_key))
 
@@ -88,6 +104,14 @@ resources:
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
+- name: bbl-ci-logs-choose-trusty
+  type: s3
+  source:
+    bucket: bbl-ci-logs
+    versioned_file: choose-trusty/bosh-logs.txt
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
+
 jobs:
 - name: bump-stemcells-xenial
   serial: true
@@ -122,7 +146,6 @@ jobs:
       resource: jumpbox-deployment-trusty
     - get: stemcell-azure
       resource: stemcell-azure-trusty
-      trigger: true
       params:
         tarball: false
   - task: bump-stemcell
@@ -136,6 +159,55 @@ jobs:
     params:
       rebase: true
       repository: updated-jumpbox-deployment
+
+- name: bump-stemcell-choose-trusty
+  serial: true
+  public: false
+  plan:
+  - aggregate:
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-choose-trusty
+    - get: stemcell-azure
+      resource: stemcell-azure-trusty
+      trigger: true
+      version:
+        version: 3468.78
+      params:
+        tarball: false
+  - task: bump-stemcell
+    file: jumpbox-deployment/ci/tasks/bump-stemcell.yml
+  - task: unit-test
+    file: jumpbox-deployment/ci/tasks/unit-test.yml
+    input_mapping:
+      jumpbox-deployment: updated-jumpbox-deployment
+  - put: jumpbox-deployment
+    resource: jumpbox-deployment-choose-trusty
+    params:
+      rebase: true
+      repository: updated-jumpbox-deployment
+
+- name: bump-deployments-choose-trusty
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+    - get: bosh-deployment
+      trigger: true
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-choose-trusty
+      trigger: true
+    - get: bbl-release-official
+  - task: bump-deployments
+    file: ci/scripts/bosh-deployment/bump-deployments/task.yml
+    input_mapping:
+      bbl-release: bbl-release-official
+  - put: bosh-bootloader-bump-azure-choose-trusty
+    params:
+      repository: bump-deployments-ci
+      force: true
 
 - name: bump-deployments-xenial
   serial: true
@@ -215,6 +287,39 @@ jobs:
       params:
         file: bosh-logs/bosh-logs.txt
 
+- name: azure-acceptance-tests-bump-xenial-on-azure
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-azure-xenial
+      passed: [bump-deployments-xenial]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-xenial
+      passed: [bump-deployments-xenial]
+  - task: bbl-up
+    file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    tags: [azure]
+    params:
+      BBL_IAAS: azure
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_TEST_ENV_ID_PREFIX: azure-xenial
+      BBL_TEST_PACKAGES: bbl
+      RUN_TEST: bbl-up
+      BBL_DOWN_TIMEOUT: 20m
+      BBL_UP_TIMEOUT: 80m
+    ensure:
+      put: bbl-ci-logs-xenial
+      params:
+        file: bosh-logs/bosh-logs.txt
+
 - name: azure-acceptance-tests-bump-trusty
   serial: true
   plan:
@@ -244,5 +349,37 @@ jobs:
       BBL_UP_TIMEOUT: 80m
     ensure:
       put: bbl-ci-logs-trusty
+      params:
+        file: bosh-logs/bosh-logs.txt
+
+- name: azure-acceptance-tests-choose-trusty
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-azure-choose-trusty
+      passed: [bump-deployments-choose-trusty]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-choose-trusty
+      passed: [bump-deployments-choose-trusty]
+  - task: bbl-up
+    file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    params:
+      BBL_IAAS: azure
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_TEST_ENV_ID_PREFIX: azure-choose-trusty
+      BBL_TEST_PACKAGES: bbl
+      RUN_TEST: bbl-up
+      BBL_DOWN_TIMEOUT: 20m
+      BBL_UP_TIMEOUT: 80m
+    ensure:
+      put: bbl-ci-logs-choose-trusty
       params:
         file: bosh-logs/bosh-logs.txt
