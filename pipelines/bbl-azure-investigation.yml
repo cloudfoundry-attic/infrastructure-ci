@@ -1,0 +1,300 @@
+---
+resources:
+- name: jumpbox-deployment-xenial
+  type: git
+  source:
+    branch: azure-xenial
+    uri: git@github.com:cloudfoundry/jumpbox-deployment.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+    ignore_paths:
+      - README.md
+
+- name: jumpbox-deployment-trusty
+  type: git
+  source:
+    branch: azure-trusty
+    uri: git@github.com:cloudfoundry/jumpbox-deployment.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+    ignore_paths:
+      - README.md
+
+- name: stemcell-azure-xenial
+  type: bosh-io-stemcell
+  source:
+    name: bosh-azure-hyperv-ubuntu-xenial-go_agent
+
+- name: stemcell-azure-trusty
+  type: bosh-io-stemcell
+  source:
+    name: bosh-azure-hyperv-ubuntu-trusty-go_agent
+
+- name: bosh-bootloader
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+    ignore_paths:
+      - docs/**
+      - README.md
+
+- name: bosh-bootloader-bump-azure-xenial
+  type: git
+  source:
+    branch: azure-xenial
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+
+- name: bosh-bootloader-bump-azure-trusty
+  type: git
+  source:
+    branch: azure-trusty
+    uri: git@github.com:cloudfoundry/bosh-bootloader.git
+    private_key: ((cf_infra_bot_github_user.private_key))
+
+- name: infrastructure-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+
+- name: bbl-release-official
+  type: github-release
+  source:
+    owner: cloudfoundry
+    repository: bosh-bootloader
+    access_token: ((cf_infra_bot_user_github_access_token))
+    drafts: false
+
+- name: bbl-ci-logs
+  type: s3
+  source:
+    bucket: bbl-ci-logs
+    versioned_file: bosh-logs.txt
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
+
+jobs:
+- name: bump-stemcells-xenial
+  serial: true
+  public: false
+  plan:
+  - aggregate:
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-xenial
+    - get: stemcell-azure
+      resource: stemcell-azure-xenial
+      trigger: true
+      params:
+        tarball: false
+  - task: bump-stemcell
+    file: jumpbox-deployment/ci/tasks/bump-stemcell.yml
+  - task: unit-test
+    file: jumpbox-deployment/ci/tasks/unit-test.yml
+    input_mapping:
+      jumpbox-deployment: updated-jumpbox-deployment
+  - put: jumpbox-deployment
+    resource: jumpbox-deployment-xenial
+    params:
+      rebase: true
+      repository: updated-jumpbox-deployment
+
+- name: bump-stemcells-trusty
+  serial: true
+  public: false
+  plan:
+  - aggregate:
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-trusty
+    - get: stemcell-azure
+      resource: stemcell-azure-trusty
+      trigger: true
+      params:
+        tarball: false
+  - task: bump-stemcell
+    file: jumpbox-deployment/ci/tasks/bump-stemcell.yml
+  - task: unit-test
+    file: jumpbox-deployment/ci/tasks/unit-test.yml
+    input_mapping:
+      jumpbox-deployment: updated-jumpbox-deployment
+  - put: jumpbox-deployment
+    resource: jumpbox-deployment-trusty
+    params:
+      rebase: true
+      repository: updated-jumpbox-deployment
+
+- name: bump-deployments-xenial
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+    - get: bosh-deployment
+      trigger: true
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-xenial
+      trigger: true
+    - get: bbl-release-official
+  - task: bump-deployments
+    file: ci/scripts/bosh-deployment/bump-deployments/task.yml
+    input_mapping:
+      bbl-release: bbl-release-official
+  - put: bosh-bootloader-bump-azure-xenial
+    params:
+      repository: bump-deployments-ci
+      force: true
+
+- name: bump-deployments-trusty
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: bosh-bootloader
+    - get: bosh-deployment
+      trigger: true
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-trusty
+      trigger: true
+    - get: bbl-release-official
+  - task: bump-deployments
+    file: ci/scripts/bosh-deployment/bump-deployments/task.yml
+    input_mapping:
+      bbl-release: bbl-release-official
+  - put: bosh-bootloader-bump-azure-trusty
+    params:
+      repository: bump-deployments-ci
+      force: true
+
+- name: azure-acceptance-tests-bump-xenial
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-azure-xenial
+      passed: [bump-deployments-xenial]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-xenial
+      passed: [bump-deployments-xenial]
+  - task: bbl-up
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cfinfrastructure/deployment
+      inputs:
+        - name: bosh-bootloader
+        - name: ci
+      outputs:
+        - name: bosh-logs
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          #!/bin/bash -exu
+
+          ROOT="${PWD}"
+
+          mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+          pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+            ln -s "${ROOT}/bosh-bootloader"
+
+            export TF_LOG=DEBUG
+            export TF_LOG_PATH="${ROOT}/tf-logs.txt"
+            export BOSH_LOG_LEVEL=debug
+            export BOSH_LOG_PATH="${ROOT}/bosh-logs/bosh-logs.txt"
+            ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
+          popd > /dev/null
+      params:
+        BBL_IAAS: azure
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
+        BBL_TEST_ENV_ID_PREFIX: azure-xenial
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: bbl-up
+        BBL_DOWN_TIMEOUT: 20m
+        BBL_UP_TIMEOUT: 80m
+    ensure:
+      put: bbl-ci-logs
+      params:
+        file: bosh-logs/bosh-logs.txt
+
+- name: azure-acceptance-tests-bump-trusty
+  serial: true
+  plan:
+  - aggregate:
+    - get: bosh-bootloader
+      resource: bosh-bootloader-bump-azure-trusty
+      passed: [bump-deployments-trusty]
+      trigger: true
+    - get: ci
+      resource: infrastructure-ci
+    - get: jumpbox-deployment
+      resource: jumpbox-deployment-trusty
+      passed: [bump-deployments-trusty]
+  - task: bbl-up
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: cfinfrastructure/deployment
+      inputs:
+        - name: bosh-bootloader
+        - name: ci
+      outputs:
+        - name: bosh-logs
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          #!/bin/bash -exu
+
+          ROOT="${PWD}"
+
+          mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
+
+          pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
+            ln -s "${ROOT}/bosh-bootloader"
+
+            export TF_LOG=DEBUG
+            export TF_LOG_PATH="${ROOT}/tf-logs.txt"
+            export BOSH_LOG_LEVEL=debug
+            export BOSH_LOG_PATH="${ROOT}/bosh-logs/bosh-logs.txt"
+            ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
+          popd > /dev/null
+      params:
+        BBL_IAAS: azure
+        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+        BBL_AZURE_CLIENT_ID: ((azure_client_id))
+        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+        BBL_AZURE_REGION: ((azure_location))
+        BBL_TEST_ENV_ID_PREFIX: azure-trusty
+        BBL_TEST_PACKAGES: bbl
+        RUN_TEST: bbl-up
+        BBL_DOWN_TIMEOUT: 20m
+        BBL_UP_TIMEOUT: 80m
+    ensure:
+      put: bbl-ci-logs
+      params:
+        file: bosh-logs/bosh-logs.txt
