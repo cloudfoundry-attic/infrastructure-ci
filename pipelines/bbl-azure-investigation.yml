@@ -72,11 +72,19 @@ resources:
     access_token: ((cf_infra_bot_user_github_access_token))
     drafts: false
 
-- name: bbl-ci-logs
+- name: bbl-ci-logs-trusty
   type: s3
   source:
     bucket: bbl-ci-logs
-    versioned_file: bosh-logs.txt
+    versioned_file: trusty-exploration/bosh-logs.txt
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
+
+- name: bbl-ci-logs-xenial
+  type: s3
+  source:
+    bucket: bbl-ci-logs
+    versioned_file: xenial-exploration/bosh-logs.txt
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
@@ -189,51 +197,21 @@ jobs:
       resource: jumpbox-deployment-xenial
       passed: [bump-deployments-xenial]
   - task: bbl-up
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: cfinfrastructure/deployment
-      inputs:
-        - name: bosh-bootloader
-        - name: ci
-      outputs:
-        - name: bosh-logs
-      run:
-        path: bash
-        args:
-        - -c
-        - |
-          #!/bin/bash -exu
-
-          ROOT="${PWD}"
-
-          mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-
-          pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-            ln -s "${ROOT}/bosh-bootloader"
-
-            export TF_LOG=DEBUG
-            export TF_LOG_PATH="${ROOT}/tf-logs.txt"
-            export BOSH_LOG_LEVEL=debug
-            export BOSH_LOG_PATH="${ROOT}/bosh-logs/bosh-logs.txt"
-            ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
-          popd > /dev/null
-      params:
-        BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
-        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
-        BBL_AZURE_CLIENT_ID: ((azure_client_id))
-        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
-        BBL_AZURE_REGION: ((azure_location))
-        BBL_TEST_ENV_ID_PREFIX: azure-xenial
-        BBL_TEST_PACKAGES: bbl
-        RUN_TEST: bbl-up
-        BBL_DOWN_TIMEOUT: 20m
-        BBL_UP_TIMEOUT: 80m
+    file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    params:
+      BBL_IAAS: azure
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_TEST_ENV_ID_PREFIX: azure-xenial
+      BBL_TEST_PACKAGES: bbl
+      RUN_TEST: bbl-up
+      BBL_DOWN_TIMEOUT: 20m
+      BBL_UP_TIMEOUT: 80m
     ensure:
-      put: bbl-ci-logs
+      put: bbl-ci-logs-xenial
       params:
         file: bosh-logs/bosh-logs.txt
 
@@ -251,50 +229,20 @@ jobs:
       resource: jumpbox-deployment-trusty
       passed: [bump-deployments-trusty]
   - task: bbl-up
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: cfinfrastructure/deployment
-      inputs:
-        - name: bosh-bootloader
-        - name: ci
-      outputs:
-        - name: bosh-logs
-      run:
-        path: bash
-        args:
-        - -c
-        - |
-          #!/bin/bash -exu
-
-          ROOT="${PWD}"
-
-          mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-
-          pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
-            ln -s "${ROOT}/bosh-bootloader"
-
-            export TF_LOG=DEBUG
-            export TF_LOG_PATH="${ROOT}/tf-logs.txt"
-            export BOSH_LOG_LEVEL=debug
-            export BOSH_LOG_PATH="${ROOT}/bosh-logs/bosh-logs.txt"
-            ./bosh-bootloader/scripts/acceptance_tests ${BBL_TEST_PACKAGES}
-          popd > /dev/null
-      params:
-        BBL_IAAS: azure
-        BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
-        BBL_AZURE_TENANT_ID: ((azure_tenant_id))
-        BBL_AZURE_CLIENT_ID: ((azure_client_id))
-        BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
-        BBL_AZURE_REGION: ((azure_location))
-        BBL_TEST_ENV_ID_PREFIX: azure-trusty
-        BBL_TEST_PACKAGES: bbl
-        RUN_TEST: bbl-up
-        BBL_DOWN_TIMEOUT: 20m
-        BBL_UP_TIMEOUT: 80m
+    file: ci/scripts/bosh-bootloader/acceptance/task.yml
+    params:
+      BBL_IAAS: azure
+      BBL_AZURE_SUBSCRIPTION_ID: ((azure_subscription_id))
+      BBL_AZURE_TENANT_ID: ((azure_tenant_id))
+      BBL_AZURE_CLIENT_ID: ((azure_client_id))
+      BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
+      BBL_AZURE_REGION: ((azure_location))
+      BBL_TEST_ENV_ID_PREFIX: azure-trusty
+      BBL_TEST_PACKAGES: bbl
+      RUN_TEST: bbl-up
+      BBL_DOWN_TIMEOUT: 20m
+      BBL_UP_TIMEOUT: 80m
     ensure:
-      put: bbl-ci-logs
+      put: bbl-ci-logs-trusty
       params:
         file: bosh-logs/bosh-logs.txt
