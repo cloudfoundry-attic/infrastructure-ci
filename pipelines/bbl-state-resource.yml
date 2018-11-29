@@ -26,6 +26,7 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-xenial-go_agent
+    version_family: 97.latest
 
 - name: bbl-release-official
   type: github-release
