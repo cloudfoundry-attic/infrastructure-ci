@@ -68,7 +68,7 @@ resources:
   type: tracker
   source:
     token: ((cf_infra_tracker_token))
-    project_id: "1488988"
+    project_id: ((cf_infrastructure_tracker_id))
     tracker_url: https://www.pivotaltracker.com
 
 - name: ubuntu-xenial-stemcell-gcp
