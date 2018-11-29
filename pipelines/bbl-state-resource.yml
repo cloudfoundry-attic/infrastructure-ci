@@ -147,6 +147,7 @@ jobs:
   - aggregate:
     - get: bbl-state-resource-release-docker
       passed: [build-bbl-state-release-docker]
+      trigger: true
     - get: bbl-state-resource-src
       trigger: true
       passed: [build-bbl-state-release-docker]
