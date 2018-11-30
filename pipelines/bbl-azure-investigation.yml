@@ -310,7 +310,7 @@ jobs:
       BBL_AZURE_CLIENT_ID: ((azure_client_id))
       BBL_AZURE_CLIENT_SECRET: ((azure_client_secret))
       BBL_AZURE_REGION: ((azure_location))
-      BBL_TEST_ENV_ID_PREFIX: azure-xenial
+      BBL_TEST_ENV_ID_PREFIX: azure-worker
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
       BBL_DOWN_TIMEOUT: 20m
