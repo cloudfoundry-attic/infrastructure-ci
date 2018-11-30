@@ -170,8 +170,7 @@ jobs:
     - get: stemcell-azure
       resource: stemcell-azure-trusty
       trigger: true
-      version:
-        version: 3468.78
+      version: {version: "3468.47"}
       params:
         tarball: false
   - task: bump-stemcell
