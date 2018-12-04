@@ -598,6 +598,10 @@ jobs:
     - get: bbl-version
       resource: version
       passed: [bump-deployments]
+    - get: bosh-deployment
+      passed: [bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bump-deployments]
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
@@ -613,6 +617,10 @@ jobs:
       trigger: true
     - get: bbl-version
       resource: version
+      passed: [test-bosh-bootloader-bump-deployments]
+    - get: bosh-deployment
+      passed: [test-bosh-bootloader-bump-deployments]
+    - get: jumpbox-deployment
       passed: [test-bosh-bootloader-bump-deployments]
   - put: bbl-version
     resource: version
@@ -645,6 +653,10 @@ jobs:
       resource: version
       passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: plan
@@ -703,6 +715,10 @@ jobs:
       resource: version
       passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: latest-error
@@ -764,6 +780,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
       passed: [bbl-release-candidate-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -803,6 +823,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
       passed: [bbl-release-candidate-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bbl-release-candidate-bump-deployments]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -840,6 +864,10 @@ jobs:
       resource: version
       passed: [bbl-release-candidate-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-release-candidate-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
   - aggregate:
     - task: bbl-tests
@@ -893,6 +921,20 @@ jobs:
         - openstack-acceptance-tests-bump-deployments
         params:
           unpack: true
+      - get: bosh-deployment
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
+      - get: jumpbox-deployment
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
     - task: prepare-bbl-dev-docker-workspace
       file: ci/scripts/bosh-bootloader/prepare-docker-workspace/task.yml
       input_mapping:
@@ -2163,6 +2205,10 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-gcp
     - get: concourse-smoke-tests
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2275,6 +2321,10 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-azure
     - get: concourse-smoke-tests
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2410,6 +2460,10 @@ jobs:
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: ubuntu-xenial-stemcell-aws
     - get: concourse-smoke-tests
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2526,6 +2580,10 @@ jobs:
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
@@ -2671,6 +2729,10 @@ jobs:
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
@@ -2837,6 +2899,10 @@ jobs:
       resource: version
       passed: [bbl-downstream-docker-image-bump-deployments]
     - get: bbl-cli-dev-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: bosh-deployment
+      passed: [bbl-downstream-docker-image-bump-deployments]
+    - get: jumpbox-deployment
       passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
@@ -3098,6 +3164,22 @@ jobs:
       - bbl-aws-concourse-bump-deployments
       - bbl-gcp-concourse-bump-deployments
       - bbl-lite-gcp-bump-deployments
+    - get: bosh-deployment
+      passed:
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-lite-gcp-bump-deployments
+    - get: jumpbox-deployment
+      passed:
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-lite-gcp-bump-deployments
   - task: bbl-up-gcp-concourse-bosh-director
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-gcp.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -3145,6 +3227,22 @@ jobs:
       - bbl-gcp-concourse-bump-deployments
       - bbl-lite-gcp-bump-deployments
     - get: bbl-cli-dev-bump-deployments
+      passed:
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-lite-gcp-bump-deployments
+    - get: bosh-deployment
+      passed:
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-lite-gcp-bump-deployments
+    - get: jumpbox-deployment
       passed:
       - bbl-aws-cf-bump-deployments
       - bbl-gcp-cf-bump-deployments
@@ -3237,6 +3335,14 @@ jobs:
       - bbl-up-vsphere-concourse-director-bump-deployments
       params:
         unpack: true
+    - get: bosh-deployment
+      passed:
+      - bbl-up-gcp-concourse-director-bump-deployments
+      - bbl-up-vsphere-concourse-director-bump-deployments
+    - get: jumpbox-deployment
+      passed:
+      - bbl-up-gcp-concourse-director-bump-deployments
+      - bbl-up-vsphere-concourse-director-bump-deployments
   - get: bbl-version
     resource: version
     params:
