@@ -24,7 +24,6 @@
   value:
     name: credhub
     release: credhub
-    consumes: {database: {from: db}}
     properties:
       credhub:
         authentication:
@@ -35,6 +34,8 @@
         ca_certificate: ((atc_tls.ca))
         data_storage:
           type: postgres
+          host: 10.190.176.2
+          port: 5432
           database: &credhub_db credhub
           username: *credhub_db
           password: &credhub_db_password ((credhub_db_password))
