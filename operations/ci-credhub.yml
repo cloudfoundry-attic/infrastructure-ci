@@ -28,7 +28,8 @@
           database: &credhub_db credhub
           username: *credhub_db
           password: &credhub_db_password ((credhub_db_password))
-          require_tls: false
+          require_tls: true
+          tls_ca: ((credhub_db_tls_ca))
         encryption:
           keys:
           - active: true
