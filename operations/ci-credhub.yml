@@ -7,17 +7,6 @@
     sha1: ((credhub_sha1))
     version: ((credhub_version))
 
-# update postgres job to have credhub database
-- type: replace
-  path: /instance_groups/name=db/jobs/name=postgres/properties/databases/databases/-
-  value:
-    name: *credhub_db
-- type: replace
-  path: /instance_groups/name=db/jobs/name=postgres/properties/databases/roles/-
-  value:
-    name: *credhub_db
-    password: *credhub_db_password
-
 # add CredHub job to web instance group
 - type: replace
   path: /instance_groups/name=web/jobs/-
