@@ -6,7 +6,7 @@ main() {
   echo -n "${version}" > release/version
   echo -n "${commit_sha}" > release/commitish
 
-  rm -rf terraforming/ci terraforming/scripts
+  rm -rf terraforming/ci terraforming/scripts terraforming/.envrc
   tar cvzf "release/terraforming-${IAAS}-${version}.tar.gz" terraforming
 }
 
