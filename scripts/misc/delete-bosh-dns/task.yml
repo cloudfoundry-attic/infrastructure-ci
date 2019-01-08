@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+- name: cf-deployment-concourse-tasks
+- name: ci
+- name: bbl-state
+
+params:
+  BBL_STATE_DIR:
+
+run:
+  path: ci/scripts/misc/delete-bosh-dns/task.sh

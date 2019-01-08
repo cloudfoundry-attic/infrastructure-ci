@@ -1,10 +1,4 @@
 ---
-resource_types:
-- name: bosh-deployment
-  type: docker-image
-  source:
-    repository: cloudfoundry/bosh-deployment-resource
-
 resources:
 - name: infrastructure-ci
   type: git
@@ -19,121 +13,49 @@ resources:
     uri: git@github.com:cloudfoundry/infrastructure-ci-bbl-states.git
     private_key: ((cf_infra_bot_github_user.private_key))
 
-- name: concourse-deployment
+- name: cf-deployment-concourse-tasks
   type: git
   source:
-    branch: v4.2.1
-    uri: https://github.com/concourse/concourse-bosh-deployment.git
+    branch: master
+    uri: git@github.com:cloudfoundry/cf-deployment-concourse-tasks
+    private_key: ((cf_infra_bot_github_user.private_key))
+    tag: v8.0
 
-- name: concourse-secrets
-  type: s3
+- name: cf-deployment-concourse-tasks-image
+  type: docker-image
   source:
-    bucket: infra-concourse-secrets
-    versioned_file: concourse-secrets.yml
-    access_key_id: ((aws_access_key_id))
-    secret_access_key: ((aws_secret_access_key))
-    region_name: us-west-2
-
-- name: prod-concourse-vars
-  type: s3
-  source:
-    bucket: infra-concourse-secrets
-    versioned_file: prod-concourse-vars.yml
-    access_key_id: ((aws_access_key_id))
-    secret_access_key: ((aws_secret_access_key))
-    region_name: us-west-2
-
-- name: ubuntu-xenial-stemcell-gcp
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
-
-- name: ubuntu-xenial-stemcell-vsphere
-  type: bosh-io-stemcell
-  source:
-    name: bosh-vsphere-esxi-ubuntu-xenial-go_agent
-
-- name: concourse-bosh-deployment
-  type: bosh-deployment
-  source:
-    deployment: concourse
+    repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
 
 jobs:
-- name: update-concourse-gcp
-  interruptible: true
-  serial: true
+- name: bbl-up-concourse
+  build_logs_to_retain: 100
   plan:
   - aggregate:
-    - get: ci
-      resource: infrastructure-ci
+    - get: infrastructure-ci
     - get: infrastructure-ci-bbl-states
-    - get: concourse-deployment
-    - get: concourse-secrets
-    - get: ubuntu-xenial-stemcell-gcp
-    - get: prod-concourse-vars
-  - task: create-bosh-source-file
-    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
+    - get: cf-deployment-concourse-tasks
+    - get: cf-deployment-concourse-tasks-image
+  - task: up
+    file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
+    input_mapping:
+     ci: infrastructure-ci
+     bbl-state: infrastructure-ci-bbl-states
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_REGION: us-east1
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key.password))
+      BBL_STATE_DIR: infra-ci
+    image: cf-deployment-concourse-tasks-image
+    ensure:
+      put: infrastructure-ci-bbl-states
+      params:
+        repository: updated-bbl-state
+        rebase: true
+  - task: delete-bosh-dns
+    file: ci/scripts/misc/delete-bosh-dns/task.yml
+    input_mapping:
+      ci: infrastructure-ci
+      bbl-state: infrastructure-ci-bbl-states
     params:
       BBL_STATE_DIR: infra-ci
-    input_mapping:
-      bbl-states: infrastructure-ci-bbl-states
-  - put: concourse-bosh-deployment
-    params:
-      source_file: source-file/bosh-source.json
-      manifest: concourse-deployment/cluster/concourse.yml
-      stemcells: [ ubuntu-xenial-stemcell-gcp/stemcell.tgz ]
-      vars_files:
-        - concourse-deployment/versions.yml
-        - concourse-secrets/concourse-secrets.yml
-        - prod-concourse-vars/prod-concourse-vars.yml
-      ops_files:
-        - concourse-deployment/cluster/operations/privileged-https.yml
-        - concourse-deployment/cluster/operations/privileged-http.yml
-        - concourse-deployment/cluster/operations/github-auth.yml
-        - concourse-deployment/cluster/operations/tls.yml
-        - concourse-deployment/cluster/operations/web-network-extension.yml
-        - concourse-deployment/cluster/operations/worker-ephemeral-disk.yml
-        - concourse-deployment/cluster/operations/scale.yml
-        - concourse-deployment/cluster/operations/postgres-link.yml
-        - concourse-deployment/cluster/operations/uaa.yml
-        - ci/operations/ci-uaa-clients.yml
-        - concourse-deployment/cluster/operations/credhub.yml
-        - ci/operations/ci-credhub.yml
-        - ci/operations/update.yml
-      skip_drain:
-        - worker
-
-- name: update-concourse-vsphere-worker
-  interruptible: true
-  plan:
-  - aggregate:
-    - get: ci
-      resource: infrastructure-ci
-      tags: [vsphere]
-    - get: infrastructure-ci-bbl-states
-      tags: [vsphere]
-    - get: concourse-deployment
-      tags: [vsphere]
-    - get: concourse-secrets
-      tags: [vsphere]
-    - get: ubuntu-xenial-stemcell-vsphere
-      tags: [vsphere]
-    - get: prod-concourse-vars
-      tags: [vsphere]
-  - task: create-bosh-source-file
-    file: ci/scripts/bosh-bootloader/create-bosh-deployment-source-file/task.yml
-    tags: [vsphere]
-    params:
-      BBL_STATE_DIR: vsphere-concourse
-    input_mapping:
-      bbl-states: infrastructure-ci-bbl-states
-  - put: concourse-bosh-deployment
-    tags: [vsphere]
-    params:
-      source_file: source-file/bosh-source.json
-      manifest: concourse-deployment/cluster/external-worker.yml
-      stemcells: [ ubuntu-xenial-stemcell-vsphere/stemcell.tgz ]
-      vars_files:
-        - concourse-deployment/versions.yml
-        - concourse-secrets/concourse-secrets.yml
-        - prod-concourse-vars/prod-concourse-vars.yml
+    image: cf-deployment-concourse-tasks-image

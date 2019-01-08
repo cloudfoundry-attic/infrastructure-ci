@@ -1,6 +1,8 @@
 #!/bin/bash -exu
 
 main() {
+  om -v
+
   local cwd=${PWD}
   local opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
