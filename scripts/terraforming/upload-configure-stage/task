@@ -20,4 +20,4 @@ om --request-timeout 7200 -t "https://${opsman_dns}" -k upload-product --product
 om -t "https://${opsman_dns}" -k stage-product --product-name "${PRODUCT_NAME}" --product-version "${version}"
 
 # configure-product
-om -t "https://${opsman_dns}" -k configure-product -n "${PRODUCT_NAME}" --config "${cwd}/product-config.yml"
+om -t "https://${opsman_dns}" -k configure-product --config "${cwd}/product-config.yml"
