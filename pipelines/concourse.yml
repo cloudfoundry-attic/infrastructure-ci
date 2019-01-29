@@ -28,24 +28,24 @@ resources:
 
 jobs:
 - name: bbl-up-concourse
-  build_logs_to_retain: 100
+  build_logs_to_retain: 101
   plan:
   - aggregate:
-    - get: infrastructure-ci
+    - get: ci
+      resource: infrastructure-ci
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-concourse-tasks-image
   - task: up
+    image: cf-deployment-concourse-tasks-image
     file: ci/scripts/bosh-bootloader/bbl-up-concourse/task.yml
     input_mapping:
-     ci: infrastructure-ci
-     bbl-state: infrastructure-ci-bbl-states
+      bbl-state: infrastructure-ci-bbl-states
     params:
       BBL_IAAS: gcp
       BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key.password))
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key))
       BBL_STATE_DIR: infra-ci
-    image: cf-deployment-concourse-tasks-image
     ensure:
       put: infrastructure-ci-bbl-states
       params:
@@ -54,7 +54,6 @@ jobs:
   - task: delete-bosh-dns
     file: ci/scripts/misc/delete-bosh-dns/task.yml
     input_mapping:
-      ci: infrastructure-ci
       bbl-state: infrastructure-ci-bbl-states
     params:
       BBL_STATE_DIR: infra-ci
