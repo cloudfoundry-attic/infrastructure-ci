@@ -3,6 +3,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ARG GITHUB_TOKEN
 ENV TERRAFORM_VERSION 0.11.0
+ENV RUBY_VERSION 2.3.7
 
 RUN \
       apt-get update && \
@@ -23,19 +24,19 @@ RUN curl https://codeload.github.com/postmodern/ruby-install/tar.gz/v0.5.0 | tar
           make install
 
 # Install Ruby
-RUN ruby-install ruby 2.2.4 -- --disable-install-rdoc
+RUN ruby-install ruby ${RUBY_VERSION} -- --disable-install-rdoc
 
 # Add ruby to PATH
-ENV PATH $PATH:/home/root/.gem/ruby/2.2.4/bin:/opt/rubies/ruby-2.2.4/lib/ruby/gems/2.2.4/bin:/opt/rubies/ruby-2.2.4/bin
+ENV PATH $PATH:/home/root/.gem/ruby/${RUBY_VERSION}/bin:/opt/rubies/ruby-${RUBY_VERSION}/lib/ruby/gems/${RUBY_VERSION}/bin:/opt/rubies/ruby-${RUBY_VERSION}/bin
 
 # Set permissions on ruby directory
 RUN chmod -R 777 /opt/rubies/
 
 # Install bundler
-RUN /opt/rubies/ruby-2.2.4/bin/gem install bundler --no-rdoc --no-ri
+RUN /opt/rubies/ruby-${RUBY_VERSION}/bin/gem install bundler --no-rdoc --no-ri
 
 # Install bosh_cli v1
-RUN /opt/rubies/ruby-2.2.4/bin/gem install bosh_cli --no-rdoc --no-ri
+RUN /opt/rubies/ruby-${RUBY_VERSION}/bin/gem install bosh_cli --no-rdoc --no-ri
 
 # Install terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
