@@ -20,6 +20,7 @@ params:
   GCP_DNS_RECORD_TTL: 300
   ACTION:
   CHECK_DNS: true
+  MAX_SUCCESS_COUNT: 3
 
 run:
   path: ci/scripts/common/manage-gcp-dns/task

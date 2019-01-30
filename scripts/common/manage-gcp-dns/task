@@ -66,9 +66,8 @@ function main() {
   # requested domain. We need to wait at least 90 seconds to attempt to avoid
   # this. NXDOMAIN caching can be as long as 5 minutes (resulting in flakes).
 
-  sleep 90
-
   if [[ "${CHECK_DNS}" == "true" && "${ACTION}" == "add" ]]; then
+    sleep 90
     check_dns "pcf.${GCP_DNS_RECORD_SET_NAME}"
   fi
 }
@@ -76,7 +75,7 @@ function main() {
 check_dns(){
   local domain=${1?"there is no domain specified"}
   local count=0
-  local max_successes=12
+  local max_successes="${MAX_SUCCESS_COUNT}"
   while [[ "$count" -lt "$max_successes" ]]; do
     if host "${domain}"; then
       count=$((count + 1))
