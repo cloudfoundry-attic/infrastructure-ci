@@ -15,6 +15,8 @@ RUN \
             unzip \
             tree \
             host \
+            python-pip \
+            libpython-dev \
       && \
       apt-get clean
 
@@ -85,3 +87,6 @@ RUN CREDHUB_CLI_REPO="cloudfoundry-incubator/credhub-cli" && \
 RUN go get -u github.com/pivotal-cf/texplate
 
 RUN go get -u github.com/jteeuwen/go-bindata/...
+
+# Install yq
+RUN pip install yq
