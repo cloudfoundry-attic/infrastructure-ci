@@ -6,6 +6,7 @@ groups:
   - acceptance-azure
   - acceptance-gcp
   - acceptance-vsphere
+  - acceptance-openstack
   - releasable
   - build-release
   - bump-brew-tap
@@ -119,6 +120,26 @@ jobs:
       BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
       BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
       LEFTOVERS_VSPHERE_FILTER: ((vsphere_vcenter_disks))
+
+- name: acceptance-openstack
+  serial: true
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+    - get: leftovers
+      trigger: true
+      passed: [test]
+  - task: acceptance
+    file: ci/scripts/leftovers/acceptance/task.yml
+    params:
+      LEFTOVERS_ACCEPTANCE: openstack
+      BBL_OPENSTACK_AUTH_URL: ((bbl_openstack_auth_url))
+      BBL_OPENSTACK_PASSWORD: ((bbl_openstack_user.password))
+      BBL_OPENSTACK_USERNAME: ((bbl_openstack_user.username))
+      BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
+      BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
+      BBL_OPENSTACK_REGION: ((bbl_openstack_region))
 
 - name: releasable
   plan:
