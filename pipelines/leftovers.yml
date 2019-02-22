@@ -151,6 +151,7 @@ jobs:
       - acceptance-aws
       - acceptance-azure
       - acceptance-vsphere
+      - acceptance-openstack
 
 - name: build-release
   plan:
