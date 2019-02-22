@@ -10,6 +10,7 @@ RUN \
             libreadline6 \
             libreadline6-dev \
             wget \
+            unzip \
             runit \
             lsof \
       && \

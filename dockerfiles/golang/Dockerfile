@@ -18,4 +18,7 @@ ENV PATH $PATH:$GOPATH/bin:/usr/local/go/bin
 RUN go get github.com/onsi/ginkgo/...
 RUN go get github.com/onsi/gomega/...
 
+# install build dependencies
+RUN go get -u github.com/gobuffalo/packr/v2/packr2
+
 RUN chown -R testuser:testuser /go
