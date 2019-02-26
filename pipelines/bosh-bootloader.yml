@@ -533,19 +533,15 @@ jobs:
     tags: [vsphere]
     params:
       BBL_IAAS: openstack
-      BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
-      BBL_OPENSTACK_EXTERNAL_IP: ((bbl_openstack_external_ip))
       BBL_OPENSTACK_AUTH_URL: ((bbl_openstack_auth_url))
       BBL_OPENSTACK_AZ: ((bbl_openstack_az))
-      BBL_OPENSTACK_DEFAULT_KEY_NAME: ((bbl_openstack_default_key_name))
-      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: ((bbl_openstack_default_security_group))
       BBL_OPENSTACK_NETWORK_ID: ((bbl_openstack_network_id))
+      BBL_OPENSTACK_NETWORK_NAME: ((bbl_openstack_network_name))
       BBL_OPENSTACK_PASSWORD: ((bbl_openstack_user.password))
       BBL_OPENSTACK_USERNAME: ((bbl_openstack_user.username))
       BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
       BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
       BBL_OPENSTACK_REGION: ((bbl_openstack_region))
-      BBL_OPENSTACK_PRIVATE_KEY: ((bbl_openstack_private_key.private_key))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -856,19 +852,15 @@ jobs:
     tags: [vsphere]
     params:
       BBL_IAAS: openstack
-      BBL_OPENSTACK_INTERNAL_CIDR: ((bbl_openstack_internal_cidr))
-      BBL_OPENSTACK_EXTERNAL_IP: ((bbl_openstack_external_ip))
       BBL_OPENSTACK_AUTH_URL: ((bbl_openstack_auth_url))
       BBL_OPENSTACK_AZ: ((bbl_openstack_az))
-      BBL_OPENSTACK_DEFAULT_KEY_NAME: ((bbl_openstack_default_key_name))
-      BBL_OPENSTACK_DEFAULT_SECURITY_GROUP: ((bbl_openstack_default_security_group))
       BBL_OPENSTACK_NETWORK_ID: ((bbl_openstack_network_id))
+      BBL_OPENSTACK_NETWORK_NAME: ((bbl_openstack_network_name))
       BBL_OPENSTACK_PASSWORD: ((bbl_openstack_user.password))
       BBL_OPENSTACK_USERNAME: ((bbl_openstack_user.username))
       BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
       BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
       BBL_OPENSTACK_REGION: ((bbl_openstack_region))
-      BBL_OPENSTACK_PRIVATE_KEY: ((bbl_openstack_private_key.private_key))
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
