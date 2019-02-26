@@ -29,7 +29,7 @@ function main() {
 
     for platform in "darwin" "windows" "linux"; do
       # copy binaries
-      mv ${ROOT}/terraform-binaries/terraform_${platform} ./terraform/binary_dist/terraform
+      mv ${ROOT}/terraform-binaries/terraform_${platform}* ./terraform/binary_dist/terraform
       create_mod
       pushd "bbl/" > /dev/null
         determine_build_path ${platform}
