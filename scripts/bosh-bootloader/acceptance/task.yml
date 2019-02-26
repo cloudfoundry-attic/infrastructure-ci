@@ -9,6 +9,7 @@ image_resource:
 inputs:
   - name: bosh-bootloader
   - name: ci
+  - name: terraform-binaries
 
 outputs:
  - name: bosh-logs

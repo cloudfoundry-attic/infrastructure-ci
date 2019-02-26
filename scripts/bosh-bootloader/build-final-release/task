@@ -7,6 +7,7 @@ BBL_VERSION_FINAL=$(cat "${ROOT}/bbl-version-final/number")
 BBL_LINUX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_linux_x86-64"
 BBL_OSX_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_osx"
 BBL_WINDOWS_BUILD_PATH="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_windows.exe"
+BUILD_PATH=""
 
 function main() {
   local bosh_bootloader_commit_sha
@@ -20,12 +21,16 @@ function main() {
 
   mkdir "${BUILDS_PATH}"
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/" > /dev/null
-    echo "Downloading terraform binaries"
-    scripts/update_terraform_binaries
-    TF_URL=$(cat terraform/binary_dist/tf_binaries_fetched_from.txt)
-    pushd "bbl/" > /dev/null
-      build_bbl
-    popd > /dev/null
+    source ./scripts/create_mod
+    for platform in "darwin" "windows" "linux"; do
+      # copy binaries
+      mv ${ROOT}/terraform-binaries/terraform_${platform} ./terraform/binary_dist/terraform
+      create_mod
+      pushd "bbl/" > /dev/null
+        determine_build_path ${platform}
+        build_bbl ${BUILD_PATH} ${platform}
+      popd > /dev/null
+    done
   popd > /dev/null
 
   pushd "${BUILDS_PATH}" > /dev/null
@@ -54,34 +59,30 @@ function main() {
 }
 
 function build_bbl() {
-  echo "Building 64-bit Linux"
-  CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
-    go build -a \
-    -tags includeTerraform \
+  local build_path
+  build_path="$1"
+
+  echo "Building amd64 for $2"
+  CGO_ENABLED=0 GOARCH="amd64" GOOS="$2" \
+    packr2 build \
     -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
-    -o "${BBL_LINUX_BUILD_PATH}" .
+    -o "${build_path}" .
+}
 
-  echo "Building 64-bit Darwin"
-  GOARCH=amd64 GOOS=darwin \
-    go build \
-    -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
-    -o "${BBL_OSX_BUILD_PATH}" .
+function determine_build_path() {
+  local platform
+  local build_path
+  platform=$1
+  build_path="${BUILDS_PATH}/bin/bbl-v${BBL_VERSION_FINAL}_"
+  if [[ $platform == "darwin" ]]; then
+    build_path+="osx"
+  elif [[ $platform == "linux" ]]; then
+    build_path+="linux_x86-64"
+  elif [[ $platform == "windows" ]]; then
+    build_path+="windows.exe"
+  fi
 
-  echo "Building 64-bit Windows"
-  CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
-    go build \
-    -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
-    -o "${BBL_WINDOWS_BUILD_PATH}" .
-
-  echo "Testing 32-bit platform"
-  CGO_ENABLED=0 GOARCH=386 GOOS=freebsd \
-    go build \
-    -tags includeTerraform \
-    -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
-    -o "/tmp/test-compile-32" .
-
+  BUILD_PATH="${build_path}"
 }
 
 main
