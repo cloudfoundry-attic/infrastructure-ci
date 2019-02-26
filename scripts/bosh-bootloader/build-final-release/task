@@ -22,6 +22,11 @@ function main() {
   mkdir "${BUILDS_PATH}"
   pushd "${GOPATH}/src/github.com/cloudfoundry/bosh-bootloader/" > /dev/null
     source ./scripts/create_mod
+
+    # strip git dir on submodules
+    rm -rf ./bosh/deployments/bosh-deployment/.git
+    rm -rf ./bosh/deployments/jumpbox-deployment/.git
+
     for platform in "darwin" "windows" "linux"; do
       # copy binaries
       mv ${ROOT}/terraform-binaries/terraform_${platform} ./terraform/binary_dist/terraform
@@ -67,6 +72,8 @@ function build_bbl() {
     packr2 build \
     -ldflags "-X main.Version=${BBL_VERSION_FINAL}" \
     -o "${build_path}" .
+
+  packr2 clean
 }
 
 function determine_build_path() {
