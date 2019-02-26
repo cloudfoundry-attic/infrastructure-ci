@@ -7,7 +7,7 @@ function download_terraform() {
   local zip_name
 
   platform=${1}
-  zip_name="terraform_${TF_VERSION}_${platform}.zip"
+  zip_name="terraform_${TF_VERSION}_${platform}_amd64.zip"
 
   ZIP_URL="${URL_BASE}/${TF_VERSION}/${zip_name}"
   wget ${ZIP_URL} -q
@@ -17,11 +17,11 @@ function download_terraform() {
 }
 
 pushd ${ROOT}/terraform-binaries > /dev/null
-  for platform in "darwin_amd64" "linux_386" "linux_amd64"; do
+  for platform in "darwin" "linux"; do
     download_terraform ${platform}
     mv terraform "terraform_${platform}"
   done
-  for platform in "windows_amd64"; do
+  for platform in "windows"; do
     download_terraform ${platform}
     mv terraform.exe "terraform_${platform}.exe"
   done
