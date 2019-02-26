@@ -14,7 +14,7 @@ outputs:
 
 params:
   TF_VERSION:
-  URL_BASE: "https://releases.hashicorp.com/terraform/"
+  URL_BASE: "https://releases.hashicorp.com/terraform"
 
 run:
   path: ci/scripts/bosh-bootloader/download-terraform/task
