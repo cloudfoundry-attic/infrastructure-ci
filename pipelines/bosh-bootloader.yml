@@ -331,6 +331,10 @@ jobs:
     resource: dev-version
     params:
       bump: final
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: create-bbl-rc
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - aggregate:
@@ -352,6 +356,10 @@ jobs:
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -409,6 +417,10 @@ jobs:
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -470,6 +482,10 @@ jobs:
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -508,6 +524,10 @@ jobs:
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -545,6 +565,10 @@ jobs:
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: bbl-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
