@@ -1,46 +1,29 @@
 #!/bin/bash -exu
 
 ROOT="${PWD}"
-JUMPBOX_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
-BOSH_DEPLOYMENT_VENDOR_PATH="${ROOT}/bosh-bootloader/vendor/github.com/cloudfoundry"
-
 function main() {
   local latest_release_tag
   latest_release_tag=$(cat "${ROOT}/bbl-release/version")
 
-  mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
-
-  mkdir -p "${JUMPBOX_DEPLOYMENT_VENDOR_PATH}"
-  mkdir -p "${BOSH_DEPLOYMENT_VENDOR_PATH}"
-
   pushd "${ROOT}/bosh-bootloader" > /dev/null
     git checkout -B "bump-deployments-ci" "v${latest_release_tag}"
-  popd
+  popd > /dev/null
 
-  pushd ${JUMPBOX_DEPLOYMENT_VENDOR_PATH}
-    cp -R ${ROOT}/jumpbox-deployment/ .
+  pushd "${ROOT}/jumpbox-deployment" > /dev/null
+    JUMPBOX_COMMITISH=$(git rev-parse HEAD)
 
-    local commitish
-    commitish=$(git -C ./jumpbox-deployment rev-parse HEAD)
+    echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment@${JUMPBOX_COMMITISH}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
+  popd > /dev/null
 
-    echo "- *Current jumpbox-deployment: cloudfoundry/jumpbox-deployment@${commitish}*" > ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm -rf jumpbox-deployment/.git
-  popd
+  pushd "${ROOT}/bosh-deployment" > /dev/null
+    BOSH_COMMITISH=$(git rev-parse HEAD)
 
-  pushd ${BOSH_DEPLOYMENT_VENDOR_PATH}
-    cp -R ${ROOT}/bosh-deployment/ .
-
-    local commitish
-    commitish=$(git -C ./bosh-deployment rev-parse HEAD)
-
-    echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment@${commitish}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
-    rm -rf bosh-deployment/.git
-  popd
+    echo "- *Current bosh-deployment: cloudfoundry/bosh-deployment@${BOSH_COMMITISH}*" >> ${ROOT}/bosh-bootloader/deployment-versions.txt
+  popd > /dev/null
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
-    go get -u github.com/a-urth/go-bindata/...
-
-    go-bindata -pkg bosh -o bosh/deployment_files.go vendor/github.com/cloudfoundry/jumpbox-deployment/... vendor/github.com/cloudfoundry/bosh-deployment/...
+    git -C bosh/deployments/jumpbox-deployment checkout ${JUMPBOX_COMMITISH}
+    git -C bosh/deployments/bosh-deployment checkout ${BOSH_COMMITISH}
 
     git config user.email "cf-infrastructure@pivotal.io"
     git config user.name "cf-infra-bot"
