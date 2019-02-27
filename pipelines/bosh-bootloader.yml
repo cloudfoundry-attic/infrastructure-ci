@@ -678,6 +678,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: plan
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -740,6 +744,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: latest-error
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
@@ -804,6 +812,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -847,6 +859,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
@@ -885,6 +901,10 @@ jobs:
       passed: [bbl-release-candidate-bump-deployments]
     - get: jumpbox-deployment
       passed: [bbl-release-candidate-bump-deployments]
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - aggregate:
     - task: bbl-tests
       file: ci/scripts/bosh-bootloader/acceptance/task.yml
