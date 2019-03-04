@@ -650,6 +650,10 @@ jobs:
     resource: version
     params:
       bump: final
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: create-bbl-rc
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
     params:
@@ -3334,6 +3338,10 @@ jobs:
     passed:
       - bbl-up-gcp-concourse-director
       - bbl-up-vsphere-concourse-director
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - put: bosh-bootloader
