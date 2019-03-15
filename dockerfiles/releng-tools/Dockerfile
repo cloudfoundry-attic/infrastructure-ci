@@ -52,6 +52,6 @@ RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION
 RUN pip install yq
 
 #Install credhub
-RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/2.2.1/credhub-linux-2.2.1.tgz && \
-  tar -xzvf credhub-linux-2.2.1.tgz -C /usr/local/bin && \
+RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/1.7.7/credhub-linux-1.7.7.tgz && \
+  tar -xzvf credhub-linux-1.7.7.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
