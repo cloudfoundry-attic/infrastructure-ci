@@ -22,6 +22,7 @@ function main() {
   popd > /dev/null
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
+    git submodule update --init --recursive
     git -C bosh/deployments/jumpbox-deployment checkout ${JUMPBOX_COMMITISH}
     git -C bosh/deployments/bosh-deployment checkout ${BOSH_COMMITISH}
 
