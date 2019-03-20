@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: tarred-builds
+
+outputs:
+  - name: github-release-assets
+
+run:
+  path: ci/scripts/bosh-bootloader/setup-github-release/task

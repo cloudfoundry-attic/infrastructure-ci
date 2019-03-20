@@ -21,7 +21,6 @@ groups:
   - major
   - bbl-up-gcp-concourse-director
   - bbl-up-vsphere-concourse-director
-  - deliver-stories
   - github-release
 
 - name: bump-deployments
@@ -56,6 +55,9 @@ groups:
   jobs:
   - test-with-latest-terraform
   - test-with-latest-bosh-cli
+- name: github-release
+  jobs:
+  - github-release
 
 resource_types:
 - name: bosh-deployment
@@ -64,13 +66,6 @@ resource_types:
     repository: cloudfoundry/bosh-deployment-resource
 
 resources:
-- name: cf-infra-tracker
-  type: tracker
-  source:
-    token: ((cf_infra_tracker_token))
-    project_id: ((cf_infrastructure_tracker_id))
-    tracker_url: https://www.pivotaltracker.com
-
 - name: ubuntu-xenial-stemcell-gcp
   type: bosh-io-stemcell
   source:
@@ -323,20 +318,17 @@ jobs:
     - get: bosh-bootloader
       passed: [test-bosh-bootloader]
       trigger: true
-  - put: bbl-version
-    resource: dev-version
-    params:
-      pre: rc
-  - get: bbl-version-final
-    resource: dev-version
-    params:
-      bump: final
+  - task: generate-version-from-sha
+    file: ci/scripts/bosh-bootloader/generate-version-from-sha/task.yml
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
       TF_VERSION: 0.11.7
   - task: create-bbl-rc
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+    input_mapping:
+      bbl-version-final: dev-version
+      bbl-version: dev-version
   - aggregate:
     - put: bbl-cli-dev
       params:
@@ -350,9 +342,6 @@ jobs:
       passed: [bbl-release-candidate]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
@@ -411,9 +400,6 @@ jobs:
       passed: [bbl-release-candidate]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
@@ -476,9 +462,6 @@ jobs:
       passed: [bbl-release-candidate]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
@@ -518,9 +501,6 @@ jobs:
       passed: [bbl-release-candidate]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
@@ -555,9 +535,6 @@ jobs:
       passed: [bbl-release-candidate]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-release-candidate]
     - get: bbl-cli-dev
       passed: [bbl-release-candidate]
       trigger: true
@@ -1041,14 +1018,6 @@ jobs:
           - gcp-acceptance-tests
           - vsphere-acceptance-tests
           - openstack-acceptance-tests
-      - get: bbl-version
-        resource: dev-version
-        passed:
-          - aws-acceptance-tests
-          - azure-acceptance-tests
-          - gcp-acceptance-tests
-          - vsphere-acceptance-tests
-          - openstack-acceptance-tests
       - get: bbl-cli-dev
         trigger: true
         passed:
@@ -1091,9 +1060,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1211,9 +1177,6 @@ jobs:
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1323,9 +1286,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1427,9 +1387,6 @@ jobs:
       passed: [bbl-downstream-docker-image]
     - get: ci
       resource: infrastructure-ci
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1565,9 +1522,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1709,9 +1663,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -1874,9 +1825,6 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
-    - get: bbl-version
-      resource: dev-version
-      passed: [bbl-downstream-docker-image]
     - get: bbl-cli-dev
       passed: [bbl-downstream-docker-image]
       trigger: true
@@ -2123,16 +2071,6 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
-    - get: bbl-version
-      resource: dev-version
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
     - get: bbl-cli-dev
       trigger: true
       passed:
@@ -2172,16 +2110,6 @@ jobs:
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
       tags: [vsphere]
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
-    - get: bbl-version
-      resource: dev-version
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -2463,18 +2391,6 @@ jobs:
           params:
             rebase: true
             repository: updated-bbl-state
-
-- name: deliver-stories
-  plan:
-  - get: bosh-bootloader
-    trigger: true
-    passed:
-    - bbl-up-gcp-concourse-director
-    - bbl-up-vsphere-concourse-director
-  - put: cf-infra-tracker
-    params:
-      repos:
-      - bosh-bootloader
 
 - name: bbl-aws-concourse-bump-deployments
   serial: true
@@ -3328,35 +3244,31 @@ jobs:
         unpack: true
   - get: bbl-version
     resource: dev-version
-    passed:
-      - bbl-up-gcp-concourse-director
-      - bbl-up-vsphere-concourse-director
   - get: bbl-version-final
     resource: dev-version
     params:
       bump: final
-    passed:
-      - bbl-up-gcp-concourse-director
-      - bbl-up-vsphere-concourse-director
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
       TF_VERSION: 0.11.7
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+  - task: setup-github-release
+    file: ci/scripts/infrastructure-ci/bosh-bootloader/setup-github-release/task.yml
   - put: bosh-bootloader
     params:
       repository: bosh-bootloader
-      tag: bbl-cli-dev/name
+      tag: github-release-assets/name
       only_tag: true
   - put: bbl-release
     params:
-      name: bbl-cli-dev/name
-      tag: bbl-cli-dev/name
-      commitish: bbl-cli-dev/commitish
-      body: bbl-cli-dev/body
+      name: github-release-assets/name
+      tag: github-release-assets/name
+      commitish: github-release-assets/commitish
+      body: github-release-assets/body
       globs:
-      - bbl-cli-dev/bin/bbl-*
+      - github-release-assets/bin/bbl-*
 
 - name: github-release-bump-deployments
   serial: true

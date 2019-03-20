@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfinfrastructure/deployment
+
+inputs:
+  - name: bosh-bootloader
+  - name: ci
+
+outputs:
+ - name: dev-version
+
+run:
+  path: ci/scripts/generate-version-from-sha/task
