@@ -3255,7 +3255,7 @@ jobs:
   - task: build-binaries
     file: ci/scripts/bosh-bootloader/build-final-release/task.yml
   - task: setup-github-release
-    file: ci/scripts/infrastructure-ci/bosh-bootloader/setup-github-release/task.yml
+    file: ci/scripts/bosh-bootloader/setup-github-release/task.yml
   - put: bosh-bootloader
     params:
       repository: bosh-bootloader
