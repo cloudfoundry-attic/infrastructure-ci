@@ -5,7 +5,7 @@ function main() {
     COMMIT_SHA=$(git rev-parse --verify HEAD)
   popd
 
-  echo $COMMIT_SHA > ${PWD}/dev-version/version
+  echo $COMMIT_SHA > ${PWD}/dev-version/number
 }
 
 main "$@"

@@ -768,6 +768,9 @@ jobs:
         TF_VERSION: 0.11.7
     - task: build-binaries
       file: ci/scripts/bosh-bootloader/build-final-release/task.yml
+      input_mapping:
+        bbl-final-version: dev-version
+        bbl-version: dev-version
     - task: untar-builds
       file: ci/scripts/bosh-bootloader/setup-github-release/task.yml
     - task: prepare-bbl-dev-docker-workspace
@@ -850,7 +853,7 @@ jobs:
       file: ci/scripts/bosh-bootloader/download-terraform/task.yml
       params:
         TF_VERSION: 0.11.7
-    - task: create-bbl-rc
+    - task: build-binaries
       file: ci/scripts/bosh-bootloader/build-final-release/task.yml
       input_mapping:
         bbl-version-final: dev-version
