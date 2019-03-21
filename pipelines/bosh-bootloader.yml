@@ -831,6 +831,7 @@ jobs:
   - do:
     - aggregate:
       - get: bosh-bootloader
+        trigger: true
         passed:
           - aws-acceptance-tests
           - azure-acceptance-tests
