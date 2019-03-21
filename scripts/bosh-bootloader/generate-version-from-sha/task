@@ -3,8 +3,9 @@
 function main() {
   pushd ${PWD}/bosh-bootloader
     COMMIT_SHA=$(git rev-parse --verify HEAD)
-    echo $COMMIT_SHA > ${PWD}/dev-version/version
   popd
+
+  echo $COMMIT_SHA > ${PWD}/dev-version/version
 }
 
 main "$@"
