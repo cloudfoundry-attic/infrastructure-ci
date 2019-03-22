@@ -880,12 +880,12 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: ubuntu-xenial-stemcell-azure
@@ -996,13 +996,13 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: ubuntu-xenial-stemcell-gcp
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: concourse-smoke-tests
@@ -1102,12 +1102,12 @@ jobs:
     - get: concourse-deployment
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: ubuntu-xenial-stemcell-aws
@@ -1206,11 +1206,11 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
   - aggregate:
     - task: 1-az-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
@@ -1327,12 +1327,12 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment
@@ -1466,12 +1466,12 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment
@@ -1626,12 +1626,12 @@ jobs:
   - aggregate:
     - get: bosh-bootloader
       passed: [bbl-downstream-docker-image]
-      trigger: true
     - get: cf-deployment-concourse-tasks
       resource: cdct
     - get: infrastructure-ci-bbl-states
     - get: cf-deployment-concourse-tasks-bbl-dev
       passed: [bbl-downstream-docker-image]
+      trigger: true
     - get: ci
       resource: infrastructure-ci
     - get: cf-deployment
@@ -1864,7 +1864,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -1873,6 +1872,7 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
+      trigger: true
     - get: infrastructure-ci-bbl-states
     - get: ci
       resource: infrastructure-ci
@@ -1901,7 +1901,6 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-bootloader
-      trigger: true
       passed:
       - bbl-aws-cf
       - bbl-gcp-cf
@@ -1910,6 +1909,7 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
+      trigger: true
     - get: infrastructure-ci-bbl-states
     - get: ci
       resource: infrastructure-ci
