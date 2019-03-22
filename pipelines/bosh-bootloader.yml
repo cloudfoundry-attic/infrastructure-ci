@@ -1888,7 +1888,6 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
-      trigger: true
     - get: infrastructure-ci-bbl-states
     - get: ci
       resource: infrastructure-ci
@@ -1901,6 +1900,7 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
+      trigger: true
   - task: bbl-up-gcp-concourse-bosh-director
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-gcp.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1925,7 +1925,6 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
-      trigger: true
     - get: infrastructure-ci-bbl-states
     - get: ci
       resource: infrastructure-ci
@@ -1939,6 +1938,7 @@ jobs:
       - bbl-gcp-concourse
       - bbl-lite-gcp
       - validate-plan-patches
+      trigger: true
   - task: bbl-up-vsphere-concourse-bosh-director
     file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
     image: cf-deployment-concourse-tasks-bbl-dev
