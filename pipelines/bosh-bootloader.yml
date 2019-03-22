@@ -250,6 +250,18 @@ resources:
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
+- name: bosh-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+
+- name: jumpbox-deployment
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/jumpbox-deployment.git
+
 jobs:
 - name: bump-leftovers
   public: true
@@ -500,6 +512,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
     - get: bbl-release-official
+    - get: bosh-deployment
+      trigger: true
+    - get: jumpbox-deployment
+      trigger: true
   - put: version
     params:
       bump: patch
