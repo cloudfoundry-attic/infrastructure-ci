@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
 main() {
-  local opsman_image=$(bosh int ${PWD}/opsman-image/*${IAAS}.yml --path "/${KEY}")
+  local opsman_image=$(bosh int ${PWD}/opsman-image/*${IAAS}*.yml --path "/${KEY}")
   local output_key
   local prefix=""
 
