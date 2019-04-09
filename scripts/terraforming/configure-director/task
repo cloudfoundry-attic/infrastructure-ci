@@ -6,9 +6,9 @@ main() {
   local cwd=${PWD}
   local opsman_dns=$(jq -r .ops_manager_dns < "${cwd}/env-state/metadata")
 
-  set -x
-    WITH_CERT=$(cat "${cwd}/env-state/metadata" | jq --arg terraformingca "${CA_CERT}" '. + {terraforming_ca_cert: $terraformingca}')
   set +x
+    WITH_CERT=$(cat "${cwd}/env-state/metadata" | jq --arg terraformingca "${CA_CERT}" '. + {terraforming_ca_cert: $terraformingca}')
+  set -x
 
   texplate execute "${TEMPLATE_PATH}" \
     -f <(echo "${WITH_CERT}") \
