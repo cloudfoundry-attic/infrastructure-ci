@@ -18,3 +18,4 @@ params:
   TEMPLATE_PATH:
   OM_USERNAME:
   OM_PASSWORD:
+  CA_CERT:
