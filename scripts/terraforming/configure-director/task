@@ -8,10 +8,11 @@ main() {
 
   set +x
     WITH_CERT=$(cat "${cwd}/env-state/metadata" | jq --arg terraformingca "${CA_CERT}" '. + {terraforming_ca_cert: $terraformingca}')
+    echo "${WITH_CERT}" > "${PWD}/config.yml"
   set -x
 
   texplate execute "${TEMPLATE_PATH}" \
-    -f <(echo "${WITH_CERT}") \
+    -f  "${PWD}/config.yml" \
     -o yaml > "${cwd}/director-config.yml"
 
   set +x
