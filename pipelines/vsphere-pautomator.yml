@@ -17,9 +17,24 @@ jobs:
   - task: create-opsman
     file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
     params:
-      GOVC_HOST: ((infrastructure_ci_vsphere_pautomator_govc_host))
-  # - task: delete-opsman
-  #   image: cf-deployment-concourse-tasks-image
-  #   file: ci/scripts/vsphere-pautomator/delete-opsman/task.yml
-  #   params:
-  #     GOVC_HOST: ((infrastructure_ci_vsphere_pautomator_govc_host))
+      OPS_DISKTYPE: thin
+      OPS_PRIVATE_IP: ((vcenter-pautomator-opsman-private-ip))
+      OPS_DNS: ((vcenter-pautomator-opsman-dns))
+      OPS_NTP: time.svc.pivotal.io
+      OPS_SSH_PASSWORD: ((vcenter-pautomator-opsman-ssh-password))
+      OPS_HOSTNAME: ((vcenter-pautomator-opsman-url))
+      OPS_NETWORK: ((vcenter-pautomator-opsman-network))
+      OPS_NETMASK: 255.255.255.0
+      OPS_GATEWAY: 192.168.1.1
+      OPS_VM_NAME: pivotal-ops-mamager-2
+      OPS_MEMORY: 10
+      OPS_CPU: 10
+      OPS_VCENTER_URL: ((vcenter-pautomator-url))
+      OPS_VCENTER_USERNAME: ((vcenter-pautomator-username))
+      OPS_VCENTER_PASSWORD: ((vcenter-pautomator-password))
+      OPS_VCENTER_DATASTORE: ((vcenter-pautomator-datastore))
+      OPS_VCENTER_DATACENTER: ((vcenter-pautomator-datacenter))
+      OPS_VCENTER_INSECURE: 1
+      OPS_VCENTER_RESOURCE_POOL: ((vcenter-pautomator-resource-pool))
+      OPS_VCENTER_CA_CERT: |
+        ((vcenter-pautomator-ca-cert))
