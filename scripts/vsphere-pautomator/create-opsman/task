@@ -30,4 +30,3 @@
 EOF
   set -x
 
-  cat config.yml
