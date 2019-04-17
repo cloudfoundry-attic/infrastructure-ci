@@ -13,6 +13,7 @@ jobs:
   - aggregate:
     - get: ci
       resource: vsphere-pautomator-ci
+      trigger: true
   - task: create-opsman
     image: cf-deployment-concourse-tasks-image
     file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
