@@ -1,5 +1,7 @@
 #!/bin/bash -exu
 
+pushd create-opsman > /dev/null
+
 echo "hello there"
 
   set +x
@@ -9,3 +11,5 @@ EOF
   set -x
 
   cat config.yml
+
+popd > /dev/null

@@ -15,7 +15,6 @@ jobs:
       resource: vsphere-pautomator-ci
       trigger: true
   - task: create-opsman
-    image: cf-deployment-concourse-tasks-image
     file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
     params:
       GOVC_HOST: ((infrastructure_ci_vsphere_pautomator_govc_host))
