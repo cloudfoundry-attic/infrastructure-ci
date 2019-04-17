@@ -1,0 +1,11 @@
+#!/bin/bash -exu
+
+echo "hello there"
+
+  set +x
+    cat > config.yml <<-EOF
+		GOVC_HOST = "${GOVC_HOST}"
+EOF
+  set -x
+
+  cat config.yml

@@ -1,0 +1,25 @@
+---
+resources:
+- name: vsphere-pautomator-ci
+  type: git
+  source:
+    branch: vsphere-wip
+    uri: https://github.com/cloudfoundry/infrastructure-ci.git
+
+jobs:
+- name: bbl-up-concourse
+  build_logs_to_retain: 101
+  plan:
+  - aggregate:
+    - get: ci
+      resource: infrastructure-ci
+  - task: create-opsman
+    image: cf-deployment-concourse-tasks-image
+    file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
+    params:
+      GOVC_HOST: ((infrastructure_ci_vsphere_pautomator_govc_host))
+  # - task: delete-opsman
+  #   image: cf-deployment-concourse-tasks-image
+  #   file: ci/scripts/vsphere-pautomator/delete-opsman/task.yml
+  #   params:
+  #     GOVC_HOST: ((infrastructure_ci_vsphere_pautomator_govc_host))
