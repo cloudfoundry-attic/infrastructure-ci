@@ -26,7 +26,7 @@
 		    gateway: "${OPS_GATEWAY}"
 		    vm_name: "${OPS_VM_NAME}"
 		    memory: "${OPS_MEMORY}"
-		    cpu: "${OPS_VM_CPU}"
+		    cpu: "${OPS_CPU}"
 EOF
   set -x
 
