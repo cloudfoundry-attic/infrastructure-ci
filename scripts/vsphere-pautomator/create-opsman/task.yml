@@ -5,7 +5,7 @@ inputs:
 - name: ci
 
 run:
-  path: ci/scripts/vsphere-pautomator/create-opsman/task
+  path: ci/scripts/infrastructure-ci/vsphere-pautomator/create-opsman/task
 
 params:
   GOVC_HOST:
