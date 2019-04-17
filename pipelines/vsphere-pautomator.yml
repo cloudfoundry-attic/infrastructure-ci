@@ -12,7 +12,7 @@ jobs:
   plan:
   - aggregate:
     - get: ci
-      resource: infrastructure-ci
+      resource: vsphere-pautomator-ci
   - task: create-opsman
     image: cf-deployment-concourse-tasks-image
     file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
