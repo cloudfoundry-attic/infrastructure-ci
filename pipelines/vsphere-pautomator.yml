@@ -7,7 +7,7 @@ resources:
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
 jobs:
-- name: bbl-up-concourse
+- name: create-opsman
   build_logs_to_retain: 101
   plan:
   - aggregate:
