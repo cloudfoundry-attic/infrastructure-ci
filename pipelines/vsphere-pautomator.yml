@@ -36,5 +36,4 @@ jobs:
       OPS_VCENTER_DATACENTER: ((vcenter-pautomator-datacenter))
       OPS_VCENTER_INSECURE: 1
       OPS_VCENTER_RESOURCE_POOL: ((vcenter-pautomator-resource-pool))
-      OPS_VCENTER_CA_CERT: |
-        ((vcenter-pautomator-ca-cert))
+      OPS_VCENTER_CA_CERT: ((vcenter-pautomator-ca-cert))
