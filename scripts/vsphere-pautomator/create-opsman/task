@@ -1,6 +1,6 @@
 #!/bin/bash -exu
 
-pushd create-opsman > /dev/null
+#pushd create-opsman > /dev/null
 
 echo "hello there"
 
@@ -12,4 +12,4 @@ EOF
 
   cat config.yml
 
-popd > /dev/null
+#popd > /dev/null
