@@ -9,7 +9,7 @@ image_resource:
 
 inputs:
 - name: ci
-- name: p-automator
+
 run:
   path: ci/scripts/vsphere-p-automator/create-opsman/task
 
