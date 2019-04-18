@@ -27,7 +27,7 @@ set +x
 		    cpu: "${OPS_CPU}"
 EOF
 
-p-automator create-vm --config conf.yml --image-file ops-manager-image/*.ova
+p-automator create-vm --config config.yml --image-file ops-manager-image/*.ova
 
 set -x
 
