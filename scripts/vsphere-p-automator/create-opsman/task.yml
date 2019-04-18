@@ -9,9 +9,9 @@ image_resource:
 
 inputs:
 - name: ci
-- name: pautomator
+- name: p-automator
 run:
-  path: ci/scripts/vsphere-pautomator/create-opsman/task
+  path: ci/scripts/vsphere-p-automator/create-opsman/task
 
 params:
   OPS_DISKTYPE:
