@@ -1,6 +1,7 @@
 ---
 platform: linux
 
+# this image must be overridden with platform automation's image
 image_resource:
   type: docker-image
   source:

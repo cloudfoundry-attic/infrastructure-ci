@@ -6,21 +6,20 @@ resource_types:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
 
-
 resources:
 - name: vsphere-p-automator-ci
   type: git
   source:
     branch: vsphere-wip
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-- name: pautomator
+- name: platform-automation-release
   type: pivnet
   source:
     api_token: ((pivnet_token))
     product_slug: platform-automation
+
 jobs:
 - name: create-opsman
-  build_logs_to_retain: 101
   plan:
   - aggregate:
     - get: ci
@@ -29,9 +28,12 @@ jobs:
     - get: platform-automation-image
       resource: platform-automation-release
       trigger: true
-    - get: pautomator
+      params:
+        globs: ["*image*"] # fix me
+        unpack: true
   - task: create-opsman
-    file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
+    image: platform-automation-image
+    file: ci/scripts/vsphere-p-automator/create-opsman/task.yml
     params:
       OPS_DISKTYPE: thin
       OPS_PRIVATE_IP: ((vcenter-p-automator-opsman-private-ip))
