@@ -17,6 +17,11 @@ resources:
   source:
     api_token: ((pivnet_token))
     product_slug: platform-automation
+- name: ops-manager-release
+  type: pivnet
+  source:
+    api_token: ((pivnet_token))
+    product_slug: ops-manager
 
 jobs:
 - name: create-opsman
@@ -31,6 +36,11 @@ jobs:
       params:
         globs: ["*image*"]
         unpack: true
+    - get: ops-manager-image
+      resource: ops-manager-release
+      trigger: true
+      params:
+        globs: ["*vSphere*"]
   - task: create-opsman
     image: platform-automation-image
     file: ci/scripts/vsphere-p-automator/create-opsman/task.yml
