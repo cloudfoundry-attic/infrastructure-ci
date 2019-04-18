@@ -17,7 +17,7 @@ resources:
   type: docker-image
   source:
     type: pivnet
-    source: ((pivnet-token))
+    source: ((pivnet_token))
     product_slug: platform-automation
 jobs:
 - name: create-opsman
