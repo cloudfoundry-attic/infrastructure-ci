@@ -1,0 +1,25 @@
+opsman-configuration:
+  vsphere:
+    vcenter:
+      url: "url"
+      username: "username"
+      password: "password"
+      datastore: "datastore"
+      datacenter: "datacenter"
+      insecure: "1"
+      ca_cert: "----cert-----"
+      resource_pool: "resource-pool"
+      # host: https://vcsa-01.haas-401.pez.pivotal.io
+      # folder: /datacenter/vm/folder
+    disk_type: "disktype"
+    private_ip: "10.0.0.1"
+    dns: "10.0.0.1"
+    ntp: "10.0.0.1"
+    ssh_password: "sshpass"
+    hostname: "hname"
+    network: "netwrk"
+    netmask: "255.255.255.0"
+    gateway: "10.0.0.2"
+    vm_name: "opsman"
+    memory: "10"
+    cpu: "10"
