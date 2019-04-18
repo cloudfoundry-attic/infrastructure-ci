@@ -1,7 +1,7 @@
 #!/bin/bash -exu
 
-  set +x
-    cat > config.yml <<-EOF
+set +x
+  cat > config.yml <<-EOF
 		opsman-configuration:
 		  vsphere:
 		    vcenter:
@@ -13,8 +13,6 @@
 		      insecure: "${OPS_VCENTER_INSECURE}"
 		      ca_cert: "${OPS_VCENTER_CA_CERT}"
 		      resource_pool: "${OPS_VCENTER_RESOURCE_POOL}"
-		      # host: https://vcsa-01.haas-401.pez.pivotal.io
-		      # folder: /datacenter/vm/folder
 		    disk_type: "${OPS_DISKTYPE}"
 		    private_ip: "${OPS_PRIVATE_IP}"
 		    dns: "${OPS_DNS}"
@@ -28,5 +26,5 @@
 		    memory: "${OPS_MEMORY}"
 		    cpu: "${OPS_CPU}"
 EOF
-  set -x
+set -x
 

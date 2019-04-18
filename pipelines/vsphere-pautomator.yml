@@ -16,7 +16,7 @@ resources:
 - name: pautomator
   type: pivnet
   source:
-    source: ((pivnet_token))
+    api_token: ((pivnet_token))
     product_slug: platform-automation
 jobs:
 - name: create-opsman
