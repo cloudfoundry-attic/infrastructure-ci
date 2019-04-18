@@ -1,15 +1,24 @@
 ---
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+
+
 resources:
 - name: vsphere-pautomator-ci
   type: git
   source:
     branch: vsphere-wip
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
-- name: pivnet
+- name: pautomator
   type: docker-image
   source:
-    repository: pivotalcf/pivnet-resource
-    tag: latest-final
+    type: pivnet
+    source: ((pivnet-token))
+    product_slug: platform-automation
 jobs:
 - name: create-opsman
   build_logs_to_retain: 101
@@ -19,14 +28,7 @@ jobs:
       resource: vsphere-pautomator-ci
       trigger: true
     - get: pautomator
-      type: pivnet
-      source: ((pivnet-token))
-      product_slug: platform-automation
   - task: create-opsman
-    config:
-      inputs:
-      - name: ci
-      - name: pautomator
     file: ci/scripts/vsphere-pautomator/create-opsman/task.yml
     params:
       OPS_DISKTYPE: thin
