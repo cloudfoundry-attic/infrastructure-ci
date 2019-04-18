@@ -26,5 +26,8 @@ set +x
 		    memory: "${OPS_MEMORY}"
 		    cpu: "${OPS_CPU}"
 EOF
+
+exit 1
+
 set -x
 
