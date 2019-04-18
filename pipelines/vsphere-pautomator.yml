@@ -14,9 +14,8 @@ resources:
     branch: vsphere-wip
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 - name: pautomator
-  type: docker-image
+  type: pivnet
   source:
-    type: pivnet
     source: ((pivnet_token))
     product_slug: platform-automation
 jobs:
