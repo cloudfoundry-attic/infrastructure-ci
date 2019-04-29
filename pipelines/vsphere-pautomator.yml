@@ -44,6 +44,7 @@ jobs:
   - task: create-opsman
     image: platform-automation-image
     file: ci/scripts/vsphere-p-automator/create-opsman/task.yml
+    tags: [pez-403]
     params:
       OPS_DISKTYPE: thin
       OPS_PRIVATE_IP: ((vcenter-p-automator-opsman-private-ip))
