@@ -9,7 +9,6 @@ RUN \
       apt-get update && \
       apt-get -qqy install --fix-missing \
             apt-transport-https \
-            awscli \
             openssl \
             silversearcher-ag \
             unzip \
@@ -58,7 +57,7 @@ RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   chmod +x /usr/local/bin/jq
 
 # Install bosh_cli v2
-RUN curl -L "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-$(curl -s https://api.github.com/repos/cloudfoundry/bosh-cli/releases | jq -r .[0].name | tr -d "v")-linux-amd64" -o "/usr/local/bin/bosh" && \
+RUN curl -L "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-$(curl -s https://api.github.com/repos/cloudfoundry/bosh-cli/releases | jq -r '.[0].name' | tr -d 'v')-linux-amd64" -o "/usr/local/bin/bosh" && \
   chmod +x "/usr/local/bin/bosh"
 
 # Install bbl
@@ -90,3 +89,4 @@ RUN go get -u github.com/jteeuwen/go-bindata/...
 
 # Install yq
 RUN pip install yq
+RUN pip install -U awscli
