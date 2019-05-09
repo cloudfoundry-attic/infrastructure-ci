@@ -41,7 +41,7 @@ function main() {
     CGO_ENABLED=0 GOARCH=amd64 GOOS=windows \
       go build \
       -ldflags "-X main.Version=v${VERSION}" \
-      -o "${ROOT}/builds/bin/leftovers-v${VERSION}-windows-amd64" .
+      -o "${ROOT}/builds/bin/leftovers-v${VERSION}-windows-amd64.exe" .
 
   popd > /dev/null
 
