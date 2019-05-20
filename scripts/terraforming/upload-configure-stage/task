@@ -4,7 +4,7 @@ function set_opsman_dns() {
   metadata="${PWD}/env-state/metadata"
   opsman_dns=$(yq -r .ops_manager_dns < "${metadata}")
   # if yq failed then it means we might be setting dns for vsphere
-  if [[ opsman_dns -eq "null" ]]; then
+  if [[ "${opsman_dns}" = "null" ]]; then
     opsman_dns=$(yq -r .opsman_configuration.vsphere.hostname < "${metadata}")
   fi
 }
