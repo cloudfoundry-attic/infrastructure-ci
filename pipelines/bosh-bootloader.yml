@@ -18,8 +18,6 @@ groups:
   - validate-plan-patches
   - minor
   - major
-  - bbl-up-gcp-concourse-director
-  - bbl-up-vsphere-concourse-director
   - github-release
 
 - name: bump-deployments
@@ -38,8 +36,6 @@ groups:
   - bbl-gcp-concourse-bump-deployments
   - bbl-aws-concourse-bump-deployments
   - bbl-azure-concourse-bump-deployments
-  - bbl-up-gcp-concourse-director-bump-deployments
-  - bbl-up-vsphere-concourse-director-bump-deployments
   - github-release-bump-deployments
   - merge-bump-deployments-change
 
@@ -414,30 +410,32 @@ jobs:
     - get: bosh-bootloader
       passed: [test-bosh-bootloader]
       trigger: true
+      tags: [vsphere]
     - get: ci
       resource: infrastructure-ci
+      tags: [vsphere]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
       TF_VERSION: 0.11.7
+    tags: [vsphere]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
     params:
       BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
-      BBL_VSPHERE_SUBNET: ((vsphere_subnet))
-      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_subnet))
-      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
-      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
-      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
-      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
-      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
-      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
-      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
-      BBL_VSPHERE_VCENTER_DISKS: ((vsphere_vcenter_disks))
-      BBL_VSPHERE_VCENTER_VMS: ((vsphere_vcenter_vms))
-      BBL_VSPHERE_VCENTER_TEMPLATES: ((vsphere_vcenter_templates))
+      BBL_VSPHERE_VCENTER_USER: ((vcenter-admin.username))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vcenter-admin.password))
+      BBL_VSPHERE_NETWORK: ((vcenter-om-bbl-network))
+      BBL_VSPHERE_SUBNET_CIDR: ((vcenter-bbl-subnet-cidr))
+      BBL_VSPHERE_VCENTER_IP: ((vcenter-url))
+      BBL_VSPHERE_VCENTER_DC: ((vcenter-om-datacenter))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vcenter-om-cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vcenter-bbl-resource-pool))
+      BBL_VSPHERE_VCENTER_DS: ((vcenter-om-datastore))
+      BBL_VSPHERE_VCENTER_DISKS: ((vcenter-bbl-namespace))
+      BBL_VSPHERE_VCENTER_VMS: ((vcenter-bbl-namespace))
+      BBL_VSPHERE_VCENTER_TEMPLATES: ((vcenter-bbl-namespace))
       BBL_TEST_ENV_ID_PREFIX: bbl-ci
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -666,31 +664,33 @@ jobs:
       resource: bosh-bootloader-bump-deployments-ci
       passed: [test-bosh-bootloader-bump-deployments]
       trigger: true
+      tags: [vsphere]
     - get: ci
       resource: infrastructure-ci
       passed: [test-bosh-bootloader-bump-deployments]
+      tags: [vsphere]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
       TF_VERSION: 0.11.7
+    tags: [vsphere]
   - task: bbl-up
     file: ci/scripts/bosh-bootloader/acceptance/task.yml
     tags: [vsphere]
     params:
       BBL_IAAS: vsphere
-      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
-      BBL_VSPHERE_SUBNET: ((vsphere_subnet))
-      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_subnet))
-      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
-      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
-      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
-      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
-      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
-      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
-      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
-      BBL_VSPHERE_VCENTER_DISKS: ((vsphere_vcenter_disks))
-      BBL_VSPHERE_VCENTER_VMS: ((vsphere_vcenter_vms))
-      BBL_VSPHERE_VCENTER_TEMPLATES: ((vsphere_vcenter_templates))
+      BBL_VSPHERE_VCENTER_USER: ((vcenter-admin.username))
+      BBL_VSPHERE_VCENTER_PASSWORD: ((vcenter-admin.password))
+      BBL_VSPHERE_NETWORK: ((vcenter-om-network))
+      BBL_VSPHERE_SUBNET_CIDR: ((vcenter-bbl-subnet-cidr))
+      BBL_VSPHERE_VCENTER_IP: ((vcenter-url))
+      BBL_VSPHERE_VCENTER_DC: ((vcenter-om-datacenter))
+      BBL_VSPHERE_VCENTER_CLUSTER: ((vcenter-om-cluster))
+      BBL_VSPHERE_VCENTER_RP: ((vcenter-bbl-resource-pool))
+      BBL_VSPHERE_VCENTER_DS: ((vcenter-om-datastore))
+      BBL_VSPHERE_VCENTER_DISKS: ((vcenter-bbl-namespace))
+      BBL_VSPHERE_VCENTER_VMS: ((vcenter-bbl-namespace))
+      BBL_VSPHERE_VCENTER_TEMPLATES: ((vcenter-bbl-namespace))
       BBL_TEST_ENV_ID_PREFIX: bump-deployments
       BBL_TEST_PACKAGES: bbl
       RUN_TEST: bbl-up
@@ -1876,90 +1876,6 @@ jobs:
             rebase: true
             repository: updated-bbl-state
 
-- name: bbl-up-gcp-concourse-director
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
-    - get: infrastructure-ci-bbl-states
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks-bbl-dev
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
-      trigger: true
-  - task: bbl-up-gcp-concourse-bosh-director
-    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-gcp.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    params:
-      BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key))
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-states
-        rebase: true
-
-- name: bbl-up-vsphere-concourse-director
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
-    - get: infrastructure-ci-bbl-states
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks-bbl-dev
-      tags: [vsphere]
-      passed:
-      - bbl-aws-cf
-      - bbl-gcp-cf
-      - bbl-azure-concourse
-      - bbl-aws-concourse
-      - bbl-gcp-concourse
-      - bbl-lite-gcp
-      - validate-plan-patches
-      trigger: true
-  - task: bbl-up-vsphere-concourse-bosh-director
-    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    tags: [vsphere]
-    params:
-      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
-      BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
-      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_concourse_subnet))
-      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
-      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
-      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
-      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
-      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
-      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
-      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-states
-        rebase: true
-
 - name: bbl-gcp-concourse-bump-deployments
   serial: true
   build_logs_to_retain: 100
@@ -2836,88 +2752,6 @@ jobs:
             rebase: true
             repository: updated-bbl-state
 
-- name: bbl-up-gcp-concourse-director-bump-deployments
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-bump-deployments-ci
-      trigger: true
-      passed:
-      - bbl-aws-cf-bump-deployments
-      - bbl-gcp-cf-bump-deployments
-      - bbl-azure-concourse-bump-deployments
-      - bbl-aws-concourse-bump-deployments
-      - bbl-gcp-concourse-bump-deployments
-      - bbl-lite-gcp-bump-deployments
-    - get: infrastructure-ci-bbl-states
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks-bbl-dev
-      passed:
-      - bbl-aws-cf-bump-deployments
-      - bbl-gcp-cf-bump-deployments
-      - bbl-azure-concourse-bump-deployments
-      - bbl-aws-concourse-bump-deployments
-      - bbl-gcp-concourse-bump-deployments
-      - bbl-lite-gcp-bump-deployments
-  - task: bbl-up-gcp-concourse-bosh-director
-    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-gcp.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    params:
-      BBL_GCP_REGION: us-east1
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((infrastructure_ci_gcp_service_account_key))
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-states
-        rebase: true
-
-- name: bbl-up-vsphere-concourse-director-bump-deployments
-  plan:
-  - aggregate:
-    - get: bosh-bootloader
-      resource: bosh-bootloader-bump-deployments-ci
-      trigger: true
-      passed:
-      - bbl-aws-cf-bump-deployments
-      - bbl-gcp-cf-bump-deployments
-      - bbl-azure-concourse-bump-deployments
-      - bbl-aws-concourse-bump-deployments
-      - bbl-gcp-concourse-bump-deployments
-      - bbl-lite-gcp-bump-deployments
-    - get: infrastructure-ci-bbl-states
-    - get: ci
-      resource: infrastructure-ci
-    - get: cf-deployment-concourse-tasks-bbl-dev
-      tags: [vsphere]
-      passed:
-      - bbl-aws-cf-bump-deployments
-      - bbl-gcp-cf-bump-deployments
-      - bbl-azure-concourse-bump-deployments
-      - bbl-aws-concourse-bump-deployments
-      - bbl-gcp-concourse-bump-deployments
-      - bbl-lite-gcp-bump-deployments
-  - task: bbl-up-vsphere-concourse-bosh-director
-    file: ci/scripts/infrastructure-ci/bbl-up-concourse-bosh-director/task-vsphere.yml
-    image: cf-deployment-concourse-tasks-bbl-dev
-    tags: [vsphere]
-    params:
-      BBL_VSPHERE_NETWORK: ((vsphere_network_name))
-      BBL_VSPHERE_SUBNET: ((vsphere_concourse_subnet))
-      BBL_VSPHERE_SUBNET_CIDR: ((vsphere_concourse_subnet))
-      BBL_VSPHERE_VCENTER_IP: ((vsphere_vcenter_ip))
-      BBL_VSPHERE_VCENTER_USER: ((vsphere_vcenter_user))
-      BBL_VSPHERE_VCENTER_PASSWORD: ((vsphere_vcenter_password))
-      BBL_VSPHERE_VCENTER_DC: ((vsphere_vcenter_dc))
-      BBL_VSPHERE_VCENTER_CLUSTER: ((vsphere_vcenter_cluster))
-      BBL_VSPHERE_VCENTER_RP: ((vsphere_vcenter_rp))
-      BBL_VSPHERE_VCENTER_DS: ((vsphere_vcenter_ds))
-    ensure:
-      put: infrastructure-ci-bbl-states
-      params:
-        repository: updated-bbl-states
-        rebase: true
-
 - name: github-release
   plan:
   - aggregate:
@@ -2925,8 +2759,13 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-bootloader
       passed:
-      - bbl-up-gcp-concourse-director
-      - bbl-up-vsphere-concourse-director
+      - bbl-aws-concourse
+      - bbl-gcp-concourse
+      - bbl-azure-concourse
+      - bbl-aws-cf
+      - bbl-gcp-cf
+      - bbl-lite-gcp
+      - validate-plan-patches
   - get: bbl-version
     resource: dev-version
   - get: bbl-version-final
@@ -2966,8 +2805,12 @@ jobs:
     - get: bosh-bootloader
       resource: bosh-bootloader-bump-deployments-ci
       passed:
-      - bbl-up-gcp-concourse-director-bump-deployments
-      - bbl-up-vsphere-concourse-director-bump-deployments
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-lite-gcp-bump-deployments
       trigger: true
   - get: bbl-version
     resource: version
