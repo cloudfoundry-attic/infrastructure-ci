@@ -15,12 +15,19 @@ function main() {
 
     dep ensure -update github.com/genevieve/leftovers
 
-    git add .
+    status="$(git status --short)"
 
-    git config user.email "cf-infrastructure@pivotal.io"
-    git config user.name "cf-infra-bot"
+    if [[ ${status} != "" ]]
+    then
+      git add .
 
-    git commit -m 'bump leftovers'
+      git config user.email "cf-infrastructure@pivotal.io"
+      git config user.name "cf-infra-bot"
+
+      git commit -m 'bump leftovers'
+    else
+      echo "No changes to commit"
+    fi
 
     cp -r . ${ROOT}/bosh-bootloader-updated
   popd > /dev/null
