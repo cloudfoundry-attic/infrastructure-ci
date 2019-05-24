@@ -655,7 +655,6 @@ jobs:
       tags: [vsphere]
     - get: ci
       resource: infrastructure-ci
-      passed: [test-bosh-bootloader-bump-deployments]
       tags: [vsphere]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
@@ -669,7 +668,7 @@ jobs:
       BBL_IAAS: vsphere
       BBL_VSPHERE_VCENTER_USER: ((vcenter-admin.username))
       BBL_VSPHERE_VCENTER_PASSWORD: ((vcenter-admin.password))
-      BBL_VSPHERE_NETWORK: ((vcenter-om-network))
+      BBL_VSPHERE_NETWORK: ((vcenter-om-bbl-network))
       BBL_VSPHERE_SUBNET_CIDR: ((vcenter-bbl-subnet-cidr))
       BBL_VSPHERE_VCENTER_IP: ((vcenter-url))
       BBL_VSPHERE_VCENTER_DC: ((vcenter-om-datacenter))
