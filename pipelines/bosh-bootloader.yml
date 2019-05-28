@@ -2,7 +2,6 @@ groups:
 - name: bosh-bootloader
   jobs:
   - test-bosh-bootloader
-  - bump-leftovers
   - aws-acceptance-tests
   - azure-acceptance-tests
   - gcp-acceptance-tests
@@ -38,6 +37,10 @@ groups:
   - bbl-azure-concourse-bump-deployments
   - github-release-bump-deployments
   - merge-bump-deployments-change
+
+- name: bump-leftovers
+  jobs:
+  - bump-leftovers
 
 - name: homebrew-tap
   jobs:
