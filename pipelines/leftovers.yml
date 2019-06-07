@@ -140,6 +140,8 @@ jobs:
       BBL_OPENSTACK_PROJECT: ((bbl_openstack_project))
       BBL_OPENSTACK_DOMAIN: ((bbl_openstack_domain))
       BBL_OPENSTACK_REGION: ((bbl_openstack_region))
+    tags:
+    - vsphere
 
 - name: releasable
   plan:
@@ -151,7 +153,6 @@ jobs:
       - acceptance-aws
       - acceptance-azure
       - acceptance-vsphere
-      - acceptance-openstack
 
 - name: build-release
   plan:
