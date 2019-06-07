@@ -7,15 +7,9 @@ chmod +x /usr/local/bin/bosh
 
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
-set +x
-  echo "${GCP_SERVICE_ACCOUNT_KEY}" > service_account.key.json
-  service_account_key_path="${PWD}/service_account.key.json"
-set -x
-
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
   ln -s "${ROOT}/bosh-bootloader"
 
-  export GCP_SERVICE_ACCOUNT_KEY="${service_account_key_path}"
   export TF_LOG=DEBUG
   export TF_LOG_PATH="${ROOT}/tf-logs.txt"
   export BOSH_LOG_LEVEL=debug

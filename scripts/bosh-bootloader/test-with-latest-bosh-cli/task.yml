@@ -16,7 +16,10 @@ run:
   path: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task
 
 params:
-  GCP_SERVICE_ACCOUNT_KEY:
-  GCP_REGION:
-  GCP_ZONE:
   BBL_TEST_ENV_ID_PREFIX:
+  BBL_GCP_SERVICE_ACCOUNT_KEY:
+  BBL_GCP_ZONE:
+  BBL_IAAS:
+  BBL_DOWN_TIMEOUT:
+  BBL_GCP_PROJECT_ID:
+  BBL_GCP_REGION:
