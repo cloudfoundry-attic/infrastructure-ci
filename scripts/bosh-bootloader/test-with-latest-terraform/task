@@ -12,10 +12,17 @@ mv /tmp/terraform /usr/local/bin/terraform
 
 terraform version
 
+cp /tmp/terraform ${ROOT}/bosh-bootloader/terraform/binary_dist/terraform
+
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
 pushd "${GOPATH}/src/github.com/cloudfoundry" > /dev/null
   ln -s "${ROOT}/bosh-bootloader"
+
+  export TF_LOG=DEBUG
+  export TF_LOG_PATH="${ROOT}/tf-logs.txt"
+  export BOSH_LOG_LEVEL=debug
+  export BOSH_LOG_PATH="${ROOT}/bosh-logs/bosh-logs.txt"
 
   ./bosh-bootloader/scripts/acceptance_tests bbl
 popd > /dev/null
