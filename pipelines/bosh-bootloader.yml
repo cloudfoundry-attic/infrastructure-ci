@@ -823,6 +823,10 @@ jobs:
       resource: infrastructure-ci
     - get: bosh-cli
       trigger: true
+  - task: download-terraform
+    file: ci/scripts/bosh-bootloader/download-terraform/task.yml
+    params:
+      TF_VERSION: 0.11.7
   - task: test
     file: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task.yml
     params:
