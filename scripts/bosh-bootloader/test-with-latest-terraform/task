@@ -12,7 +12,7 @@ mv /tmp/terraform /usr/local/bin/terraform
 
 terraform version
 
-cp /tmp/terraform ${ROOT}/bosh-bootloader/terraform/binary_dist/terraform
+cp /usr/local/bin/terraform ${ROOT}/bosh-bootloader/terraform/binary_dist/terraform
 
 mkdir -p "${GOPATH}/src/github.com/cloudfoundry"
 
