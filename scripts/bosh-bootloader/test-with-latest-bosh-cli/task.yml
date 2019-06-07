@@ -12,6 +12,9 @@ inputs:
   - name: bosh-cli
   - name: terraform-binaries
 
+outputs:
+ - name: bosh-logs
+
 run:
   path: ci/scripts/bosh-bootloader/test-with-latest-bosh-cli/task
 
