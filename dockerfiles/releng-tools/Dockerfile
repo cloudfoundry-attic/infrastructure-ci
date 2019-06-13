@@ -1,4 +1,4 @@
-FROM python:3.6.5-jessie
+FROM python:3.6.8-jessie
 MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ENV TERRAFORM_VERSION 0.11.7
