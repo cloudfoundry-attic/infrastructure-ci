@@ -3,6 +3,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 
 ENV TERRAFORM_VERSION 0.11.7
 ENV BOSH_CLI_VERSION 5.1.2
+ENV CREDHUB_CLI_VERSION 2.5.0
 
 RUN \
       apt-get update && \
@@ -52,6 +53,6 @@ RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION
 RUN pip install yq
 
 #Install credhub
-RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/1.7.7/credhub-linux-1.7.7.tgz && \
-  tar -xzvf credhub-linux-1.7.7.tgz -C /usr/local/bin && \
+RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_CLI_VERSION}/credhub-linux-${CREDHUB_CLI_VERSION}.tgz && \
+  tar -xzvf credhub-linux-${CREDHUB_CLI_VERSION}.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
