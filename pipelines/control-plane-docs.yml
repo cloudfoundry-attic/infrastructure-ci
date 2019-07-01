@@ -1,0 +1,60 @@
+resources:
+- name: mkdocs-pivotal-theme
+  type: git
+  source:
+    uri: https://github.com/pivotal/mkdocs-pivotal-theme
+- name: docs-v0.0.37
+  type: git
+  source:
+    uri: git@github.com:pivotal/control-plane-docs
+    branch: v0.0.37
+    private_key: ((cf_infra_bot_github_user.private_key))
+- name: docs-develop
+  type: git
+  source:
+    uri: git@github.com:pivotal/control-plane-docs
+    branch: develop
+    private_key: ((cf_infra_bot_github_user.private_key))
+- name: docs-app
+  type: cf
+  source:
+    api: api.run.pivotal.io
+    client_id: ((pcf_infra_prod_service_account.username))
+    client_secret: ((pcf_infra_prod_service_account.password))
+    organization: ((pws_organization))
+    space: ((pws_space))
+
+jobs:
+- name: build-docs
+  serial: true
+  plan:
+    - get: mkdocs-pivotal-theme
+    - get: docs-v0.0.37
+    - get: docs-develop
+    - task: build-docs
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: { repository: internalpcfplatformautomation/docs }
+        inputs:
+        - name: docs-v0.0.37
+        - name: docs-develop
+        - name: mkdocs-pivotal-theme
+        outputs:
+        - name: cf-app
+        run:
+          path: mkdocs-pivotal-theme/ci/build-docs/build_docs.rb
+          args: [
+            '--output-dir', './cf-app',
+            '--docs-dir', '.',
+            '--docs-prefix', 'docs',
+            '--site-prefix', 'cp',
+            '--domains', 'control-plane-docs.cfapps.io'
+            ]
+    - put: docs-app
+      params:
+        manifest: cf-app/manifest.yml
+        path: cf-app
+        current_app_name: control-plane-docs
+        show_app_log: true
