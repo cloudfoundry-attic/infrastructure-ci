@@ -3,6 +3,12 @@ resources:
   type: git
   source:
     uri: https://github.com/pivotal/mkdocs-pivotal-theme
+- name: docs-v0.0.38
+  type: git
+  source:
+    uri: git@github.com:pivotal/control-plane-docs
+    branch: v0.0.38
+    private_key: ((cf_infra_bot_github_user.private_key))
 - name: docs-v0.0.37
   type: git
   source:
@@ -29,6 +35,7 @@ jobs:
   serial: true
   plan:
     - get: mkdocs-pivotal-theme
+    - get: docs-v0.0.38
     - get: docs-v0.0.37
     - get: docs-develop
     - task: build-docs
@@ -38,6 +45,7 @@ jobs:
           type: docker-image
           source: { repository: internalpcfplatformautomation/docs }
         inputs:
+        - name: docs-v0.0.38
         - name: docs-v0.0.37
         - name: docs-develop
         - name: mkdocs-pivotal-theme
@@ -49,8 +57,8 @@ jobs:
             '--output-dir', './cf-app',
             '--docs-dir', '.',
             '--docs-prefix', 'docs',
-            '--site-prefix', 'cp',
-            '--domains', 'control-plane-docs.cfapps.io'
+            '--site-prefix', 'control-plane',
+            '--domains', 'docs.pivotal.io'
             ]
     - put: docs-app
       params:
