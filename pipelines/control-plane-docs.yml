@@ -8,19 +8,19 @@ resources:
   source:
     uri: git@github.com:pivotal/control-plane-docs
     branch: v0.0.38
-    private_key: ((cf_infra_bot_github_user.private_key))
+    private_key: ((docs-github-deploy-key.private_key))
 - name: docs-v0.0.37
   type: git
   source:
     uri: git@github.com:pivotal/control-plane-docs
     branch: v0.0.37
-    private_key: ((cf_infra_bot_github_user.private_key))
+    private_key: ((docs-github-deploy-key.private_key))
 - name: docs-develop
   type: git
   source:
     uri: git@github.com:pivotal/control-plane-docs
     branch: develop
-    private_key: ((cf_infra_bot_github_user.private_key))
+    private_key: ((docs-github-deploy-key.private_key))
 - name: docs-app
   type: cf
   source:
