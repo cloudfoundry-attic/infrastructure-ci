@@ -15,6 +15,7 @@ groups:
   - bbl-aws-concourse
   - bbl-azure-concourse
   - validate-plan-patches
+  - patch
   - minor
   - major
   - github-release
@@ -135,16 +136,6 @@ resources:
     secret_access_key: ((aws_secret_access_key))
 
 - name: version
-  type: semver
-  source:
-    initial_version: 0.0.1
-    driver: s3
-    bucket: bbl-version
-    key: bbl-version
-    access_key_id: ((aws_access_key_id))
-    secret_access_key: ((aws_secret_access_key))
-
-- name: dev-version
   type: semver
   source:
     initial_version: 0.0.1
@@ -775,8 +766,7 @@ jobs:
     - task: build-binaries
       file: ci/scripts/bosh-bootloader/build-final-release/task.yml
       input_mapping:
-        bbl-version-final: dev-version
-        bbl-version: dev-version
+        bbl-version-final: version
     - task: untar-builds
       file: ci/scripts/bosh-bootloader/setup-github-release/task.yml
     - task: prepare-bbl-dev-docker-workspace
@@ -866,8 +856,7 @@ jobs:
     - task: build-binaries
       file: ci/scripts/bosh-bootloader/build-final-release/task.yml
       input_mapping:
-        bbl-version-final: dev-version
-        bbl-version: dev-version
+        bbl-version-final: version
     - task: untar-builds
       file: ci/scripts/bosh-bootloader/setup-github-release/task.yml
     - task: prepare-bbl-dev-docker-workspace
@@ -2760,10 +2749,8 @@ jobs:
       - bbl-gcp-cf
       - bbl-lite-gcp
       - validate-plan-patches
-  - get: bbl-version
-    resource: dev-version
   - get: bbl-version-final
-    resource: dev-version
+    resource: version
     params:
       bump: final
   - task: download-terraform
@@ -2806,7 +2793,7 @@ jobs:
       - bbl-gcp-cf-bump-deployments
       - bbl-lite-gcp-bump-deployments
       trigger: true
-  - get: bbl-version
+  - get: bbl-version-final
     resource: version
     params:
       bump: patch
@@ -2826,6 +2813,9 @@ jobs:
       body: github-release-assets/body
       globs:
       - github-release-assets/bin/bbl-*
+  - put: version
+    params:
+      bump: patch
 
 - name: merge-bump-deployments-change
   serial: true
@@ -2848,15 +2838,16 @@ jobs:
   plan:
   - put: version
     params: {bump: major}
-  - put: dev-version
-    params: {bump: major}
 
 - name: minor
   plan:
   - put: version
     params: {bump: minor}
-  - put: dev-version
-    params: {bump: minor}
+
+- name: patch
+  plan:
+  - put: version
+    params: {bump: patch}
 
 - name: bump-nat-amis
   plan:
