@@ -3,11 +3,11 @@ resources:
   type: git
   source:
     uri: https://github.com/pivotal/mkdocs-pivotal-theme
-- name: docs-v0.0.38
+- name: docs-v1.0.0
   type: git
   source:
     uri: git@github.com:pivotal/control-plane-docs
-    branch: v0.0.38
+    branch: v1.0.0
     private_key: ((docs-github-deploy-key.private_key))
 - name: docs-v0.0.37
   type: git
@@ -35,7 +35,7 @@ jobs:
   serial: true
   plan:
     - get: mkdocs-pivotal-theme
-    - get: docs-v0.0.38
+    - get: docs-v1.0.0
     - get: docs-v0.0.37
     - get: docs-develop
     - task: build-docs
@@ -45,7 +45,7 @@ jobs:
           type: docker-image
           source: { repository: internalpcfplatformautomation/docs }
         inputs:
-        - name: docs-v0.0.38
+        - name: docs-v1.0.0
         - name: docs-v0.0.37
         - name: docs-develop
         - name: mkdocs-pivotal-theme
