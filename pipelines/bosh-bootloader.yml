@@ -386,7 +386,6 @@ jobs:
 
 - name: vsphere-acceptance-tests
   serial: true
-  serial_groups: [vsphere-acceptance]
   plan:
   - in_parallel:
     - get: bosh-bootloader
@@ -408,8 +407,8 @@ jobs:
       BBL_IAAS: vsphere
       BBL_VSPHERE_VCENTER_USER: ((vcenter-admin.username))
       BBL_VSPHERE_VCENTER_PASSWORD: ((vcenter-admin.password))
-      BBL_VSPHERE_NETWORK: ((vcenter-om-bbl-network))
-      BBL_VSPHERE_SUBNET_CIDR: ((vcenter-bbl-subnet-cidr))
+      BBL_VSPHERE_NETWORK: ((vsphere-network2))
+      BBL_VSPHERE_SUBNET_CIDR: ((vsphere-network2-cidr))
       BBL_VSPHERE_VCENTER_IP: ((vcenter-url))
       BBL_VSPHERE_VCENTER_DC: ((vcenter-om-datacenter))
       BBL_VSPHERE_VCENTER_CLUSTER: ((vcenter-om-cluster))
@@ -638,7 +637,6 @@ jobs:
         BBL_UP_TIMEOUT: 80m
 
 - name: vsphere-acceptance-tests-bump-deployments
-  serial_groups: [vsphere-acceptance]
   serial: true
   plan:
   - in_parallel:
@@ -662,8 +660,8 @@ jobs:
       BBL_IAAS: vsphere
       BBL_VSPHERE_VCENTER_USER: ((vcenter-admin.username))
       BBL_VSPHERE_VCENTER_PASSWORD: ((vcenter-admin.password))
-      BBL_VSPHERE_NETWORK: ((vcenter-om-bbl-network))
-      BBL_VSPHERE_SUBNET_CIDR: ((vcenter-bbl-subnet-cidr))
+      BBL_VSPHERE_NETWORK: ((vsphere-network3))
+      BBL_VSPHERE_SUBNET_CIDR: ((vsphere-network3-cidr))
       BBL_VSPHERE_VCENTER_IP: ((vcenter-url))
       BBL_VSPHERE_VCENTER_DC: ((vcenter-om-datacenter))
       BBL_VSPHERE_VCENTER_CLUSTER: ((vcenter-om-cluster))
