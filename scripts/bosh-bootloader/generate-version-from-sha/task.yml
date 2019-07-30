@@ -11,7 +11,7 @@ inputs:
   - name: ci
 
 outputs:
- - name: dev-version
+ - name: sha-version
 
 run:
   path: ci/scripts/bosh-bootloader/generate-version-from-sha/task
