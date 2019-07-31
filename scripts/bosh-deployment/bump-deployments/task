@@ -6,6 +6,7 @@ function main() {
   latest_release_tag=$(cat "${ROOT}/bbl-release/version")
 
   pushd "${ROOT}/bosh-bootloader" > /dev/null
+    git fetch
     git checkout -B "bump-deployments-ci" "v${latest_release_tag}"
   popd > /dev/null
 
