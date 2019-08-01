@@ -501,6 +501,7 @@ jobs:
   - task: bump-deployments
     file: ci/scripts/bosh-deployment/bump-deployments/task.yml
     input_mapping:
+      github_key: ((cf_infra_bot_github_user.private_key))
       bbl-release: bbl-release-official
   - put: bump-deployments-ci
     resource: bosh-bootloader-bump-deployments-ci

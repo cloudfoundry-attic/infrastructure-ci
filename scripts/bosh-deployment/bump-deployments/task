@@ -5,8 +5,10 @@ function main() {
   local latest_release_tag
   latest_release_tag=$(cat "${ROOT}/bbl-release/version")
 
+  ssh-keyscan github.com >> ~/.ssh/known_hosts
+  add_github_key
   pushd "${ROOT}/bosh-bootloader" > /dev/null
-    git fetch
+    git fetch --tags
     git checkout -B "bump-deployments-ci" "v${latest_release_tag}"
   popd > /dev/null
 
@@ -34,6 +36,15 @@ function main() {
 
     cp -r . ${ROOT}/bump-deployments-ci
   popd > /dev/null
+}
+
+function add_github_key() {
+  set +x
+  echo "${github_key}" > github_key
+  chmod 600 github_key
+  ssh-add github_key
+  rm -P github_key
+  set -x
 }
 
 main
