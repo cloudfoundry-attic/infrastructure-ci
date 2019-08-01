@@ -117,7 +117,7 @@ resources:
 - name: infrastructure-ci
   type: git
   source:
-    branch: master
+    branch: github-fix-test
     uri: https://github.com/cloudfoundry/infrastructure-ci.git
 
 - name: infrastructure-ci-bbl-states
