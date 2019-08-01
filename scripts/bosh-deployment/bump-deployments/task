@@ -41,12 +41,14 @@ function authorize_for_github() {
   set +x
   mkdir ~/.ssh
   eval `ssh-agent -s`
-  ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+  echo "${github_ssh_host_key}" >> ~/.ssh/known_hosts
 
   echo "${github_key}" > github_key
   chmod 600 github_key
   ssh-add github_key
   rm github_key
+
   set -x
 }
 

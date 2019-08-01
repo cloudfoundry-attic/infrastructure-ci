@@ -504,6 +504,7 @@ jobs:
       bbl-release: bbl-release-official
     params:
       github_key: ((cf_infra_bot_github_user.private_key))
+      github_ssh_host_key: ((github_ssh_host_key))
   - put: bump-deployments-ci
     resource: bosh-bootloader-bump-deployments-ci
     params:
