@@ -854,7 +854,7 @@ jobs:
     - task: build-binaries
       file: ci/scripts/bosh-bootloader/build-final-release/task.yml
       input_mapping:
-        bbl-version-final: version
+        bbl-version-final: sha-version
     - task: untar-builds
       file: ci/scripts/bosh-bootloader/setup-github-release/task.yml
     - task: prepare-bbl-dev-docker-workspace
