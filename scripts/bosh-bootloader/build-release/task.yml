@@ -20,4 +20,4 @@ params:
   TF_URL: "https://releases.hashicorp.com/terraform"
 
 run:
-  path: ci/scripts/bosh-bootloader/build-final-release/task
+  path: ci/scripts/bosh-bootloader/build-release/task
