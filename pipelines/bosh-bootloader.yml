@@ -15,9 +15,8 @@ groups:
   - bbl-aws-concourse
   - bbl-azure-concourse
   - validate-plan-patches
-  - patch
-  - minor
   - major
+  - minor
   - github-release
 
 - name: bump-deployments
@@ -141,7 +140,16 @@ resources:
     initial_version: 0.0.1
     driver: s3
     bucket: bbl-version
-    key: bbl-dev-version
+    key: bbl-version
+    access_key_id: ((aws_access_key_id))
+    secret_access_key: ((aws_secret_access_key))
+
+- name: version-bump-deployments
+  type: semver
+  source:
+    driver: s3
+    bucket: bbl-version
+    key: bbl-version-bump-deployments
     access_key_id: ((aws_access_key_id))
     secret_access_key: ((aws_secret_access_key))
 
@@ -495,7 +503,10 @@ jobs:
       trigger: true
     - get: jumpbox-deployment
       trigger: true
-  - put: version
+  - put: version-bump-deployments
+    params:
+      file: bbl-release-official/version
+  - put: version-bump-deployments
     params:
       bump: patch
   - task: bump-deployments
@@ -521,6 +532,9 @@ jobs:
       resource: bosh-bootloader-bump-deployments-ci
       passed: [bump-deployments]
       trigger: true
+    - get: version
+      resource: version-bump-deployments
+      passed: [bump-deployments]
   - task: test
     file: ci/scripts/bosh-bootloader/test-bosh-bootloader/task.yml
 
@@ -534,6 +548,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: version
+      resource: version-bump-deployments
+      passed: [test-bosh-bootloader-bump-deployments]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -591,6 +608,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: version
+      resource: version-bump-deployments
+      passed: [test-bosh-bootloader-bump-deployments]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -651,6 +671,9 @@ jobs:
     - get: ci
       resource: infrastructure-ci
       tags: [vsphere]
+    - get: version
+      resource: version-bump-deployments
+      passed: [test-bosh-bootloader-bump-deployments]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -689,6 +712,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: version
+      resource: version-bump-deployments
+      passed: [test-bosh-bootloader-bump-deployments]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -722,6 +748,9 @@ jobs:
       trigger: true
     - get: ci
       resource: infrastructure-ci
+    - get: version
+      resource: version-bump-deployments
+      passed: [test-bosh-bootloader-bump-deployments]
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -746,11 +775,11 @@ jobs:
       - get: bosh-bootloader
         resource: bosh-bootloader-bump-deployments-ci
         passed:
-          - aws-acceptance-tests-bump-deployments
-          - azure-acceptance-tests-bump-deployments
-          - gcp-acceptance-tests-bump-deployments
-          - vsphere-acceptance-tests-bump-deployments
-          - openstack-acceptance-tests-bump-deployments
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
       - get: ci
@@ -758,6 +787,14 @@ jobs:
       - get: bbl-dev
         resource: cf-deployment-concourse-tasks-bbl-dev-dockerfile
         trigger: true
+      - get: version
+        resource: version-bump-deployments
+        passed:
+        - aws-acceptance-tests-bump-deployments
+        - azure-acceptance-tests-bump-deployments
+        - gcp-acceptance-tests-bump-deployments
+        - vsphere-acceptance-tests-bump-deployments
+        - openstack-acceptance-tests-bump-deployments
     - task: generate-version-from-sha
       file: ci/scripts/bosh-bootloader/generate-version-from-sha/task.yml
     - task: download-terraform
@@ -1879,6 +1916,9 @@ jobs:
       resource: infrastructure-ci
     - get: ubuntu-xenial-stemcell-gcp
     - get: concourse-smoke-tests
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -1986,6 +2026,9 @@ jobs:
       resource: infrastructure-ci
     - get: ubuntu-xenial-stemcell-azure
     - get: concourse-smoke-tests
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2104,6 +2147,9 @@ jobs:
       resource: infrastructure-ci
     - get: ubuntu-xenial-stemcell-aws
     - get: concourse-smoke-tests
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2216,6 +2262,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2356,6 +2405,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2517,6 +2569,9 @@ jobs:
       resource: infrastructure-ci-bbl-states
     - get: vars-store
       resource: infrastructure-ci-bbl-states
+    - get: version
+      resource: version-bump-deployments
+      passed: [bbl-downstream-docker-image-bump-deployments]
   - task: bbl-leftovers
     file: ci/scripts/bosh-bootloader/leftovers/task.yml
     image: cf-deployment-concourse-tasks-bbl-dev
@@ -2750,10 +2805,7 @@ jobs:
       - bbl-gcp-cf
       - bbl-lite-gcp
       - validate-plan-patches
-  - get: bbl-version-final
-    resource: version
-    params:
-      bump: final
+  - get: version
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -2794,10 +2846,15 @@ jobs:
       - bbl-gcp-cf-bump-deployments
       - bbl-lite-gcp-bump-deployments
       trigger: true
-  - get: bbl-version-final
-    resource: version
-    params:
-      bump: patch
+    - get: version
+      resource: version-bump-deployments
+      passed:
+      - bbl-aws-concourse-bump-deployments
+      - bbl-gcp-concourse-bump-deployments
+      - bbl-azure-concourse-bump-deployments
+      - bbl-aws-cf-bump-deployments
+      - bbl-gcp-cf-bump-deployments
+      - bbl-lite-gcp-bump-deployments
   - task: download-terraform
     file: ci/scripts/bosh-bootloader/download-terraform/task.yml
     params:
@@ -2814,9 +2871,6 @@ jobs:
       body: github-release-assets/body
       globs:
       - github-release-assets/bin/bbl-*
-  - put: version
-    params:
-      bump: patch
 
 - name: merge-bump-deployments-change
   serial: true
@@ -2844,11 +2898,6 @@ jobs:
   plan:
   - put: version
     params: {bump: minor}
-
-- name: patch
-  plan:
-  - put: version
-    params: {bump: patch}
 
 - name: bump-nat-amis
   plan:
