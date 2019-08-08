@@ -1156,7 +1156,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bbl-aws-concourse
       BBL_ENV_NAME: bbl-aws-concourse
   - task: bbl-up
@@ -1166,7 +1166,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_ENV_NAME: bbl-aws-concourse
       BBL_STATE_DIR: bbl-aws-concourse
     input_mapping:
@@ -1255,7 +1255,7 @@ jobs:
         BBL_IAAS: aws
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-        BBL_AWS_REGION: us-west-2
+        BBL_AWS_REGION: ((aws_region))
         PLAN_PATCH_DIR: 1-az-aws
     - task: acm-aws
       file: ci/scripts/bosh-bootloader/validate-plan-patch/task.yml
@@ -1263,7 +1263,7 @@ jobs:
         BBL_IAAS: aws
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-        BBL_AWS_REGION: us-west-2
+        BBL_AWS_REGION: ((aws_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
         BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
@@ -1275,7 +1275,7 @@ jobs:
         BBL_IAAS: aws
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-        BBL_AWS_REGION: us-west-2
+        BBL_AWS_REGION: ((aws_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
         BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
@@ -1311,7 +1311,7 @@ jobs:
       params:
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-        BBL_AWS_REGION: us-west-2
+        BBL_AWS_REGION: ((aws_region))
         BBL_IAAS: aws
         PLAN_PATCH_DIR: cfcr-aws
     - task: cfcr-gcp
@@ -1327,7 +1327,7 @@ jobs:
         BBL_IAAS: aws
         BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
         BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-        BBL_AWS_REGION: us-west-2
+        BBL_AWS_REGION: ((aws_region))
         BBL_LB_TYPE: cf
         BBL_LB_DOMAIN: example.com
         BBL_LB_CERT: ((bbl_aws_cf_lb_cert.certificate))
@@ -1386,7 +1386,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bbl-aws-cf
       BBL_ENV_NAME: bbl-aws-cf
   - task: bbl-up
@@ -1396,7 +1396,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bbl-aws-cf
       BBL_ENV_NAME: bbl-aws-cf
       LB_DOMAIN: bbl-aws-cf.infrastructure.cf-app.com
@@ -2157,7 +2157,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
       BBL_ENV_NAME: bump-deployments-aws-concourse
   - task: bbl-up
@@ -2167,7 +2167,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_ENV_NAME: bump-deployments-aws-concourse
       BBL_STATE_DIR: bump-deployments/bbl-aws-concourse
     input_mapping:
@@ -2272,7 +2272,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
       BBL_ENV_NAME: bump-deployments-aws-cf
   - task: bbl-up
@@ -2282,7 +2282,7 @@ jobs:
       BBL_IAAS: aws
       BBL_AWS_SECRET_ACCESS_KEY: ((aws_secret_access_key))
       BBL_AWS_ACCESS_KEY_ID: ((aws_access_key_id))
-      BBL_AWS_REGION: us-west-2
+      BBL_AWS_REGION: ((aws_region))
       BBL_STATE_DIR: bump-deployments/bbl-aws-cf
       BBL_ENV_NAME: bump-deployments-aws-cf
       LB_DOMAIN: bbl-aws-cf-bump-deployments.infrastructure.cf-app.com
