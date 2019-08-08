@@ -510,7 +510,7 @@ jobs:
     params:
       bump: patch
   - task: bump-deployments
-    file: ci/scripts/bosh-deployment/bump-deployments/task.yml
+    file: ci/scripts/bosh-bootloader/bump-deployments/task.yml
     input_mapping:
       bbl-release: bbl-release-official
     params:
@@ -2883,8 +2883,8 @@ jobs:
       resource: bosh-bootloader-bump-deployments-ci
       passed: [github-release-bump-deployments]
       trigger: true
-  - task: merge-bosh-deployment-change
-    file: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task.yml
+  - task: merge-bump-deployments-change
+    file: ci/scripts/bosh-bootloader/merge-bump-deployments-change/task.yml
   - put: bosh-bootloader
     params:
       repository: bosh-bootloader
