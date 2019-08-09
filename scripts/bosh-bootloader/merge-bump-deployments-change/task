@@ -12,7 +12,6 @@ function main() {
     git checkout master
 
     if ! git merge --no-edit bump-deployments-ci ; then
-      git checkout --theirs bosh/deployment_files.go
       git checkout --theirs deployment-versions.txt
       git add .
       git commit -m "Merge branch 'bump-deployments-ci'."
