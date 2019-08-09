@@ -14,4 +14,4 @@ outputs:
 - name: bosh-bootloader
 
 run:
-  path: ci/scripts/bosh-deployment/commit-bosh-deployment-change/task
+  path: ci/scripts/bosh-deployment/merge-bump-deployments-change/task
