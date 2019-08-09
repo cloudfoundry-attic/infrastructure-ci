@@ -10,3 +10,7 @@
 
 Use the `./reconfigure PIPELINE_NAME` to `fly set-pipeline` with the
 necessary environment variables.
+
+## Design notes
+
+- [bosh-bootloader versioning](docs/bosh-bootloader-versioning.md)
