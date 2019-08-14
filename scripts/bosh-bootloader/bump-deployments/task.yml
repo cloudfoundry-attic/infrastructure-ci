@@ -17,4 +17,4 @@ outputs:
 - name: bump-deployments-ci
 
 run:
-  path: ci/scripts/bosh-deployment/bump-deployments/task
+  path: ci/scripts/bosh-bootloader/bump-deployments/task
