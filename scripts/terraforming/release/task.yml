@@ -13,8 +13,10 @@ inputs:
 outputs:
 - name: release
 
+# TODO: Remove IAAS param when the terraform projects have been removed
 params:
-  IAAS:
+  IAAS: # Deprecated in favor of RELEASE_NAME
+  RELEASE_NAME:
 
 run:
   path: ci/scripts/terraforming/release/task

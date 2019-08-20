@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 main() {
   commit_sha=$(git -C terraforming rev-parse HEAD)
@@ -7,7 +7,12 @@ main() {
   echo -n "${commit_sha}" > release/commitish
 
   rm -rf terraforming/ci terraforming/scripts terraforming/.envrc
-  tar cvzf "release/terraforming-${IAAS}-${version}.tar.gz" terraforming
+
+  if [ -z ${RELEASE_NAME} ]; then
+    RELEASE_NAME="terraforming-${IAAS}"
+  fi
+
+  tar cvzf "release/${release_name}-${version}.tar.gz" terraforming
 }
 
 main "$@"
