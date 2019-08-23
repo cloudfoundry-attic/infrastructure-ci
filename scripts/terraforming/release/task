@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -exu
 
 main() {
   commit_sha=$(git -C terraforming rev-parse HEAD)
@@ -12,7 +12,7 @@ main() {
     RELEASE_NAME="terraforming-${IAAS}"
   fi
 
-  tar cvzf "release/${release_name}-${version}.tar.gz" terraforming
+  tar cvzf "release/${RELEASE_NAME}-${version}.tar.gz" terraforming
 }
 
 main "$@"
