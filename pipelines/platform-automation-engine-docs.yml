@@ -6,19 +6,19 @@ resources:
 - name: docs-v1.0.0
   type: git
   source:
-    uri: git@github.com:pivotal/control-plane-docs
+    uri: git@github.com:pivotal/platform-automation-engine-docs
     branch: v1.0.0
     private_key: ((docs-github-deploy-key.private_key))
 - name: docs-v0.0.37
   type: git
   source:
-    uri: git@github.com:pivotal/control-plane-docs
+    uri: git@github.com:pivotal/platform-automation-engine-docs
     branch: v0.0.37
     private_key: ((docs-github-deploy-key.private_key))
 - name: docs-develop
   type: git
   source:
-    uri: git@github.com:pivotal/control-plane-docs
+    uri: git@github.com:pivotal/platform-automation-engine-docs
     branch: develop
     private_key: ((docs-github-deploy-key.private_key))
 - name: docs-app
@@ -60,12 +60,12 @@ jobs:
             '--output-dir', './cf-app',
             '--docs-dir', '.',
             '--docs-prefix', 'docs',
-            '--site-prefix', 'control-plane',
+            '--site-prefix', 'platform-automation-engine',
             '--domains', 'docs.pivotal.io'
             ]
     - put: docs-app
       params:
         manifest: cf-app/manifest.yml
         path: cf-app
-        current_app_name: control-plane-docs
+        current_app_name: platform-automation-engine-docs
         show_app_log: true
