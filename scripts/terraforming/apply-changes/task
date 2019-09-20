@@ -2,18 +2,18 @@
 
 source ./cp-ci/ci/tasks/configure-vpn
 
-trap "{ kill_vpn }" EXIT ERR
-
 function set_opsman_dns() {
   metadata="${PWD}/env-state/metadata"
-  opsman_dns=$(yq -r .ops_manager_dns < "${metadata}")
+  opsman_dns=$(jq -r .ops_manager_dns < "${metadata}")
   # if yq failed then it means we might be setting dns for vsphere
   if [[ "${opsman_dns}" == "null" ]]; then
-    opsman_dns=$(yq -r .opsman.hostname < "${metadata}")
+    opsman_dns=$(jq -r .opsman.hostname < "${metadata}")
   fi
 }
 
 function main() {
+  trap kill_vpn RETURN
+
   set_opsman_dns
   om -t "https://${opsman_dns}" -k apply-changes -i ${IGNORE_WARNINGS}
 }
