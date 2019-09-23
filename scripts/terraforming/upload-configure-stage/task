@@ -10,10 +10,10 @@ function set_opsman_dns() {
 }
 
 function main() {
-if [ -n "${USE_VPN:-}" ] && [ "$USE_VPN" == "true" ] ; then
-  source ./cp-ci/ci/tasks/configure-vpn
-  trap kill_vpn RETURN
-fi
+  if [ -n "${USE_VPN:-}" ] && [ "$USE_VPN" == "true" ] ; then
+    source ./cp-ci/ci/tasks/configure-vpn
+    trap kill_vpn RETURN
+  fi
 
   cwd=${PWD}
 
