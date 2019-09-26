@@ -23,8 +23,9 @@ RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && \
   chmod +x /usr/local/bin/jq
 
 # Install om
-RUN wget "https://github.com/pivotal-cf/om/releases/download/$(curl -s https://api.github.com/repos/pivotal-cf/om/releases | jq -r '.[0].name' | tr -d "v")/om-linux" && \
-  mv om-linux /usr/local/bin/om && \
+RUN version=$(curl -s https://api.github.com/repos/pivotal-cf/om/releases | jq -r '.[0].name' | tr -d "v") && \
+  wget "https://github.com/pivotal-cf/om/releases/download/${version}/om-linux-${version}" && \
+  mv om-linux-${version} /usr/local/bin/om && \
   chmod +x /usr/local/bin/om
 
 # Install texplate
