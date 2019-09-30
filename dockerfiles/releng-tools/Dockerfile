@@ -14,6 +14,7 @@ RUN \
             curl \
             lsb-release \
             gnupg \
+            ruby-dev \
       && \
       apt-get clean
 
@@ -57,3 +58,6 @@ RUN pip install yq
 RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_CLI_VERSION}/credhub-linux-${CREDHUB_CLI_VERSION}.tgz && \
   tar -xzvf credhub-linux-${CREDHUB_CLI_VERSION}.tgz -C /usr/local/bin && \
   chmod +x /usr/local/bin/credhub
+
+### Install uaac
+RUN gem install cf-uaac
