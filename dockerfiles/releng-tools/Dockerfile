@@ -4,6 +4,7 @@ MAINTAINER https://github.com/cloudfoundry/infrastructure-ci
 ENV TERRAFORM_VERSION 0.11.7
 ENV BOSH_CLI_VERSION 5.1.2
 ENV CREDHUB_CLI_VERSION 2.5.0
+ENV UAA_CLI_VERSION 0.8.0
 
 RUN \
       apt-get update && \
@@ -14,7 +15,6 @@ RUN \
             curl \
             lsb-release \
             gnupg \
-            ruby-dev \
       && \
       apt-get clean
 
@@ -60,4 +60,6 @@ RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download
   chmod +x /usr/local/bin/credhub
 
 ### Install uaac
-RUN gem install cf-uaac
+RUN wget https://github.com/cloudfoundry-incubator/uaa-cli/releases/download/${UAA_CLI_VERSION}/uaa-linux-amd64-${UAA_CLI_VERSION} && \
+  mv uaa-linux-amd64-${UAA_CLI_VERSION} /usr/local/bin/uaa && \
+  chmod +x /usr/local/bin/uaa
