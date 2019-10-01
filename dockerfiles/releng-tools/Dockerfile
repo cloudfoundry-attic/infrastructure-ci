@@ -15,6 +15,7 @@ RUN \
             curl \
             lsb-release \
             gnupg \
+            dnsutils \
       && \
       apt-get clean
 
@@ -53,6 +54,9 @@ RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION
 
 # Install yq
 RUN pip install yq
+
+# Install aws cli
+RUN pip install -U awscli
 
 #Install credhub
 RUN wget https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_CLI_VERSION}/credhub-linux-${CREDHUB_CLI_VERSION}.tgz && \
