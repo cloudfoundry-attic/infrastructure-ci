@@ -878,7 +878,7 @@ jobs:
           - azure-acceptance-tests
           - gcp-acceptance-tests
           - vsphere-acceptance-tests
-          - openstack-acceptance-tests
+          # - openstack-acceptance-tests
       - get: cf-deployment-concourse-tasks-docker-image
       - get: ci
         resource: infrastructure-ci
