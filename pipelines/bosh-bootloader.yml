@@ -779,7 +779,6 @@ jobs:
         - azure-acceptance-tests-bump-deployments
         - gcp-acceptance-tests-bump-deployments
         - vsphere-acceptance-tests-bump-deployments
-        - openstack-acceptance-tests-bump-deployments
         trigger: true
       - get: cf-deployment-concourse-tasks-docker-image
       - get: ci
@@ -794,7 +793,6 @@ jobs:
         - azure-acceptance-tests-bump-deployments
         - gcp-acceptance-tests-bump-deployments
         - vsphere-acceptance-tests-bump-deployments
-        - openstack-acceptance-tests-bump-deployments
     - task: generate-version-from-sha
       file: ci/scripts/bosh-bootloader/generate-version-from-sha/task.yml
     - task: download-terraform
