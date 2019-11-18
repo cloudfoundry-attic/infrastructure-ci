@@ -4,7 +4,6 @@
 - bbl-latest
 - socks5-proxy
 - leftovers
-- az-automation (cli for creating an azure service principal)
 
 ## Reconfigure
 
